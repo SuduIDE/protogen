@@ -15,8 +15,8 @@ tasks.test {
 
 allprojects {
 
-    group = "org.sudu"
-    version = "0.1"
+    group = "io.github.suduide"
+    version = System.getenv("RELEASE_VERSION") ?: "0.0.1"
 
     apply(plugin = "java-library")
     apply(plugin = "test-report-aggregation")
