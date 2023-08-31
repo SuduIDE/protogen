@@ -27,6 +27,12 @@ enum GrpcTaskStatus {
   option (.protogen.custom_enum) = "org.sudu.protogen.test.general.TaskStatus";
 }
 
+enum GrpcEnum {
+  EN_CREATED = 0;
+  EN_EXECUTING = 1;
+  EN_FINISHED = 2;
+}
+
 message GrpcTask {
   GrpcTaskId id = 1;
   GrpcTaskStatus status = 2;
