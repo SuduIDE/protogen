@@ -45,23 +45,15 @@ allprojects {
 }
 
 fun configurePublishedProject(project: Project) {
-    project.java {
-        withJavadocJar()
-        withSourcesJar()
-    }
-
     project.tasks.withType<Javadoc>() {
         options {
             (this as CoreJavadocOptions).addStringOption("Xdoclint:none", "-quiet")
         }
     }
 
-    project.signing {
-        sign(publishing.publications)
-    }
+    project.apply(plugin = "signing")
 
     project.publishing {
-        publications.withType<MavenPublication>().forEach() { configureMavenPublication(it) }
         repositories {
             maven {
                 name = "ghPackages"
@@ -81,42 +73,4 @@ fun configurePublishedProject(project: Project) {
             }
         }
     }
-}
-
-
-fun configureMavenPublication(publication: MavenPublication) {
-    publication.pom {
-        url = "https://github.com/SuduIDE/protogen"
-        organization {
-            name = "com.github.SuduIDE"
-            url = "https://github.com/SuduIDE"
-        }
-        issueManagement {
-            system = "GitHub"
-            url = "https://github.com/SuduIDE/protogen/issues"
-        }
-        licenses {
-            license {
-                name = "The Apache License, Version 2.0"
-                url = "https://www.apache.org/licenses/LICENSE-2.0.txt"
-            }
-        }
-        scm {
-            url = "https://github.com/SuduIDE/protogen"
-            connection = "scm:https://github.com/SuduIDE/protogen.git"
-            developerConnection = "scm:git://github.com/SuduIDE/protogen.git"
-        }
-        developers {
-            developer {
-                id = "Duzhinsky"
-                name = "Dmitrii Duzhinskii"
-                email = "dduzhinsky@ya.ru"
-            }
-        }
-    }
-
-    publication.groupId = project.group.toString()
-    publication.version = project.version.toString()
-    publication.artifact(tasks.findByName("sourcesJar"))
-    publication.artifact(tasks.findByName("javadocJar"))
 }

@@ -4,14 +4,55 @@ plugins {
     id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+signing {
+    sign(publishing.publications)
+}
+
 publishing {
     publications {
         create<MavenPublication>("maven") {
             pom {
                 description = "protoc plugin of protogen"
                 name = "protoc-gen-protogen"
+                url = "https://github.com/SuduIDE/protogen"
+                organization {
+                    name = "com.github.SuduIDE"
+                    url = "https://github.com/SuduIDE"
+                }
+                issueManagement {
+                    system = "GitHub"
+                    url = "https://github.com/SuduIDE/protogen/issues"
+                }
+                licenses {
+                    license {
+                        name = "The Apache License, Version 2.0"
+                        url = "https://www.apache.org/licenses/LICENSE-2.0.txt"
+                    }
+                }
+                scm {
+                    url = "https://github.com/SuduIDE/protogen"
+                    connection = "scm:https://github.com/SuduIDE/protogen.git"
+                    developerConnection = "scm:git://github.com/SuduIDE/protogen.git"
+                }
+                developers {
+                    developer {
+                        id = "Duzhinsky"
+                        name = "Dmitrii Duzhinskii"
+                        email = "dduzhinsky@ya.ru"
+                    }
+                }
             }
+
+            groupId = project.group.toString()
             artifactId = "protoc-gen-protogen"
+            version = project.version.toString()
+            artifact(tasks.findByName("sourcesJar"))
+            artifact(tasks.findByName("javadocJar"))
             artifact(tasks.shadowJar) {
                 classifier = "jvm"
             }
