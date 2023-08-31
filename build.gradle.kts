@@ -1,6 +1,8 @@
 plugins {
     `java-library`
     `test-report-aggregation`
+    `maven-publish`
+    signing
 }
 
 val testReportTask = tasks.register<TestReport>("testReport") {
@@ -34,4 +36,81 @@ allprojects {
     tasks.test {
         useJUnitPlatform()
     }
+
+    project.afterEvaluate {
+        if (project.plugins.hasPlugin("maven-publish")) {
+            configurePublishedProject(this)
+        }
+    }
+}
+
+fun configurePublishedProject(project: Project) {
+    project.java {
+        withJavadocJar()
+        withSourcesJar()
+    }
+
+    project.signing {
+        sign(publishing.publications)
+    }
+
+    project.publishing {
+        publications.withType<MavenPublication>().forEach() { configureMavenPublication(it) }
+        repositories {
+            maven {
+                name = "ghPackages"
+                url = uri("https://maven.pkg.github.com/SuduIDE/protogen")
+                credentials {
+                    username = System.getenv("GITHUB_ACTOR")
+                    password = System.getenv("GITHUB_TOKEN")
+                }
+            }
+            maven {
+                name = "sonatype"
+                url = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2")
+                credentials {
+                    username = System.getenv("SONATYPE_USERNAME")
+                    password = System.getenv("SONATYPE_PASSWORD")
+                }
+            }
+        }
+    }
+}
+
+
+fun configureMavenPublication(publication: MavenPublication) {
+    publication.pom {
+        url = "https://github.com/SuduIDE/protogen"
+        organization {
+            name = "com.github.SuduIDE"
+            url = "https://github.com/SuduIDE"
+        }
+        issueManagement {
+            system = "GitHub"
+            url = "https://github.com/SuduIDE/protogen/issues"
+        }
+        licenses {
+            license {
+                name = "The Apache License, Version 2.0"
+                url = "https://www.apache.org/licenses/LICENSE-2.0.txt"
+            }
+        }
+        scm {
+            url = "https://github.com/SuduIDE/protogen"
+            connection = "scm:https://github.com/SuduIDE/protogen.git"
+            developerConnection = "scm:git://github.com/SuduIDE/protogen.git"
+        }
+        developers {
+            developer {
+                id = "Duzhinsky"
+                name = "Dmitrii Duzhinskii"
+                email = "dduzhinsky@ya.ru"
+            }
+        }
+    }
+
+    publication.groupId = project.group.toString()
+    publication.version = project.version.toString()
+    publication.artifact(tasks.findByName("sourcesJar"))
+    publication.artifact(tasks.findByName("javadocJar"))
 }

@@ -7,7 +7,7 @@ public class Name {
     /**
      * Adjust a class generatedName to follow the JavaBean spec.
      * - capitalize the first letter
-     * - remove embedded underscores & capitalize the following letter
+     * - remove embedded underscores and capitalize the following letter
      * - capitalize letter after a number
      *
      * @param name method generatedName
