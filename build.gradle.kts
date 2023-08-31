@@ -50,6 +50,12 @@ fun configurePublishedProject(project: Project) {
         withSourcesJar()
     }
 
+    project.tasks.withType<Javadoc>() {
+        options {
+            (this as CoreJavadocOptions).addStringOption("Xdoclint:none", "-quiet")
+        }
+    }
+
     project.signing {
         sign(publishing.publications)
     }

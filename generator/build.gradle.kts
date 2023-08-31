@@ -9,14 +9,19 @@ publishing {
         create<MavenPublication>("maven") {
             pom {
                 description = "protoc plugin of protogen"
-                name = "protogen-engine"
+                name = "protoc-gen-protogen"
             }
-            artifactId = "protogen-engine"
+            artifactId = "protoc-gen-protogen"
             artifact(tasks.shadowJar) {
                 classifier = "jvm"
             }
         }
     }
+}
+
+tasks.shadowJar {
+    archiveClassifier = "jvm"
+    manifest.attributes["Main-Class"] = "org.sudu.protogen.protoc.Main"
 }
 
 dependencies {

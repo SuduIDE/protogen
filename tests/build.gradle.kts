@@ -1,20 +1,8 @@
 import com.google.protobuf.gradle.id
 
-@Suppress("DSL_SCOPE_VIOLATION") // Remove once KTIJ-19369 is fixed
 plugins {
     java
     id("com.google.protobuf") version "0.9.1"
-}
-
-/**
- * As protobuf plugin accepts either path we can't determine or string artifact, there is a need to connect
- * string-artifacts with project(":protogen:generator")
- * i.e. `artifact = project(":protogen:generator")` doesn't work without that configuration
- */
-configurations.all {
-    resolutionStrategy.dependencySubstitution {
-        substitute(module("org.sudu:protogen-generator")).using(project(":generator"))
-    }
 }
 
 protobuf {
@@ -26,14 +14,15 @@ protobuf {
             artifact = "io.grpc:protoc-gen-grpc-java:1.51.0"
         }
         id("protogen") {
-            artifact = "org.sudu:protogen-generator:+:jdk@jar"
+            path = "${project(":generator").buildDir.absolutePath}/libs/generator-${version}-jvm.jar"
         }
     }
     generateProtoTasks {
-        all().forEach { task ->
-            run {
-                task.dependsOn(":generator:build")
-                task.plugins { id("grpc"); id("protogen") }
+        all().forEach {
+            it.dependsOn(project(":generator").tasks.findByName("shadowJar"))
+            it.plugins {
+                id("grpc")
+                id("protogen")
             }
         }
     }
