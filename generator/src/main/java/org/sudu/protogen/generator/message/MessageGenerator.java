@@ -44,6 +44,7 @@ public class MessageGenerator {
         boolean annotateNotNull = msgDescriptor.getContainingFile().doUseNullabilityAnnotation(false);
 
         return typeBuilder
+                .multiLineRecord(true)
                 .addModifiers(Modifier.PUBLIC)
                 .addTypes(generateNested())
                 .addMethod(new FromGrpcMethodGenerator(generationContext, generatedType(), protoType(), processedFields, annotateNotNull).generate())
