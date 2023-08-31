@@ -1,3 +1,11 @@
+### About the fork
+Due to lack of maintence at square/javapoet I created the fork to support new features and to fit generated code to my point of view
+
+List of changes:
+
+* merged record support from [#840 - Record support](https://github.com/square/javapoet/pull/840)
+
+
 JavaPoet
 ========
 
@@ -6,6 +14,7 @@ JavaPoet
 Source file generation can be useful when doing things such as annotation processing or interacting
 with metadata files (e.g., database schemas, protocol formats). By generating code, you eliminate
 the need to write boilerplate while also keeping a single source of truth for the metadata.
+
 
 ### Example
 
@@ -468,7 +477,7 @@ CodeBlock.builder().add("I ate $L $L", 3, "tacos")
 #### Positional Arguments
 
 Place an integer index (1-based) before the placeholder in the format string to specify which
-argument to use.
+ argument to use.
 
 ```java
 CodeBlock.builder().add("I ate $2L $1L", "tacos", 3)
@@ -769,6 +778,7 @@ constructor. In the above code we're passing the empty string for no arguments:
 `TypeSpec.anonymousClassBuilder("")`. To pass different parameters use JavaPoet's code block
 syntax with commas to separate arguments.
 
+
 ### Annotations
 
 Simple annotations are easy:
@@ -886,7 +896,6 @@ Download
 --------
 
 Download [the latest .jar][dl] or depend via Maven:
-
 ```xml
 <dependency>
   <groupId>com.squareup</groupId>
@@ -894,9 +903,7 @@ Download [the latest .jar][dl] or depend via Maven:
   <version>1.13.0</version>
 </dependency>
 ```
-
 or Gradle:
-
 ```groovy
 compile 'com.squareup:javapoet:1.13.0'
 ```
@@ -922,6 +929,8 @@ License
     See the License for the specific language governing permissions and
     limitations under the License.
 
+
+
 JavaWriter
 ==========
 
@@ -933,16 +942,10 @@ top-to-bottom in a single pass, a file can be assembled as a tree of declaration
 JavaWriter continues to be available in [GitHub][javawriter] and [Maven Central][javawriter_maven].
 
 
-[dl]: https://search.maven.org/remote_content?g=com.squareup&a=javapoet&v=LATEST
-
-[snap]: https://oss.sonatype.org/content/repositories/snapshots/com/squareup/javapoet/
-
-[javadoc]: https://square.github.io/javapoet/1.x/javapoet/
-
-[javawriter]: https://github.com/square/javapoet/tree/javawriter_2
-
-[javawriter_maven]: https://search.maven.org/#artifactdetails%7Ccom.squareup%7Cjavawriter%7C2.5.1%7Cjar
-
-[formatter]: https://developer.android.com/reference/java/util/Formatter.html
-
-[modifier]: https://docs.oracle.com/javase/8/docs/api/javax/lang/model/element/Modifier.html
+ [dl]: https://search.maven.org/remote_content?g=com.squareup&a=javapoet&v=LATEST
+ [snap]: https://oss.sonatype.org/content/repositories/snapshots/com/squareup/javapoet/
+ [javadoc]: https://square.github.io/javapoet/1.x/javapoet/
+ [javawriter]: https://github.com/square/javapoet/tree/javawriter_2
+ [javawriter_maven]: https://search.maven.org/#artifactdetails%7Ccom.squareup%7Cjavawriter%7C2.5.1%7Cjar
+ [formatter]: https://developer.android.com/reference/java/util/Formatter.html
+ [modifier]: https://docs.oracle.com/javase/8/docs/api/javax/lang/model/element/Modifier.html
