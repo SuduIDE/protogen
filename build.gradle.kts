@@ -1,5 +1,16 @@
 plugins {
-    `java`
+    `java-library`
+    `test-report-aggregation`
+}
+
+val testReportTask = tasks.register<TestReport>("testReport") {
+    dependsOn("testAggregateTestReport")
+    destinationDir = file("$buildDir/reports/tests/unit-test/aggregated-results")
+    reportOn(subprojects.mapNotNull { it.tasks.findByPath("test") })
+}
+
+tasks.test {
+    finalizedBy(testReportTask)
 }
 
 allprojects {
@@ -8,6 +19,7 @@ allprojects {
     version = "0.1"
 
     apply(plugin = "java-library")
+    apply(plugin = "test-report-aggregation")
 
     repositories {
         mavenCentral()
