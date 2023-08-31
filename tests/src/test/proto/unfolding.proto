@@ -1,0 +1,59 @@
+syntax = "proto3";
+
+package org.sudu.protogen.test.unfolding;
+
+import "protogen/options.proto";
+
+option java_multiple_files = true;
+option (.protogen.enable) = true;
+
+message GrpcId {
+  int32 id = 1;
+  option (.protogen.unfold) = true;
+}
+
+message GrpcOptionalId {
+  optional int32 optionalId = 1;
+  option (.protogen.unfold) = true;
+}
+
+message GrpcRepeatedId {
+  repeated int32 repeatedId = 1;
+  option (.protogen.unfold) = true;
+}
+
+message GrpcNamedId {
+  int32 id = 1 [(.protogen.field_name) = "idName"];
+  option (.protogen.unfold) = true;
+}
+
+message GrpcGeneratedId {
+  string id = 1;
+  option (.protogen.unfold) = true;
+  option (.protogen.gen_message) = true;
+}
+
+message GrpcGeneratedIdConsumer {
+  GrpcGeneratedId genId = 1;
+}
+
+message GrpcDomain {
+  GrpcId id = 1;
+  GrpcOptionalId optionalId = 2;
+  GrpcRepeatedId repeatedId = 3;
+  GrpcNamedId namedId = 4;
+}
+
+message GrpcOptionalDomain {
+  optional GrpcId id = 1;
+  optional GrpcOptionalId optionalId = 2;
+  optional GrpcRepeatedId repeatedId = 3;
+  optional GrpcNamedId namedId = 4;
+}
+
+message GrpcNamedDomain {
+  GrpcId id = 1 [(.protogen.field_name) = "id1"];
+  GrpcOptionalId optionalId = 2 [(.protogen.field_name) = "id2"];
+  GrpcRepeatedId repeatedId = 3 [(.protogen.field_name) = "id3"];
+  GrpcNamedId namedId = 4 [(.protogen.field_name) = "id4"];
+}

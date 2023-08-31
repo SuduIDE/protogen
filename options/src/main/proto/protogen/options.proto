@@ -1,0 +1,149 @@
+syntax = "proto3";
+
+package protogen;
+
+import "google/protobuf/descriptor.proto";
+
+option java_multiple_files = false;
+
+// A container for repeated fields
+enum RepeatedContainer {
+  // java.util.List; collects using Collectors.toList()
+  LIST = 0;
+  // java.util.Set; collects using Collectors.toSet()
+  SET = 1;
+}
+
+extend google.protobuf.FileOptions {
+  // Asks protogen to generate the whole content of the file excluding *Request/*Response messages
+  bool enable = 5000;
+  /*
+   * Specifies the package to place generated classes. By default it's the proto package without ".grpc"
+   *
+   * ex: option (protogen.pkg) = "org.sudu.api.computeengine";
+   */
+  string pkg = 5001;
+  /*
+   * For those who don't like @NotNull annotations
+   */
+  bool disable_notnull = 5002;
+}
+
+extend google.protobuf.MessageOptions {
+  // Says Protogen whether generation of a message is required. Overrides other generation settings
+  bool gen_message = 5101;
+  /*
+   * Unfolding is a mechanism to unwrap one-field messages. Set `(protogen.unfold) = true` to
+   * activate it. Domain objects for such messages are not generated automatically.
+   * However, you could set `(protogen.gen_message) = true` if you want to.
+   *
+   * SEE EXAMPLES IN ${projectRoot}/protogen/DOCS.md
+   */
+  bool unfold = 5102;
+  /*
+   * Sets generated message name. `Grpc` prefix is not required.
+   *
+   * Ex: option (protogen.message_name) = "Instance";
+   */
+  string message_name = 5103;
+  /*
+   * Sometimes, the expected code is out-of-scope of the generator. In such cases generation should be disabled.
+   * However, if option `(protogen.gen_message)` is set to false, it wouldn't be possible to cross-reference a domain class in generated code.
+   * So, to provide the tool with such information the `(protogen.custom_class)` option is used. Specify the
+   * fully-qualified name of the manually-written class as a parameter.
+   *
+   * Ex: option (protogen.custom_class) = "org.sudu.api.computeengine.BatchInfo";
+   */
+  string custom_class = 5104;
+}
+
+extend google.protobuf.EnumOptions {
+  // Says Protogen whether generation of an enum is required. Overrides other generation settings
+  bool gen_enum = 5201;
+  /*
+   * Sets generated enum name. `Grpc` prefix is not required.
+   *
+   * Ex: option (protogen.enum_name) = "TaskStatus";
+   */
+  string enum_name = 5202;
+  /*
+   * Sometimes, the expected code is out-of-scope of the generator. In such cases generation should be disabled.
+   * However, if option `(protogen.gen_message)` is set to false, it wouldn't be possible to cross-reference a domain class in generated code.
+   * So, to provide the tool with such information the `(protogen.custom_class)` option is used. Specify the
+   * fully-qualified name of the manually-written class as a parameter.
+   *
+   * Ex: option (protogen.custom_class) = "org.sudu.api.computeengine.BatchInfo";
+   */
+  string custom_enum = 5203;
+}
+
+extend google.protobuf.EnumValueOptions {
+  /*
+   * Overrides the name of an enum value.
+   *
+   * Ex:
+   * enum GrpcA {
+   *    aVal = 0 [(protogen.enum_val_name) = "aValue"];
+   * }
+   */
+  string enum_val_name = 5251;
+  /*
+   * If enabled, the domain object won't contain the value and will throw an exception when the value
+   * is passed to the fromGrpc method
+   */
+  bool unused_enum_val = 5252;
+}
+
+extend google.protobuf.FieldOptions {
+  /*
+   * Overrides the name of a message value.
+   *
+   * Ex:
+   * message GrpcA {
+   *    int32 aVal = 0 [(protogen.field_name) = "aValue"];
+   * }
+   */
+  string field_name = 5302;
+  /*
+   * Specifies a container for a repeated field.
+   */
+  RepeatedContainer repeated_container = 5303;
+  /*
+   * Marks a field as not a part of a domain object.
+   */
+  bool unused_field = 5304;
+}
+
+extend google.protobuf.ServiceOptions {
+  // Says Protogen whether generation of a service (client) is required. Overrides other generation settings
+  bool gen_service = 5401;
+  /*
+   * Sets generated client name. Use it to override default behavior described in ${projectRoot}/protogen/DOCS.md
+   *
+   * Ex: option (protogen.service_name) = "BaseComputeEngineClient";
+   */
+  string service_name = 5402;
+  // If enabled, the generated client will be abstract
+  bool abstract = 5403;
+}
+
+
+extend google.protobuf.MethodOptions {
+  // Says Protogen whether generation of a service (client) is required. Overrides other generation settings
+  bool gen_method = 5501;
+  // If enabled, applies field unfolding for request parameters even if input is a domain object
+  bool unfold_request = 5502;
+  // Annotates method with @Nullable and wraps response into nullifyIfNotFound method of BaseGrpcClient
+  bool nullable = 5503;
+  // If method is output-streaming, collects its output into java.util.List using spliterator -> toList
+  bool stream_to_list = 5504;
+  /*
+   * Sets generated Method name.
+   *
+   * Ex:
+   * rpc someMethod(google.protobuf.Empty) returns (google.protobuf.Empty) {
+   *  option (protogen.method_name) = "anotherName";
+   * }
+   */
+  string method_name = 5505;
+}

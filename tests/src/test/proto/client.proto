@@ -1,0 +1,98 @@
+syntax = "proto3";
+
+package org.sudu.protogen.test.client;
+
+import "google/protobuf/empty.proto";
+import "protogen/options.proto";
+
+option java_multiple_files = true;
+option (.protogen.enable) = true;
+
+message GrpcDomainId {
+  int32 id = 1;
+  option (.protogen.unfold) = true;
+}
+
+message GrpcDomain {
+  GrpcDomainId id = 1;
+  string domainName = 2;
+}
+
+message GrpcOneFieldResponse {
+  string field = 1;
+}
+
+message GrpcDomainResponse {
+  GrpcDomain domain = 1;
+}
+
+message GrpcMultiFieldResponse {
+  string f1 = 1;
+  int32 f2 = 2;
+
+  option (.protogen.gen_message) = true; // more than 1 field
+}
+
+message GrpcVoidResponse {
+}
+
+message GrpcMultiFieldRequest {
+  string r1 = 1;
+  string r2 = 2;
+}
+
+message GrpcGeneratedRequest {
+  string r1 = 1;
+  string r2 = 2;
+
+  option (.protogen.gen_message) = true;
+}
+
+service SomeService {
+
+  rpc dontGen(GrpcMultiFieldRequest) returns (GrpcVoidResponse) {
+    option (.protogen.gen_method) = false;
+  }
+
+  rpc commonVoid(GrpcMultiFieldRequest) returns (GrpcVoidResponse);
+  rpc commonEmpty(google.protobuf.Empty) returns (google.protobuf.Empty);
+  rpc commonMulti(GrpcMultiFieldRequest) returns (GrpcDomain);
+  rpc commonMultiNullable(GrpcMultiFieldRequest) returns (GrpcDomain) {
+    option (.protogen.nullable) = true;
+  }
+  rpc commonUnfolded(GrpcMultiFieldRequest) returns (GrpcDomainId);
+  rpc commonOneField(GrpcMultiFieldRequest) returns (GrpcOneFieldResponse);
+  rpc commonGeneratedRequest(GrpcGeneratedRequest) returns (GrpcOneFieldResponse);
+  rpc commonGeneratedRequestUnfold(GrpcGeneratedRequest) returns (GrpcOneFieldResponse) {
+    option (.protogen.unfold_request) = true;
+  }
+
+  rpc streamVoid(google.protobuf.Empty) returns (stream GrpcVoidResponse);
+  rpc streamOneField(google.protobuf.Empty) returns (stream GrpcOneFieldResponse);
+  rpc streamDomain(google.protobuf.Empty) returns (stream GrpcDomainResponse);
+  rpc streamDomainList(google.protobuf.Empty) returns (stream GrpcDomainResponse) {
+    option (.protogen.stream_to_list) = true;
+  }
+  rpc streamMulti(google.protobuf.Empty) returns (stream GrpcMultiFieldResponse);
+}
+
+service AbstractService {
+
+  rpc getDomain(GrpcDomainId) returns (GrpcDomain);
+
+  option (.protogen.abstract) = true;
+}
+
+service DontGenService {
+
+  rpc getDomain(GrpcDomainId) returns (GrpcDomain);
+
+  option (.protogen.gen_service) = false;
+}
+
+service NamedService {
+
+  rpc getDomain(GrpcDomainId) returns (GrpcDomain);
+
+  option (.protogen.service_name) = "ImNamed";
+}

@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package org.sudu.protogen.test.naming;
+
+import "protogen/options.proto";
+
+option java_multiple_files = true;
+option (.protogen.enable) = true;
+
+message GrpcDomain {
+  int32 a = 1;
+}
+
+message GrpcNamed {
+  int32 b = 1;
+  string n = 2 [(.protogen.field_name) = "namedString"];
+  option (.protogen.message_name) = "NewName";
+}
+
+service NamingTestService {
+
+  rpc testMethod(GrpcDomain) returns (GrpcNamed);
+}
+
+service NamedService {
+
+  rpc testMethod(GrpcDomain) returns (GrpcNamed) {
+    option (.protogen.method_name) = "overriddenMethodName";
+  }
+
+  option (.protogen.service_name) = "BaseNamingClient";
+}

@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package org.sudu.protogen.test.general;
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+import "protogen/options.proto";
+
+option java_multiple_files = true;
+option (.protogen.enable) = true;
+
+message GrpcTaskId {
+  string uuid = 1;
+  option (.protogen.unfold) = true;
+}
+
+message GrpcBatchId {
+  string uuid = 1 [(.protogen.field_name) = "taskId"];
+  option (.protogen.unfold) = true;
+}
+
+enum GrpcTaskStatus {
+  CREATED = 0;
+  EXECUTING = 1;
+  FINISHED = 2;
+
+  option (.protogen.custom_enum) = "org.sudu.protogen.test.general.TaskStatus";
+}
+
+message GrpcTask {
+  GrpcTaskId id = 1;
+  GrpcTaskStatus status = 2;
+  google.protobuf.Timestamp createdAt = 3;
+  optional string context = 4;
+}
+
+message GrpcTasksBatch {
+  GrpcBatchId id = 1;
+  repeated GrpcTask tasks = 2 [(.protogen.repeated_container) = SET];
+}

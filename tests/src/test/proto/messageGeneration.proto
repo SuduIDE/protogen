@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package org.sudu.protogen.test.messageGeneration;
+
+import "protogen/options.proto";
+
+option java_multiple_files = true;
+option (.protogen.enable) = true;
+
+message GrpcDomain {
+  int32 a = 1;
+  int32 b = 2;
+}
+
+message GrpcDontGen {
+  int32 a = 1;
+
+  option (.protogen.gen_message) = false;
+}
+
+message GrpcCustom {
+  int32 a = 1;
+
+  option (.protogen.custom_class) = "org.sudu.protogen.test.messageGeneration.CustomImpl";
+}
+
+message GrpcCustomConsumer {
+  GrpcCustom custom = 2;
+}
+
+message GrpcWithOnlyUnusedField {
+  string a = 1 [(.protogen.unused_field) = true];
+}
+
+message GrpcWithUnusedField {
+  string a = 1;
+  int32 b = 2 [(.protogen.unused_field) = true];
+}
