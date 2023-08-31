@@ -1,6 +1,9 @@
 name: Publish packages
 
-on: [ release ]
+on:
+  release:
+    types:
+      - published
 
 jobs:
   publish:
@@ -22,9 +25,9 @@ jobs:
           gpg --quiet --batch --yes --decrypt --passphrase="${{secrets.MVN_GPG_PASS}}" \
           --output secret.gpg publish_key.gpg
       - name: Get release version
-        run: |
-          echo "name=RELEASE_VERSION::${GITHUB_REF:11}" >> "$GITHUB_ENV"
-          echo "Using version $RELEASE_VERSION"
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+      - name: Info
+        run: echo Using version $RELEASE_VERSION
       - name: Publish gradle
         run: ./gradlew publish -Psigning.keyId=${{secrets.MVN_GPG_KEYID}} -Psigning.secretKeyRingFile=$(pwd)/secret.gpg -Psigning.password=${{secrets.MVN_GPG_PASS}}
         env:
