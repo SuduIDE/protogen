@@ -2,6 +2,7 @@ package org.sudu.protogen.protoc.adaptor;
 
 import com.google.protobuf.Descriptors;
 import org.jetbrains.annotations.Nullable;
+import org.sudu.protogen.protobuf.RepeatedContainer;
 import org.sudu.protogen.protoc.Options;
 
 import java.util.Objects;

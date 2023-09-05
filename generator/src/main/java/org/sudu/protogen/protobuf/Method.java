@@ -24,10 +24,6 @@ public abstract class Method {
         return getNameOption().orElseGet(this::getName);
     }
 
-    public final boolean isStreamingToList() {
-        return getStreamToListOption().orElse(false);
-    }
-
     public final boolean doGenerate() {
         if (isInputStreaming()) return false;
         return getGenerateOption()
@@ -54,7 +50,7 @@ public abstract class Method {
 
     protected abstract Optional<Boolean> getNullableOption();
 
-    protected abstract Optional<Boolean> getStreamToListOption();
+    public abstract Optional<RepeatedContainer> getStreamToContainer();
 
     protected abstract Optional<String> getNameOption();
 }

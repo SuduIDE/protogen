@@ -1,6 +1,7 @@
 package org.sudu.protogen.protoc.adaptor;
 
 import com.google.protobuf.Descriptors;
+import org.sudu.protogen.protobuf.RepeatedContainer;
 import org.sudu.protogen.protoc.Options;
 
 import java.util.Objects;
@@ -68,8 +69,9 @@ public class Method extends org.sudu.protogen.protobuf.Method {
     }
 
     @Override
-    protected Optional<Boolean> getStreamToListOption() {
-        return Options.wrapExtension(descriptor.getOptions(), protogen.Options.streamToList);
+    public Optional<RepeatedContainer> getStreamToContainer() {
+        return Options.wrapExtension(descriptor.getOptions(), protogen.Options.streamToContainer)
+                .map(RepeatedContainer::fromGrpc);
     }
 
     @Override
