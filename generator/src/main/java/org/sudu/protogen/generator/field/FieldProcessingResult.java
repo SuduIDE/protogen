@@ -3,8 +3,8 @@ package org.sudu.protogen.generator.field;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.TypeName;
 import org.jetbrains.annotations.NotNull;
+import org.sudu.protogen.descriptors.Field;
 import org.sudu.protogen.generator.type.TypeModel;
-import org.sudu.protogen.protobuf.Field;
 
 public record FieldProcessingResult(
         @NotNull Field original,

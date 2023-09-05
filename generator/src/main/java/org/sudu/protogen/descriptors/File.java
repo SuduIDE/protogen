@@ -1,23 +1,47 @@
-package org.sudu.protogen.protobuf;
+package org.sudu.protogen.descriptors;
 
+import com.google.protobuf.Descriptors;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.sudu.protogen.protoc.Options;
 import org.sudu.protogen.utils.FileUtils;
 import org.sudu.protogen.utils.Name;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Stream;
 
-public abstract class File {
+public class File {
 
-    public abstract @NotNull String getName();
+    private final Descriptors.FileDescriptor descriptor;
 
-    public abstract @NotNull String getProtoPackage();
+    public File(Descriptors.FileDescriptor descriptor) {
+        this.descriptor = descriptor;
+    }
 
-    public abstract @NotNull List<? extends EnumOrMessage> getNested();
+    public @NotNull String getName() {
+        return descriptor.getName();
+    }
 
-    public abstract @NotNull List<? extends Service> getServices();
+    public @NotNull String getProtoPackage() {
+        return descriptor.getPackage();
+    }
+
+    public @NotNull List<? extends EnumOrMessage> getNested() {
+        var messages = descriptor.getMessageTypes().stream()
+                .map(Message::new);
+        var enums = descriptor.getEnumTypes().stream()
+                .map(Enum::new);
+        return Stream.concat(messages, enums).toList();
+    }
+
+    public @NotNull List<? extends Service> getServices() {
+        return descriptor.getServices().stream()
+                .map(Service::new)
+                .toList();
+    }
 
     // =============
 
@@ -86,15 +110,43 @@ public abstract class File {
      * is placed at top-level methods such as doGenerate for getGenerateOption.
      */
 
-    protected abstract @NotNull Optional<Boolean> getJavaMultipleFilesOption();
+    protected @NotNull Optional<Boolean> getJavaMultipleFilesOption() {
+        return Optional.of(descriptor.getOptions().getJavaMultipleFiles())
+                .filter($ -> descriptor.getOptions().hasJavaMultipleFiles());
+    }
 
-    protected abstract @NotNull Optional<String> getJavaOuterClassnameOption();
+    protected @NotNull Optional<String> getJavaOuterClassnameOption() {
+        return Optional.of(descriptor.getOptions().getJavaOuterClassname())
+                .filter($ -> descriptor.getOptions().hasJavaOuterClassname());
+    }
 
-    protected abstract @NotNull Optional<String> getProtogenPackageOption();
+    protected @NotNull Optional<String> getProtogenPackageOption() {
+        return Options.wrapExtension(descriptor.getOptions(), protogen.Options.pkg);
+    }
 
-    protected abstract @NotNull Optional<String> getJavaPackageOption();
+    protected @NotNull Optional<String> getJavaPackageOption() {
+        return Optional.of(descriptor.getOptions().getJavaPackage())
+                .filter($ -> descriptor.getOptions().hasJavaPackage());
+    }
 
-    protected abstract @NotNull Optional<Boolean> getGenerateOption();
+    protected @NotNull Optional<Boolean> getGenerateOption() {
+        return Options.wrapExtension(descriptor.getOptions(), protogen.Options.enable);
+    }
 
-    protected abstract @NotNull Optional<Boolean> getDisableNotNullOption();
+    protected @NotNull Optional<Boolean> getDisableNotNullOption() {
+        return Options.wrapExtension(descriptor.getOptions(), protogen.Options.disableNotnull);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        File file = (File) o;
+        return Objects.equals(descriptor, file.descriptor);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(descriptor);
+    }
 }

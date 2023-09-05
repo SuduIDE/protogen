@@ -1,4 +1,4 @@
-package org.sudu.protogen.protobuf;
+package org.sudu.protogen.descriptors;
 
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;

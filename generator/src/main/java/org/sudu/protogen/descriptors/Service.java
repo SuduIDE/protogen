@@ -1,48 +1,68 @@
-package org.sudu.protogen.protoc.adaptor;
+package org.sudu.protogen.descriptors;
 
 import com.google.protobuf.Descriptors;
+import com.squareup.javapoet.ClassName;
 import org.sudu.protogen.protoc.Options;
+import org.sudu.protogen.utils.Name;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-public class Service extends org.sudu.protogen.protobuf.Service {
+public class Service {
 
-    Descriptors.ServiceDescriptor descriptor;
+    private final Descriptors.ServiceDescriptor descriptor;
 
     public Service(Descriptors.ServiceDescriptor descriptor) {
         this.descriptor = descriptor;
     }
 
-    @Override
     public String getName() {
         return descriptor.getName();
     }
 
-    @Override
     public File getContainingFile() {
         return new File(descriptor.getFile());
     }
 
-    @Override
     public List<? extends Method> getMethods() {
         return descriptor.getMethods().stream()
                 .map(Method::new)
                 .toList();
     }
 
-    @Override
+    public final boolean isAbstract() {
+        return getAbstractOption().orElse(false);
+    }
+
+    public final boolean doGenerate() {
+        return getGenerateOption().orElse(getContainingFile().doGenerate());
+    }
+
+    public final String generatedName() {
+        return getNameOption()
+                .orElse("Default" + Name.toCamelCase(getName().replace("Service", "")) + "Client");
+    }
+
+    public final ClassName stubClass() {
+        String stubTypeName = getName() + "Grpc";
+        String packageName = getContainingFile().getJavaPackage();
+        return ClassName.get(packageName, stubTypeName);
+    }
+
+    public final ClassName blockingStubClass() {
+        ClassName stubClass = stubClass();
+        return ClassName.get(stubClass.packageName(), stubClass.simpleName() + "." + getName() + "BlockingStub");
+    }
+
     protected Optional<Boolean> getAbstractOption() {
         return Options.wrapExtension(descriptor.getOptions(), protogen.Options.abstract_);
     }
 
-    @Override
     protected Optional<Boolean> getGenerateOption() {
         return Options.wrapExtension(descriptor.getOptions(), protogen.Options.genService);
     }
 
-    @Override
     protected Optional<String> getNameOption() {
         return Options.wrapExtension(descriptor.getOptions(), protogen.Options.serviceName);
     }

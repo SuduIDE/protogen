@@ -5,10 +5,10 @@ import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.ParameterSpec;
 import org.jetbrains.annotations.NotNull;
+import org.sudu.protogen.descriptors.Field;
+import org.sudu.protogen.descriptors.Method;
 import org.sudu.protogen.generator.GenerationContext;
 import org.sudu.protogen.generator.type.TypeModel;
-import org.sudu.protogen.protobuf.Field;
-import org.sudu.protogen.protobuf.Method;
 
 import java.util.List;
 

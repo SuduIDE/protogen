@@ -1,26 +1,24 @@
-package org.sudu.protogen.protoc.adaptor;
+package org.sudu.protogen.descriptors;
 
 import com.google.protobuf.Descriptors;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.sudu.protogen.protobuf.EnumOrMessage;
 import org.sudu.protogen.protoc.Options;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-public class Enum extends org.sudu.protogen.protobuf.Enum {
+public class Enum extends EnumOrMessage {
 
-    Descriptors.EnumDescriptor descriptor;
+    private final Descriptors.EnumDescriptor descriptor;
 
     public Enum(Descriptors.EnumDescriptor descriptor) {
         this.descriptor = descriptor;
     }
 
-    @Override
     public List<? extends Value> getValues() {
-        return descriptor.getValues().stream().map(EnumValue::new).toList();
+        return descriptor.getValues().stream().map(Value::new).toList();
     }
 
     @Override
@@ -76,25 +74,31 @@ public class Enum extends org.sudu.protogen.protobuf.Enum {
         return Objects.hash(descriptor);
     }
 
-    public static class EnumValue extends Value {
+    public static class Value {
 
-        Descriptors.EnumValueDescriptor valueDescriptor;
+        private final Descriptors.EnumValueDescriptor valueDescriptor;
 
-        public EnumValue(Descriptors.EnumValueDescriptor valueDescriptor) {
+        public Value(Descriptors.EnumValueDescriptor valueDescriptor) {
             this.valueDescriptor = valueDescriptor;
         }
 
-        @Override
+
+        public final String generatedName() {
+            return getOverriddenNameOption().orElse(getName());
+        }
+
+        public final boolean isUnused() {
+            return getUnusedOption().orElse(false);
+        }
+
         public String getName() {
             return valueDescriptor.getName();
         }
 
-        @Override
         protected Optional<String> getOverriddenNameOption() {
             return Options.wrapExtension(valueDescriptor.getOptions(), protogen.Options.enumValName);
         }
 
-        @Override
         protected Optional<Boolean> getUnusedOption() {
             return Options.wrapExtension(valueDescriptor.getOptions(), protogen.Options.unusedEnumVal);
         }
@@ -103,8 +107,8 @@ public class Enum extends org.sudu.protogen.protobuf.Enum {
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-            EnumValue enumValue = (EnumValue) o;
-            return Objects.equals(valueDescriptor, enumValue.valueDescriptor);
+            Value value = (Value) o;
+            return Objects.equals(valueDescriptor, value.valueDescriptor);
         }
 
         @Override

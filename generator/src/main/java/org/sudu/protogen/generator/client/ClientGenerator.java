@@ -4,9 +4,9 @@ import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.TypeSpec;
+import org.sudu.protogen.descriptors.Method;
+import org.sudu.protogen.descriptors.Service;
 import org.sudu.protogen.generator.GenerationContext;
-import org.sudu.protogen.protobuf.Method;
-import org.sudu.protogen.protobuf.Service;
 
 import javax.lang.model.element.Modifier;
 import java.util.stream.Stream;

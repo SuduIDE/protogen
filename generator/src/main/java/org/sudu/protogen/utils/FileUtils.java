@@ -2,7 +2,7 @@ package org.sudu.protogen.utils;
 
 import org.apache.commons.lang3.CharUtils;
 import org.jetbrains.annotations.NotNull;
-import org.sudu.protogen.protobuf.File;
+import org.sudu.protogen.descriptors.File;
 
 public class FileUtils {
 
