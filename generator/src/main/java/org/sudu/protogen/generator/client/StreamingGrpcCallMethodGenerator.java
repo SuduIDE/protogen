@@ -2,12 +2,12 @@ package org.sudu.protogen.generator.client;
 
 import com.squareup.javapoet.*;
 import org.apache.commons.lang3.Validate;
+import org.sudu.protogen.descriptors.Method;
+import org.sudu.protogen.descriptors.RepeatedContainer;
 import org.sudu.protogen.generator.GenerationContext;
 import org.sudu.protogen.generator.type.IteratorType;
 import org.sudu.protogen.generator.type.RepeatedType;
 import org.sudu.protogen.generator.type.TypeModel;
-import org.sudu.protogen.protobuf.Method;
-import org.sudu.protogen.protobuf.RepeatedContainer;
 import org.sudu.protogen.utils.Name;
 
 import javax.lang.model.element.Modifier;

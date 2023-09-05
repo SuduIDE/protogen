@@ -3,9 +3,9 @@ package org.sudu.protogen.generator.field.processors;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sudu.protogen.ProtogenException;
+import org.sudu.protogen.descriptors.Field;
 import org.sudu.protogen.generator.GenerationContext;
 import org.sudu.protogen.generator.type.TypeModel;
-import org.sudu.protogen.protobuf.Field;
 
 import java.util.List;
 

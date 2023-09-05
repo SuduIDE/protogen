@@ -7,7 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.sudu.protogen.Protogen;
 import org.sudu.protogen.config.Configuration;
-import org.sudu.protogen.protobuf.GenerationResult;
+import org.sudu.protogen.descriptors.GenerationResult;
 import org.sudu.protogen.protoc.plugin.Generator;
 import org.sudu.protogen.protoc.plugin.GeneratorException;
 

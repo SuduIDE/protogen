@@ -2,10 +2,10 @@ package org.sudu.protogen.generator.message;
 
 import com.squareup.javapoet.*;
 import org.jetbrains.annotations.NotNull;
+import org.sudu.protogen.descriptors.Message;
 import org.sudu.protogen.generator.GenerationContext;
 import org.sudu.protogen.generator.field.FieldGenerator;
 import org.sudu.protogen.generator.field.FieldProcessingResult;
-import org.sudu.protogen.protobuf.Message;
 import org.sudu.protogen.utils.Poem;
 
 import javax.lang.model.element.Modifier;

@@ -3,7 +3,7 @@ package org.sudu.protogen.generator.type;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.ParameterizedTypeName;
 import org.jetbrains.annotations.NotNull;
-import org.sudu.protogen.protobuf.RepeatedContainer;
+import org.sudu.protogen.descriptors.RepeatedContainer;
 import org.sudu.protogen.utils.Name;
 
 public class RepeatedType extends TypeModel {

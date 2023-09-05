@@ -2,9 +2,9 @@ package org.sudu.protogen.generator.field;
 
 import com.squareup.javapoet.FieldSpec;
 import org.jetbrains.annotations.NotNull;
+import org.sudu.protogen.descriptors.Field;
 import org.sudu.protogen.generator.GenerationContext;
 import org.sudu.protogen.generator.type.TypeModel;
-import org.sudu.protogen.protobuf.Field;
 import org.sudu.protogen.utils.Poem;
 
 public class FieldGenerator {

@@ -4,12 +4,12 @@ import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.ParameterSpec;
+import org.sudu.protogen.descriptors.Method;
 import org.sudu.protogen.generator.GenerationContext;
 import org.sudu.protogen.generator.field.FieldGenerator;
 import org.sudu.protogen.generator.field.FieldProcessingResult;
 import org.sudu.protogen.generator.message.ToGrpcMethodGenerator;
 import org.sudu.protogen.generator.type.TypeModel;
-import org.sudu.protogen.protobuf.Method;
 import org.sudu.protogen.utils.Poem;
 
 import java.util.List;

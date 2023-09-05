@@ -22,10 +22,7 @@ no need to make the generator an _implementation_ dependency, just build it befo
 
 ### Generator packages
 
-* _org.sudu.protogen.protobuf_ - Separates generator from protoc descriptors in dependency inversion style and
-  encapsulates
-  some generation logic in elements.
-* _org.sudu.protogen.protoc_ - Utilities for protoc and its specifics.
-* _org.sudu.protogen.protoc.adaptor_ - Decorators for AST nodes (see org.sudu.protogen.protobuf)
+* _org.sudu.protogen.descriptors_ - Delegates for protoc descriptors encapsulate generation logic into them
+* _org.sudu.protogen.protoc_ - Utilities for protoc and its specifics
 * _org.sudu.protogen.config_ - In-code configuration
 * _org.sudu.protogen.generator_ - Builds javapoet models

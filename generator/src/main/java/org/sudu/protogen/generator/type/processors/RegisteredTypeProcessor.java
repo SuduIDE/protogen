@@ -3,10 +3,10 @@ package org.sudu.protogen.generator.type.processors;
 import com.squareup.javapoet.ClassName;
 import org.jetbrains.annotations.NotNull;
 import org.sudu.protogen.config.RegisteredTransformer;
+import org.sudu.protogen.descriptors.EnumOrMessage;
 import org.sudu.protogen.generator.GenerationContext;
 import org.sudu.protogen.generator.type.RegisteredType;
 import org.sudu.protogen.generator.type.TypeModel;
-import org.sudu.protogen.protobuf.EnumOrMessage;
 import org.sudu.protogen.utils.Name;
 
 import java.util.List;

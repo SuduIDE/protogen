@@ -2,8 +2,8 @@ package org.sudu.protogen.generator.enumeration;
 
 import com.squareup.javapoet.*;
 import org.jetbrains.annotations.NotNull;
+import org.sudu.protogen.descriptors.Enum;
 import org.sudu.protogen.generator.GenerationContext;
-import org.sudu.protogen.protobuf.Enum;
 
 import javax.lang.model.element.Modifier;
 

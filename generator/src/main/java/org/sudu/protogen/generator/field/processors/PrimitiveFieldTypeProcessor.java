@@ -3,10 +3,10 @@ package org.sudu.protogen.generator.field.processors;
 import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
 import org.jetbrains.annotations.NotNull;
+import org.sudu.protogen.descriptors.Field;
 import org.sudu.protogen.generator.GenerationContext;
 import org.sudu.protogen.generator.type.PrimitiveTypeModel;
 import org.sudu.protogen.generator.type.TypeModel;
-import org.sudu.protogen.protobuf.Field;
 
 class PrimitiveFieldTypeProcessor extends FieldTypeProcessor.Chain {
 

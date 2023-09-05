@@ -5,11 +5,11 @@ import com.squareup.javapoet.TypeSpec;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.sudu.protogen.ProtogenException;
+import org.sudu.protogen.descriptors.Enum;
+import org.sudu.protogen.descriptors.*;
 import org.sudu.protogen.generator.client.ClientGenerator;
 import org.sudu.protogen.generator.enumeration.EnumGenerator;
 import org.sudu.protogen.generator.message.MessageGenerator;
-import org.sudu.protogen.protobuf.Enum;
-import org.sudu.protogen.protobuf.*;
 
 import java.io.IOException;
 import java.util.ArrayList;

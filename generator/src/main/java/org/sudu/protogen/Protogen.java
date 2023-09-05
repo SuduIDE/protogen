@@ -2,13 +2,13 @@ package org.sudu.protogen;
 
 import org.jetbrains.annotations.NotNull;
 import org.sudu.protogen.config.Configuration;
+import org.sudu.protogen.descriptors.GenerationRequest;
+import org.sudu.protogen.descriptors.GenerationResult;
 import org.sudu.protogen.generator.GenerationContext;
 import org.sudu.protogen.generator.Generator;
 import org.sudu.protogen.generator.TypeTable;
 import org.sudu.protogen.generator.field.processors.FieldTypeProcessor;
 import org.sudu.protogen.generator.type.processors.TypeProcessor;
-import org.sudu.protogen.protobuf.GenerationRequest;
-import org.sudu.protogen.protobuf.GenerationResult;
 
 import java.util.HashMap;
 

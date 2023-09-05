@@ -1,9 +1,8 @@
-package org.sudu.protogen.protoc.adaptor;
+package org.sudu.protogen.descriptors;
 
 import com.google.protobuf.Descriptors;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.sudu.protogen.protobuf.EnumOrMessage;
 import org.sudu.protogen.protoc.Options;
 
 import java.util.List;
@@ -11,12 +10,23 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-public class Message extends org.sudu.protogen.protobuf.Message {
+public class Message extends EnumOrMessage {
 
-    Descriptors.Descriptor descriptor;
+    private final Descriptors.Descriptor descriptor;
 
     public Message(Descriptors.Descriptor descriptor) {
         this.descriptor = descriptor;
+    }
+
+    public List<Field> getFields() {
+        return descriptor.getFields().stream()
+                .map(Field::new)
+                .toList();
+    }
+
+    public final boolean isUnfolded() {
+        if (getFields().size() != 1) return false;
+        return getUnfoldOption().orElse(false);
     }
 
     @Override
@@ -49,13 +59,6 @@ public class Message extends org.sudu.protogen.protobuf.Message {
     }
 
     @Override
-    public List<? extends Field> getFields() {
-        return descriptor.getFields().stream()
-                .map(Field::new)
-                .toList();
-    }
-
-    @Override
     public Optional<Boolean> getDoGenerateOption() {
         return Options.wrapExtension(descriptor.getOptions(), protogen.Options.genMessage);
     }
@@ -66,18 +69,32 @@ public class Message extends org.sudu.protogen.protobuf.Message {
     }
 
     @Override
-    public Optional<Boolean> getUnfoldOption() {
-        return Options.wrapExtension(descriptor.getOptions(), protogen.Options.unfold);
-    }
-
-    @Override
     protected Optional<String> getCustomClassNameOption() {
         return Options.wrapExtension(descriptor.getOptions(), protogen.Options.customClass);
     }
 
-    @Override
+    /*
+     * Options are not supposed to be used at high-level logic.
+     * They return only the value of an option in .proto file.
+     * Advanced logic taking into account other options and configuration values
+     * is placed at top-level methods such as isUnfolded for getUnfoldOption.
+     */
+
+    /**
+     * protobuf internal flag to tag map entries
+     *
+     * @see <a href="https://protobuf.dev/programming-guides/proto3/#backwards">map specification</a>
+     */
     public boolean isMap() {
         return descriptor.getOptions().getMapEntry();
+    }
+
+    public Optional<String> getComparatorReference() {
+        return Options.wrapExtension(descriptor.getOptions(), protogen.Options.messageComparator);
+    }
+
+    public Optional<Boolean> getUnfoldOption() {
+        return Options.wrapExtension(descriptor.getOptions(), protogen.Options.unfold);
     }
 
     @Override
@@ -91,10 +108,5 @@ public class Message extends org.sudu.protogen.protobuf.Message {
     @Override
     public int hashCode() {
         return Objects.hash(descriptor);
-    }
-
-    @Override
-    public Optional<String> getComparatorReference() {
-        return Options.wrapExtension(descriptor.getOptions(), protogen.Options.messageComparator);
     }
 }

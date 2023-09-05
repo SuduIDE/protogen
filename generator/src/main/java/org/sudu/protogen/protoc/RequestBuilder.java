@@ -3,8 +3,8 @@ package org.sudu.protogen.protoc;
 import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.compiler.PluginProtos;
-import org.sudu.protogen.protobuf.GenerationRequest;
-import org.sudu.protogen.protoc.adaptor.File;
+import org.sudu.protogen.descriptors.File;
+import org.sudu.protogen.descriptors.GenerationRequest;
 import org.sudu.protogen.protoc.plugin.GeneratorException;
 
 import java.util.ArrayList;

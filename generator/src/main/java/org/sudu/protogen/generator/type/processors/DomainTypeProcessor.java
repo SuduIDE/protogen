@@ -2,11 +2,11 @@ package org.sudu.protogen.generator.type.processors;
 
 import org.jetbrains.annotations.NotNull;
 import org.sudu.protogen.ProtogenException;
+import org.sudu.protogen.descriptors.EnumOrMessage;
 import org.sudu.protogen.generator.GenerationContext;
 import org.sudu.protogen.generator.TypeTable;
 import org.sudu.protogen.generator.type.DomainType;
 import org.sudu.protogen.generator.type.TypeModel;
-import org.sudu.protogen.protobuf.EnumOrMessage;
 
 class DomainTypeProcessor extends TypeProcessor.Chain {
 
