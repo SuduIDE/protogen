@@ -2,7 +2,7 @@ package org.sudu.protogen.descriptors;
 
 import com.google.protobuf.Descriptors;
 import org.apache.commons.lang3.Validate;
-import org.sudu.protogen.protoc.Options;
+import org.sudu.protogen.Options;
 
 import java.util.Objects;
 import java.util.Optional;

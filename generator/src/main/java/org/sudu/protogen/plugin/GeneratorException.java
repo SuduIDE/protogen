@@ -5,7 +5,7 @@
  *  For full license text, see LICENSE.txt file in the repo root  or https://opensource.org/licenses/BSD-3-Clause
  */
 
-package org.sudu.protogen.protoc.plugin;
+package org.sudu.protogen.plugin;
 
 /**
  * This exception represents a structural problem with output generation. Error messages will be printed to the

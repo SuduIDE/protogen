@@ -3,7 +3,7 @@ package org.sudu.protogen.descriptors;
 import com.google.protobuf.Descriptors;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.sudu.protogen.protoc.Options;
+import org.sudu.protogen.Options;
 
 import java.util.List;
 import java.util.Objects;
@@ -47,12 +47,12 @@ public class Enum extends EnumOrMessage {
     }
 
     @Override
-    public Optional<Boolean> getDoGenerateOption() {
+    protected Optional<Boolean> getDoGenerateOption() {
         return Options.wrapExtension(descriptor.getOptions(), protogen.Options.genEnum);
     }
 
     @Override
-    public Optional<String> getOverriddenNameOption() {
+    protected Optional<String> getOverriddenNameOption() {
         return Options.wrapExtension(descriptor.getOptions(), protogen.Options.enumName);
     }
 
@@ -81,7 +81,6 @@ public class Enum extends EnumOrMessage {
         public Value(Descriptors.EnumValueDescriptor valueDescriptor) {
             this.valueDescriptor = valueDescriptor;
         }
-
 
         public final String generatedName() {
             return getOverriddenNameOption().orElse(getName());

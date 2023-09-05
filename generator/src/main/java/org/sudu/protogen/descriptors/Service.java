@@ -2,7 +2,7 @@ package org.sudu.protogen.descriptors;
 
 import com.google.protobuf.Descriptors;
 import com.squareup.javapoet.ClassName;
-import org.sudu.protogen.protoc.Options;
+import org.sudu.protogen.Options;
 import org.sudu.protogen.utils.Name;
 
 import java.util.List;

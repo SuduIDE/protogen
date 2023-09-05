@@ -4,7 +4,6 @@ import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeSpec;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
-import org.sudu.protogen.ProtogenException;
 import org.sudu.protogen.descriptors.Enum;
 import org.sudu.protogen.descriptors.*;
 import org.sudu.protogen.generator.client.ClientGenerator;
@@ -93,7 +92,7 @@ public class Generator {
             return new MessageGenerator(context, msg).generate();
         else if (type instanceof Enum en)
             return new EnumGenerator(context, en).generate();
-        throw new ProtogenException("Oops");
+        throw new IllegalStateException();
     }
 
     private String getIndentation() {

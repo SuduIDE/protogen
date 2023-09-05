@@ -1,6 +1,6 @@
-package org.sudu.protogen.protoc;
+package org.sudu.protogen;
 
-import org.sudu.protogen.protoc.plugin.ProtocPlugin;
+import org.sudu.protogen.plugin.ProtocPlugin;
 
 import java.util.List;
 

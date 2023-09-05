@@ -2,7 +2,6 @@ package org.sudu.protogen.generator.field.processors;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.sudu.protogen.ProtogenException;
 import org.sudu.protogen.descriptors.Field;
 import org.sudu.protogen.generator.GenerationContext;
 import org.sudu.protogen.generator.type.TypeModel;
@@ -48,7 +47,7 @@ public interface FieldTypeProcessor {
             if (next != null) {
                 return next.processType(field, context);
             }
-            throw new ProtogenException("Failed to generate Java type for the field " + field.getName());
+            throw new IllegalArgumentException("Failed to generate Java type for the field " + field.getName());
         }
     }
 }

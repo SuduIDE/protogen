@@ -3,7 +3,6 @@ package org.sudu.protogen.descriptors;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.sudu.protogen.ProtogenException;
 import org.sudu.protogen.config.Configuration;
 
 import java.util.List;
@@ -30,7 +29,7 @@ public abstract class EnumOrMessage {
             if (msg.getUnfoldOption().isPresent() && msg.getUnfoldOption().get()) optCnt++;
         }
         if (optCnt > 1) {
-            throw new ProtogenException("Only one of generate, decompose or customClass option could be set");
+            throw new IllegalStateException("Only one of generate, decompose or customClass option could be set");
         }
     }
 

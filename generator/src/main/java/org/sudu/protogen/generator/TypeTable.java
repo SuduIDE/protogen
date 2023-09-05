@@ -3,16 +3,12 @@ package org.sudu.protogen.generator;
 import com.squareup.javapoet.ClassName;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.sudu.protogen.ProtogenException;
 import org.sudu.protogen.config.Configuration;
 import org.sudu.protogen.descriptors.EnumOrMessage;
 import org.sudu.protogen.descriptors.File;
 import org.sudu.protogen.utils.Name;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class TypeTable {
@@ -38,7 +34,7 @@ public class TypeTable {
     @NotNull
     public ClassName getType(EnumOrMessage enumOrMessage) {
         return Optional.ofNullable(table.get(enumOrMessage))
-                .orElseThrow(() -> new ProtogenException("Type not found for " + enumOrMessage.getFullName()));
+                .orElseThrow(() -> new NoSuchElementException("Type not found for " + enumOrMessage.getFullName()));
     }
 
     private abstract static class AbstractTypeTableBuilder {
