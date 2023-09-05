@@ -26,5 +26,7 @@ public abstract class Message extends EnumOrMessage {
      */
     public abstract boolean isMap();
 
+    public abstract Optional<String> getComparatorReference();
+
     protected abstract Optional<Boolean> getUnfoldOption();
 }

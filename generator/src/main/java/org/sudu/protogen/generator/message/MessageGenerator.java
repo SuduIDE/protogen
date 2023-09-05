@@ -1,9 +1,6 @@
 package org.sudu.protogen.generator.message;
 
-import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.FieldSpec;
-import com.squareup.javapoet.ParameterSpec;
-import com.squareup.javapoet.TypeSpec;
+import com.squareup.javapoet.*;
 import org.jetbrains.annotations.NotNull;
 import org.sudu.protogen.generator.GenerationContext;
 import org.sudu.protogen.generator.field.FieldGenerator;
@@ -42,6 +39,9 @@ public class MessageGenerator {
         TypeSpec.Builder typeBuilder = getRecordBuilder(fields);
 
         boolean annotateNotNull = msgDescriptor.getContainingFile().doUseNullabilityAnnotation(false);
+        msgDescriptor.getComparatorReference().ifPresent(
+                comparator -> addComparable(typeBuilder, comparator)
+        );
 
         return typeBuilder
                 .multiLineRecord(true)
@@ -50,6 +50,21 @@ public class MessageGenerator {
                 .addMethod(new FromGrpcMethodGenerator(generationContext, generatedType(), protoType(), processedFields, annotateNotNull).generate())
                 .addMethod(new ToGrpcMethodGenerator(generationContext, protoType(), processedFields, annotateNotNull).generate())
                 .build();
+    }
+
+    private void addComparable(TypeSpec.Builder typeBuilder, String comparator) {
+        ClassName type = generatedType();
+        typeBuilder.addSuperinterface(ParameterizedTypeName.get(ClassName.get(Comparable.class), type));
+        ParameterSpec methodParameter = ParameterSpec.builder(type, "rhs").build();
+        typeBuilder.addMethod(
+                MethodSpec.methodBuilder("compareTo")
+                        .addModifiers(Modifier.PUBLIC)
+                        .returns(TypeName.INT)
+                        .addParameter(methodParameter)
+                        .addAnnotation(ClassName.get(Override.class))
+                        .addStatement("return $L.compare(this, $N)", comparator, methodParameter)
+                        .build()
+        );
     }
 
     private TypeSpec.Builder getRecordBuilder(List<FieldSpec> fields) {

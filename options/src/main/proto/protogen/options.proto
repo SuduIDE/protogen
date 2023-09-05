@@ -55,6 +55,11 @@ extend google.protobuf.MessageOptions {
    * Ex: option (protogen.custom_class) = "org.sudu.api.computeengine.BatchInfo";
    */
   string custom_class = 5104;
+  /*
+   * Allows to implement Comparable using specified comparator.
+   * Ex: option (protogen.message_comparator) = "org.sudu.api.console.types.ConsoleComparators.INSTANCE_ID";
+   */
+  string message_comparator = 5105;
 }
 
 extend google.protobuf.EnumOptions {
