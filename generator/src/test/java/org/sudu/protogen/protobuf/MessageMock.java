@@ -182,6 +182,11 @@ public class MessageMock extends Message {
     }
 
     @Override
+    public Optional<String> getComparatorReference() {
+        return Optional.empty();
+    }
+
+    @Override
     public String toString() {
         return "MessageMock{" +
                 "name='" + name + '\'' +

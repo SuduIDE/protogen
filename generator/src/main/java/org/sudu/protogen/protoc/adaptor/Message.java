@@ -92,4 +92,9 @@ public class Message extends org.sudu.protogen.protobuf.Message {
     public int hashCode() {
         return Objects.hash(descriptor);
     }
+
+    @Override
+    public Optional<String> getComparatorReference() {
+        return Options.wrapExtension(descriptor.getOptions(), protogen.Options.messageComparator);
+    }
 }

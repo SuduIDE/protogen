@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package org.sudu.protogen.test.comparatorRef;
+
+import "google/protobuf/empty.proto";
+import "protogen/options.proto";
+
+option java_multiple_files = true;
+option (.protogen.enable) = true;
+
+message GrpcPerson {
+  string name = 1;
+  int32 age = 2;
+
+  option (.protogen.message_comparator) = "org.sudu.protogen.test.comparatorRef.TestComparators.PERSON_COMPARATOR";
+}
