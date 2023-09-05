@@ -7,10 +7,10 @@ import org.sudu.protogen.generator.type.IteratorType;
 import org.sudu.protogen.generator.type.RepeatedType;
 import org.sudu.protogen.generator.type.TypeModel;
 import org.sudu.protogen.protobuf.Method;
+import org.sudu.protogen.protobuf.RepeatedContainer;
 import org.sudu.protogen.utils.Name;
 
 import javax.lang.model.element.Modifier;
-import java.lang.reflect.ParameterizedType;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.StreamSupport;
@@ -36,7 +36,7 @@ public class StreamingGrpcCallMethodGenerator extends MethodGeneratorBase {
             return CodeBlock.of("");
         }
         CodeBlock call = commonGen.onlyCallReturnExpression(returnType, params);
-        if (method.isStreamingToList()) {
+        if (method.getStreamToContainer().isPresent()) {
             Validate.validState(returnType instanceof RepeatedType);
             RepeatedType repType = (RepeatedType) returnType;
             return CodeBlock.builder()
@@ -55,8 +55,11 @@ public class StreamingGrpcCallMethodGenerator extends MethodGeneratorBase {
         if (returnType.getTypeName().toString().equalsIgnoreCase("void")) {
             return commonGen.onlyCallReturnExpression(returnType, params);
         }
-        if (method.isStreamingToList()) {
-            return CodeBlock.of("$T.stream(iterable.spliterator(), false).toList()", StreamSupport.class);
+        var containerO = method.getStreamToContainer();
+        if (containerO.isPresent()) {
+            RepeatedContainer container = containerO.get();
+            return CodeBlock.of("$T.stream(iterable.spliterator(), false).collect($L)",
+                    StreamSupport.class, container.getCollectorExpr());
         } else {
             Validate.validState(returnType instanceof IteratorType);
             IteratorType itType = (IteratorType) returnType;

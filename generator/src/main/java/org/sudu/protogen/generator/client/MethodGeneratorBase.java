@@ -68,7 +68,7 @@ public abstract class MethodGeneratorBase {
         } else if (method.getOutputType().isDomain()) {
             type = context.typeProcessor().processType(method.getOutputType(), context);
         } else {
-            if (method.getOutputType().getFields().size() == 0) {
+            if (method.getOutputType().getFields().isEmpty()) {
                 type = new TypeModel(TypeName.VOID);
             } else {
                 throw new ProtogenException(("Unable to create a method returning %s because request consist of more than " +
@@ -79,8 +79,9 @@ public abstract class MethodGeneratorBase {
             if (type.getTypeName().toString().equalsIgnoreCase("void")) {
                 return type;
             }
-            if (method.isStreamingToList()) {
-                return new RepeatedType(type, Field.RepeatedContainer.LIST);
+            var containerO = method.getStreamToContainer();
+            if (containerO.isPresent()) {
+                return new RepeatedType(type, containerO.get());
             } else {
                 return new IteratorType(type);
             }

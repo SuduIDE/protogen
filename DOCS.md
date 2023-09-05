@@ -244,4 +244,4 @@ option (protogen.gen_method) = false;
   parameters likewise it isn't a domain object.
 * `(protogen.make_nullable)` annotates method with `@Nullable` and wraps response into `nullifyIfNotFound` method
   of `BaseGrpcClient`
-* `(protogen.stream_to_list)` if the output is streaming collects it into java.util.List
+* `(protogen.stream_to_container)` if the output is streaming collects it into a specified container

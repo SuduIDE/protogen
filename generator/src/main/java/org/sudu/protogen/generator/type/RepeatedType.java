@@ -3,16 +3,16 @@ package org.sudu.protogen.generator.type;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.ParameterizedTypeName;
 import org.jetbrains.annotations.NotNull;
-import org.sudu.protogen.protobuf.Field;
+import org.sudu.protogen.protobuf.RepeatedContainer;
 import org.sudu.protogen.utils.Name;
 
 public class RepeatedType extends TypeModel {
 
     private final TypeModel elementModel;
 
-    private final Field.RepeatedContainer repeatedType;
+    private final RepeatedContainer repeatedType;
 
-    public RepeatedType(TypeModel typeName, Field.RepeatedContainer repeatedType) {
+    public RepeatedType(TypeModel typeName, RepeatedContainer repeatedType) {
         super(ParameterizedTypeName.get(
                 repeatedType.getTypeName(),
                 typeName.getTypeName().box()
@@ -39,7 +39,7 @@ public class RepeatedType extends TypeModel {
 
     @Override
     public CodeBlock fromGrpcTransformer(CodeBlock expr) {
-        if (elementModel instanceof DomainType || elementModel instanceof UnfoldedType || repeatedType != Field.RepeatedContainer.LIST) {
+        if (elementModel instanceof DomainType || elementModel instanceof UnfoldedType || repeatedType != RepeatedContainer.LIST) {
             CodeBlock lambdaParameter = CodeBlock.builder().add("i").build();
             CodeBlock mappingLambda = CodeBlock.builder()
                     .add("$L -> $L", lambdaParameter, elementModel.fromGrpcTransformer(lambdaParameter))

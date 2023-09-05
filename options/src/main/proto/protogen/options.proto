@@ -140,8 +140,8 @@ extend google.protobuf.MethodOptions {
   bool unfold_request = 5502;
   // Annotates method with @Nullable and wraps response into nullifyIfNotFound method of BaseGrpcClient
   bool nullable = 5503;
-  // If method is output-streaming, collects its output into java.util.List using spliterator -> toList
-  bool stream_to_list = 5504;
+  // If method is output-streaming, collects its output into a specified container using spliterator
+  RepeatedContainer stream_to_container = 5504;
   /*
    * Sets generated Method name.
    *
