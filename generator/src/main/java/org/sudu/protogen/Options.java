@@ -1,4 +1,4 @@
-package org.sudu.protogen.protoc;
+package org.sudu.protogen;
 
 import com.google.protobuf.GeneratedMessage.GeneratedExtension;
 import com.google.protobuf.GeneratedMessageV3;
@@ -18,7 +18,7 @@ public class Options {
                     try {
                         return (GeneratedExtension) field.get(null);
                     } catch (Exception e) {
-                        return (GeneratedExtension) null;
+                        return null;
                     }
                 })
                 .filter(Objects::nonNull)

@@ -1,4 +1,4 @@
-package org.sudu.protogen.descriptors;
+package org.sudu.protogen.generator;
 
 import java.util.List;
 

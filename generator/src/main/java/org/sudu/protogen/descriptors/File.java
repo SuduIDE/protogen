@@ -4,7 +4,7 @@ import com.google.protobuf.Descriptors;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.sudu.protogen.protoc.Options;
+import org.sudu.protogen.Options;
 import org.sudu.protogen.utils.FileUtils;
 import org.sudu.protogen.utils.Name;
 

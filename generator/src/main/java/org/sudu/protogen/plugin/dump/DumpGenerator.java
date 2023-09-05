@@ -5,12 +5,12 @@
  *  For full license text, see LICENSE.txt file in the repo root  or https://opensource.org/licenses/BSD-3-Clause
  */
 
-package org.sudu.protogen.protoc.plugin.dump;
+package org.sudu.protogen.plugin.dump;
 
 import com.google.protobuf.compiler.PluginProtos;
-import org.sudu.protogen.protoc.plugin.Generator;
-import org.sudu.protogen.protoc.plugin.GeneratorException;
-import org.sudu.protogen.protoc.plugin.ProtocPlugin;
+import org.sudu.protogen.plugin.Generator;
+import org.sudu.protogen.plugin.GeneratorException;
+import org.sudu.protogen.plugin.ProtocPlugin;
 
 import java.util.Collections;
 import java.util.List;

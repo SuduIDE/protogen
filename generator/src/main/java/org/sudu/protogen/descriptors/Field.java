@@ -3,7 +3,7 @@ package org.sudu.protogen.descriptors;
 import com.google.protobuf.Descriptors;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.Nullable;
-import org.sudu.protogen.protoc.Options;
+import org.sudu.protogen.Options;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -43,7 +43,6 @@ public class Field {
     public Message getContainingMessage() {
         return new Message(descriptor.getContainingType());
     }
-
 
     public final boolean isNullable() {
         return isOptional() || (isUnfolded() && getUnfoldedField().isNullable());
@@ -91,15 +90,15 @@ public class Field {
      * is placed at top-level methods such as getGenerateOption for getGenerateOption.
      */
 
-    public boolean isRepeated() {
+    protected boolean isRepeated() {
         return descriptor.isRepeated();
     }
 
-    public boolean isOptional() {
+    protected boolean isOptional() {
         return descriptor.hasOptionalKeyword();
     }
 
-    public Optional<String> getOverriddenNameOption() {
+    protected Optional<String> getOverriddenNameOption() {
         return Options.wrapExtension(descriptor.getOptions(), protogen.Options.fieldName);
     }
 
@@ -126,18 +125,6 @@ public class Field {
         };
     }
 
-    public enum Type {
-        INT,
-        LONG,
-        FLOAT,
-        DOUBLE,
-        BOOLEAN,
-        STRING,
-        BYTE_STRING,
-        ENUM,
-        MESSAGE
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -149,5 +136,17 @@ public class Field {
     @Override
     public int hashCode() {
         return Objects.hash(descriptor);
+    }
+
+    public enum Type {
+        INT,
+        LONG,
+        FLOAT,
+        DOUBLE,
+        BOOLEAN,
+        STRING,
+        BYTE_STRING,
+        ENUM,
+        MESSAGE
     }
 }

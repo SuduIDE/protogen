@@ -3,7 +3,7 @@ package org.sudu.protogen.descriptors;
 import com.google.protobuf.Descriptors;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.sudu.protogen.protoc.Options;
+import org.sudu.protogen.Options;
 
 import java.util.List;
 import java.util.Objects;
@@ -58,21 +58,6 @@ public class Message extends EnumOrMessage {
         return Stream.concat(messages, enums).toList();
     }
 
-    @Override
-    public Optional<Boolean> getDoGenerateOption() {
-        return Options.wrapExtension(descriptor.getOptions(), protogen.Options.genMessage);
-    }
-
-    @Override
-    public Optional<String> getOverriddenNameOption() {
-        return Options.wrapExtension(descriptor.getOptions(), protogen.Options.messageName);
-    }
-
-    @Override
-    protected Optional<String> getCustomClassNameOption() {
-        return Options.wrapExtension(descriptor.getOptions(), protogen.Options.customClass);
-    }
-
     /*
      * Options are not supposed to be used at high-level logic.
      * They return only the value of an option in .proto file.
@@ -85,6 +70,22 @@ public class Message extends EnumOrMessage {
      *
      * @see <a href="https://protobuf.dev/programming-guides/proto3/#backwards">map specification</a>
      */
+
+    @Override
+    protected Optional<Boolean> getDoGenerateOption() {
+        return Options.wrapExtension(descriptor.getOptions(), protogen.Options.genMessage);
+    }
+
+    @Override
+    protected Optional<String> getOverriddenNameOption() {
+        return Options.wrapExtension(descriptor.getOptions(), protogen.Options.messageName);
+    }
+
+    @Override
+    protected Optional<String> getCustomClassNameOption() {
+        return Options.wrapExtension(descriptor.getOptions(), protogen.Options.customClass);
+    }
+
     public boolean isMap() {
         return descriptor.getOptions().getMapEntry();
     }

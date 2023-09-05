@@ -62,7 +62,7 @@ publishing {
 
 tasks.shadowJar {
     archiveClassifier = "jvm"
-    manifest.attributes["Main-Class"] = "org.sudu.protogen.protoc.Main"
+    manifest.attributes["Main-Class"] = "org.sudu.protogen.Main"
 }
 
 dependencies {

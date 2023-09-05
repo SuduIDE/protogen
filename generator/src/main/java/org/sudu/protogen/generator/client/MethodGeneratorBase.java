@@ -1,7 +1,6 @@
 package org.sudu.protogen.generator.client;
 
 import com.squareup.javapoet.*;
-import org.sudu.protogen.ProtogenException;
 import org.sudu.protogen.descriptors.Field;
 import org.sudu.protogen.descriptors.Method;
 import org.sudu.protogen.generator.GenerationContext;
@@ -71,7 +70,7 @@ public abstract class MethodGeneratorBase {
             if (method.getOutputType().getFields().isEmpty()) {
                 type = new TypeModel(TypeName.VOID);
             } else {
-                throw new ProtogenException(("Unable to create a method returning %s because request consist of more than " +
+                throw new IllegalStateException(("Unable to create a method returning %s because request consist of more than " +
                         "1 field and doesn't have a domain object.").formatted(method.getOutputType().getFullName()));
             }
         }

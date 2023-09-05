@@ -1,16 +1,21 @@
-package org.sudu.protogen.protoc;
+package org.sudu.protogen;
 
 import com.google.protobuf.GeneratedMessage.GeneratedExtension;
 import com.google.protobuf.compiler.PluginProtos.CodeGeneratorRequest;
 import com.google.protobuf.compiler.PluginProtos.CodeGeneratorResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
-import org.sudu.protogen.Protogen;
 import org.sudu.protogen.config.Configuration;
-import org.sudu.protogen.descriptors.GenerationResult;
-import org.sudu.protogen.protoc.plugin.Generator;
-import org.sudu.protogen.protoc.plugin.GeneratorException;
+import org.sudu.protogen.generator.GenerationContext;
+import org.sudu.protogen.generator.GenerationRequest;
+import org.sudu.protogen.generator.GenerationResult;
+import org.sudu.protogen.generator.TypeTable;
+import org.sudu.protogen.generator.field.processors.FieldTypeProcessor;
+import org.sudu.protogen.generator.type.processors.TypeProcessor;
+import org.sudu.protogen.plugin.Generator;
+import org.sudu.protogen.plugin.GeneratorException;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -19,12 +24,29 @@ public class ProtogenGenerator extends Generator {
     @Override
     public List<CodeGeneratorResponse.File> generateFiles(CodeGeneratorRequest request) throws GeneratorException {
         var configuration = Configuration.DEFAULT;
-        return new Protogen(RequestBuilder.fromProtocRequest(request), configuration)
-                .generate()
+        return generate(RequestBuilder.fromProtocRequest(request), configuration)
                 .generatedFiles()
                 .stream()
                 .map(this::buildFile)
                 .toList();
+    }
+
+    private GenerationResult generate(GenerationRequest request, Configuration configuration) {
+        var allFiles = request.allFiles();
+        var filesToGenerate = allFiles.stream()
+                .filter(file -> request.filesToGenerateNames().contains(file.getName()))
+                .toList();
+        var context = new GenerationContext(
+                filesToGenerate,
+                configuration,
+                TypeProcessor.Chain.getProcessingChain(),
+                FieldTypeProcessor.Chain.getProcessingChain(),
+                TypeTable.makeProtoTypeTable(allFiles, configuration),
+                TypeTable.makeDomainTypeTable(allFiles, configuration),
+                new HashMap<>(),
+                new HashMap<>()
+        );
+        return new org.sudu.protogen.generator.Generator(context).generate();
     }
 
     @NotNull
