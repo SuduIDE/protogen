@@ -16,8 +16,6 @@ public record GenerationContext(
         Configuration configuration,
         TypeProcessor typeProcessor,
         FieldTypeProcessor fieldTypeProcessor,
-        TypeTable protoTypeTable,
-        TypeTable domainTypeTable,
         Map<EnumOrMessage, TypeSpec> domains,
         Map<Service, TypeSpec> clients
 ) {

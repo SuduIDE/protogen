@@ -20,7 +20,7 @@ public class GrpcCallMethodGenerator extends MethodGeneratorBase {
 
     @Override
     protected List<ParameterSpec> parameters() {
-        ClassName protoType = context.protoTypeTable().getType(method.getInputType());
+        ClassName protoType = method.getInputType().getProtobufTypeName(context.configuration().namingManager());
         return List.of(ParameterSpec.builder(protoType, "request").build());
     }
 
