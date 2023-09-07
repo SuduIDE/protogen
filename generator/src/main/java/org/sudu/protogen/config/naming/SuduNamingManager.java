@@ -9,11 +9,11 @@ public class SuduNamingManager implements NamingManager {
     private static final String PREFIX = "Grpc";
 
     @Override
-    public @NotNull String getDomainName(@NotNull String messageName) {
+    public @NotNull String manageName(@NotNull String originalName) {
         Validate.validState(
-                messageName.startsWith(PREFIX),
-                "Naming policy violation for %s. Its name should start with \"Grpc\"", messageName
+                originalName.startsWith(PREFIX),
+                "Naming policy violation for %s. Its name should start with \"Grpc\"", originalName
         );
-        return StringUtils.removeStart(messageName, PREFIX);
+        return StringUtils.removeStart(originalName, PREFIX);
     }
 }

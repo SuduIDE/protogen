@@ -32,9 +32,9 @@ public class UnfoldedRequestMethodGenerator extends MethodGeneratorBase {
 
     @Override
     protected CodeBlock body(TypeModel returnType, List<ParameterSpec> params) {
-        ClassName protoType = method.getInputType().getProtobufTypeName(context.configuration().namingManager());
+        ClassName protoType = method.getInputType().getProtobufTypeName();
         if (method.getInputType().isDomain()) {
-            ClassName inputType = method.getInputType().getGeneratedTypeName(context.configuration().namingManager());
+            ClassName inputType = method.getInputType().getDomainTypeName(context.configuration().namingManager());
             CodeBlock paramsAsList = Poem.separatedSequence(
                     params.stream()
                             .map(p -> CodeBlock.builder().add("$N", p).build()) // extract param name

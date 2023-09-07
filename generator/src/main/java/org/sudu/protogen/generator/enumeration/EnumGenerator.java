@@ -17,12 +17,13 @@ public class EnumGenerator {
     public EnumGenerator(GenerationContext context, Enum anEnum) {
         this.context = context;
         this.anEnum = anEnum;
-        this.protoType = anEnum.getProtobufTypeName(context.configuration().namingManager());
-        this.generatedType = anEnum.getGeneratedTypeName(context.configuration().namingManager());
+        this.protoType = anEnum.getProtobufTypeName();
+        this.generatedType = anEnum.getDomainTypeName(context.configuration().namingManager());
     }
 
     public TypeSpec generate() {
-        var builder = TypeSpec.enumBuilder(anEnum.generatedName(context.configuration().namingManager()))
+        ClassName domainTypeName = anEnum.getDomainTypeName(context.configuration().namingManager());
+        var builder = TypeSpec.enumBuilder(domainTypeName.simpleName())
                 .addModifiers(Modifier.PUBLIC);
         anEnum.getValues().stream()
                 .filter(val -> !val.isUnused())

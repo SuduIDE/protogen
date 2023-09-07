@@ -10,7 +10,6 @@ package org.sudu.protogen.plugin;
 import com.google.protobuf.ExtensionRegistry;
 import com.google.protobuf.GeneratedMessage.GeneratedExtension;
 import com.google.protobuf.compiler.PluginProtos;
-import org.apache.commons.io.Charsets;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
@@ -20,6 +19,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -29,6 +29,7 @@ import java.util.stream.Stream;
  * ProtocPlugin is the main entry point for running one or more java-base protoc plugins. This class handles
  * I/O marshaling and error reporting.
  */
+@SuppressWarnings("rawtypes")
 public final class ProtocPlugin {
 
     private ProtocPlugin() {
@@ -172,11 +173,12 @@ public final class ProtocPlugin {
                 }
 
                 FileUtils.createParentDirectories(outFile);
-                FileUtils.write(outFile, file.getContent(), Charsets.UTF_8);
+                FileUtils.write(outFile, file.getContent(), StandardCharsets.UTF_8);
 //                FileUtils.write(outFile, file.getContentBytes());
             }
 
         } catch (Throwable ex) { // Catch all the things!
+            //noinspection CallToPrintStackTrace
             ex.printStackTrace();
         }
     }

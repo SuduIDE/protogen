@@ -12,90 +12,93 @@ import java.util.stream.Stream;
 
 public class Message extends EnumOrMessage {
 
-    private final Descriptors.Descriptor descriptor;
+    private final Descriptors.Descriptor messageDescriptor;
 
-    public Message(Descriptors.Descriptor descriptor) {
-        this.descriptor = descriptor;
+    public Message(Descriptors.Descriptor messageDescriptor) {
+        this.messageDescriptor = messageDescriptor;
     }
 
     public List<Field> getFields() {
-        return descriptor.getFields().stream()
+        return messageDescriptor.getFields().stream()
                 .map(Field::new)
                 .toList();
     }
 
-    public final boolean isUnfolded() {
+    public boolean isUnfolded() {
         if (getFields().size() != 1) return false;
         return getUnfoldOption().orElse(false);
     }
 
+    /**
+     * protobuf internal flag to mark map entries
+     *
+     * @see <a href="https://protobuf.dev/programming-guides/proto3/#backwards">map specification</a>
+     */
+    public boolean isMap() {
+        return messageDescriptor.getOptions().getMapEntry();
+    }
+
+    public Optional<String> getComparatorReference() {
+        return Options.wrapExtension(messageDescriptor.getOptions(), protogen.Options.messageComparator);
+    }
+
     @Override
     public @NotNull String getName() {
-        return descriptor.getName();
+        return messageDescriptor.getName();
     }
 
     @Override
     public @NotNull String getFullName() {
-        return descriptor.getFullName();
+        return messageDescriptor.getFullName();
     }
 
     @Override
-    public @NotNull File getContainingFile() {
-        return new File(descriptor.getFile());
-    }
-
-    @Override
-    public @Nullable Message getContainingType() {
-        return descriptor.getContainingType() == null ? null : new Message(descriptor.getContainingType());
-    }
-
-    @Override
-    public List<? extends EnumOrMessage> getNested() {
-        var messages = descriptor.getNestedTypes().stream()
+    public @NotNull List<? extends EnumOrMessage> getNested() {
+        var messages = messageDescriptor.getNestedTypes().stream()
                 .map(Message::new);
-        var enums = descriptor.getEnumTypes().stream()
+        var enums = messageDescriptor.getEnumTypes().stream()
                 .map(Enum::new);
         return Stream.concat(messages, enums).toList();
     }
 
-    /*
-     * Options are not supposed to be used at high-level logic.
-     * They return only the value of an option in .proto file.
-     * Advanced logic taking into account other options and configuration values
-     * is placed at top-level methods such as isUnfolded for getUnfoldOption.
-     */
+    @Override
+    public @NotNull File getContainingFile() {
+        return new File(messageDescriptor.getFile());
+    }
 
-    /**
-     * protobuf internal flag to tag map entries
-     *
-     * @see <a href="https://protobuf.dev/programming-guides/proto3/#backwards">map specification</a>
-     */
+    @Override
+    public @Nullable Message getContainingType() {
+        return Optional.ofNullable(messageDescriptor.getContainingType())
+                .map(Message::new)
+                .orElse(null);
+    }
+
+    @Override
+    public @Nullable String getCustomClass() {
+        return Options.wrapExtension(messageDescriptor.getOptions(), protogen.Options.customClass).orElse(null);
+    }
+
+    @Override
+    public boolean doGenerate() {
+        if (isMap()) return getDoGenerateOption().orElse(false);
+        if (isUnfolded()) return getDoGenerateOption().orElse(false);
+        return super.doGenerate();
+    }
+
+    // -----------------
+
+    protected Optional<Boolean> getUnfoldOption() {
+        return Options.wrapExtension(messageDescriptor.getOptions(), protogen.Options.unfold);
+    }
 
     @Override
     protected Optional<Boolean> getDoGenerateOption() {
-        return Options.wrapExtension(descriptor.getOptions(), protogen.Options.genMessage);
+        return Options.wrapExtension(messageDescriptor.getOptions(), protogen.Options.genMessage);
     }
 
     @Override
     protected Optional<String> getOverriddenNameOption() {
-        return Options.wrapExtension(descriptor.getOptions(), protogen.Options.messageName);
-    }
-
-    @Override
-    protected Optional<String> getCustomClassNameOption() {
-        return Options.wrapExtension(descriptor.getOptions(), protogen.Options.customClass);
-    }
-
-    public boolean isMap() {
-        return descriptor.getOptions().getMapEntry();
-    }
-
-    public Optional<String> getComparatorReference() {
-        return Options.wrapExtension(descriptor.getOptions(), protogen.Options.messageComparator);
-    }
-
-    public Optional<Boolean> getUnfoldOption() {
-        return Options.wrapExtension(descriptor.getOptions(), protogen.Options.unfold);
+        return Options.wrapExtension(messageDescriptor.getOptions(), protogen.Options.messageName);
     }
 
     @Override
@@ -103,11 +106,11 @@ public class Message extends EnumOrMessage {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Message message = (Message) o;
-        return Objects.equals(descriptor, message.descriptor);
+        return Objects.equals(messageDescriptor, message.messageDescriptor);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(descriptor);
+        return Objects.hash(messageDescriptor);
     }
 }

@@ -10,8 +10,8 @@ class DomainTypeProcessor extends TypeProcessor.Chain {
 
     @Override
     public @NotNull TypeModel processType(@NotNull EnumOrMessage type, @NotNull GenerationContext context) {
-        if (type.doGenerate() || type.customClass() != null) {
-            return new DomainType(type.getGeneratedTypeName(context.configuration().namingManager()));
+        if (type.doGenerate() || type.getCustomClass() != null) {
+            return new DomainType(type.getDomainTypeName(context.configuration().namingManager()));
         } else {
             throw new IllegalArgumentException((
                     "It's not possible to process type of %s because it doesn't have a domain object. " +

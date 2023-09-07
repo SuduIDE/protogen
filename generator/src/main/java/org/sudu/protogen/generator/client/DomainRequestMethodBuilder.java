@@ -18,7 +18,7 @@ public class DomainRequestMethodBuilder extends MethodGeneratorBase {
 
     @Override
     protected List<ParameterSpec> parameters() {
-        ClassName domainType = method.getInputType().getGeneratedTypeName(context.configuration().namingManager());
+        ClassName domainType = method.getInputType().getDomainTypeName(context.configuration().namingManager());
         return List.of(ParameterSpec.builder(domainType, "request").build());
     }
 

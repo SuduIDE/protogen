@@ -16,7 +16,6 @@ import org.sudu.protogen.generator.type.processors.TypeProcessor;
 import org.sudu.protogen.plugin.Generator;
 import org.sudu.protogen.plugin.GeneratorException;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -44,14 +43,11 @@ public class ProtogenGenerator extends Generator {
                 .filter(file -> request.filesToGenerateNames().contains(file.getName()))
                 .toList();
         var context = new GenerationContext(
-                filesToGenerate,
                 configuration,
                 TypeProcessor.Chain.getProcessingChain(),
-                FieldTypeProcessor.Chain.getProcessingChain(),
-                new HashMap<>(),
-                new HashMap<>()
+                FieldTypeProcessor.Chain.getProcessingChain()
         );
-        return new org.sudu.protogen.generator.Generator(context).generate();
+        return new org.sudu.protogen.generator.Generator(context, filesToGenerate).generate();
     }
 
     @NotNull

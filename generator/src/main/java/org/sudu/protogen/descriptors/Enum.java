@@ -11,54 +11,58 @@ import java.util.Optional;
 
 public class Enum extends EnumOrMessage {
 
-    private final Descriptors.EnumDescriptor descriptor;
+    private final Descriptors.EnumDescriptor enumDescriptor;
 
-    public Enum(Descriptors.EnumDescriptor descriptor) {
-        this.descriptor = descriptor;
+    public Enum(Descriptors.EnumDescriptor enumDescriptor) {
+        this.enumDescriptor = enumDescriptor;
     }
 
     public List<? extends Value> getValues() {
-        return descriptor.getValues().stream().map(Value::new).toList();
+        return enumDescriptor.getValues().stream().map(Value::new).toList();
     }
 
     @Override
     public @NotNull String getName() {
-        return descriptor.getName();
+        return enumDescriptor.getName();
     }
 
     @Override
     public @NotNull String getFullName() {
-        return descriptor.getFullName();
+        return enumDescriptor.getFullName();
     }
 
     @Override
-    public @NotNull File getContainingFile() {
-        return new File(descriptor.getFile());
-    }
-
-    @Override
-    public @Nullable Message getContainingType() {
-        return descriptor.getContainingType() == null ? null : new Message(descriptor.getContainingType());
-    }
-
-    @Override
-    public List<EnumOrMessage> getNested() {
+    public @NotNull List<EnumOrMessage> getNested() {
         return List.of();
     }
 
     @Override
+    public @NotNull File getContainingFile() {
+        return new File(enumDescriptor.getFile());
+    }
+
+    @Override
+    public @Nullable Message getContainingType() {
+        return Optional.ofNullable(enumDescriptor.getContainingType())
+                .map(Message::new)
+                .orElse(null);
+    }
+
+    @Override
+    public @Nullable String getCustomClass() {
+        return Options.wrapExtension(enumDescriptor.getOptions(), protogen.Options.customEnum).orElse(null);
+    }
+
+    // -----------------
+
+    @Override
     protected Optional<Boolean> getDoGenerateOption() {
-        return Options.wrapExtension(descriptor.getOptions(), protogen.Options.genEnum);
+        return Options.wrapExtension(enumDescriptor.getOptions(), protogen.Options.genEnum);
     }
 
     @Override
     protected Optional<String> getOverriddenNameOption() {
-        return Options.wrapExtension(descriptor.getOptions(), protogen.Options.enumName);
-    }
-
-    @Override
-    protected Optional<String> getCustomClassNameOption() {
-        return Options.wrapExtension(descriptor.getOptions(), protogen.Options.customEnum);
+        return Options.wrapExtension(enumDescriptor.getOptions(), protogen.Options.enumName);
     }
 
     @Override
@@ -66,12 +70,12 @@ public class Enum extends EnumOrMessage {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Enum anEnum = (Enum) o;
-        return Objects.equals(descriptor, anEnum.descriptor);
+        return Objects.equals(enumDescriptor, anEnum.enumDescriptor);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(descriptor);
+        return Objects.hash(enumDescriptor);
     }
 
     public static class Value {
@@ -82,17 +86,19 @@ public class Enum extends EnumOrMessage {
             this.valueDescriptor = valueDescriptor;
         }
 
-        public final String generatedName() {
+        public String generatedName() {
             return getOverriddenNameOption().orElse(getName());
         }
 
-        public final boolean isUnused() {
+        public boolean isUnused() {
             return getUnusedOption().orElse(false);
         }
 
         public String getName() {
             return valueDescriptor.getName();
         }
+
+        // -----------------
 
         protected Optional<String> getOverriddenNameOption() {
             return Options.wrapExtension(valueDescriptor.getOptions(), protogen.Options.enumValName);

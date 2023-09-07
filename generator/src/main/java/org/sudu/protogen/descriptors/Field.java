@@ -2,7 +2,7 @@ package org.sudu.protogen.descriptors;
 
 import com.google.protobuf.Descriptors;
 import org.apache.commons.lang3.Validate;
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
 import org.sudu.protogen.Options;
 
 import java.util.Objects;
@@ -28,16 +28,14 @@ public class Field {
         return mapType(descriptor.getJavaType());
     }
 
-    public @Nullable Message getMessageType() {
-        return descriptor.getJavaType() == Descriptors.FieldDescriptor.JavaType.MESSAGE
-                ? new Message(descriptor.getMessageType())
-                : null;
+    public @NotNull Message getMessageType() {
+        Validate.validState(getType() == Type.MESSAGE);
+        return new Message(descriptor.getMessageType());
     }
 
-    public @Nullable Enum getEnumType() {
-        return descriptor.getJavaType() == Descriptors.FieldDescriptor.JavaType.ENUM
-                ? new Enum(descriptor.getEnumType())
-                : null;
+    public @NotNull Enum getEnumType() {
+        Validate.validState(getType() == Type.ENUM);
+        return new Enum(descriptor.getEnumType());
     }
 
     public Message getContainingMessage() {
@@ -53,13 +51,11 @@ public class Field {
     }
 
     public final boolean isMap() {
-//        noinspection DataFlowIssue because getMessageType() != null iff type == MESSAGE
         return getType() == Type.MESSAGE
                 && getMessageType().isMap();
     }
 
     public final boolean isUnfolded() {
-        //noinspection DataFlowIssue because getMessageType() != null iff type == MESSAGE
         return getType() == Type.MESSAGE && getMessageType().isUnfolded();
     }
 
@@ -68,7 +64,6 @@ public class Field {
     }
 
     public final Field getUnfoldedField() {
-        //noinspection DataFlowIssue because isUnfolded() true iff getMessageType() != null
         Validate.validState(isUnfolded());
         return getMessageType().getFields().get(0);
     }
@@ -82,12 +77,7 @@ public class Field {
         return getRepeatedContainerOption().orElse(RepeatedContainer.LIST);
     }
 
-    /*
-     * Options are not supposed to be used at high-level logic.
-     * They return only the value of an option in .proto file.
-     * Advanced logic taking into account other options and configuration values
-     * is placed at top-level methods such as getGenerateOption for getGenerateOption.
-     */
+    // -----------
 
     protected boolean isRepeated() {
         return descriptor.isRepeated();

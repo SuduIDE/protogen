@@ -2,7 +2,10 @@ package org.sudu.protogen.descriptors;
 
 import com.google.protobuf.Descriptors;
 import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.TypeSpec;
 import org.sudu.protogen.Options;
+import org.sudu.protogen.generator.GenerationContext;
+import org.sudu.protogen.generator.client.ClientGenerator;
 import org.sudu.protogen.utils.Name;
 
 import java.util.List;
@@ -11,22 +14,22 @@ import java.util.Optional;
 
 public class Service {
 
-    private final Descriptors.ServiceDescriptor descriptor;
+    private final Descriptors.ServiceDescriptor serviceDescriptor;
 
-    public Service(Descriptors.ServiceDescriptor descriptor) {
-        this.descriptor = descriptor;
+    public Service(Descriptors.ServiceDescriptor serviceDescriptor) {
+        this.serviceDescriptor = serviceDescriptor;
     }
 
     public String getName() {
-        return descriptor.getName();
+        return serviceDescriptor.getName();
     }
 
     public File getContainingFile() {
-        return new File(descriptor.getFile());
+        return new File(serviceDescriptor.getFile());
     }
 
     public List<? extends Method> getMethods() {
-        return descriptor.getMethods().stream()
+        return serviceDescriptor.getMethods().stream()
                 .map(Method::new)
                 .toList();
     }
@@ -36,7 +39,7 @@ public class Service {
     }
 
     public final boolean doGenerate() {
-        return getGenerateOption().orElse(getContainingFile().doGenerate());
+        return getGenerateOption().orElse(getContainingFile().doEnableGenerator());
     }
 
     public final String generatedName() {
@@ -55,16 +58,20 @@ public class Service {
         return ClassName.get(stubClass.packageName(), stubClass.simpleName() + "." + getName() + "BlockingStub");
     }
 
+    public final TypeSpec generate(GenerationContext context) {
+        return new ClientGenerator(context, this).generate();
+    }
+
     protected Optional<Boolean> getAbstractOption() {
-        return Options.wrapExtension(descriptor.getOptions(), protogen.Options.abstract_);
+        return Options.wrapExtension(serviceDescriptor.getOptions(), protogen.Options.abstract_);
     }
 
     protected Optional<Boolean> getGenerateOption() {
-        return Options.wrapExtension(descriptor.getOptions(), protogen.Options.genService);
+        return Options.wrapExtension(serviceDescriptor.getOptions(), protogen.Options.genService);
     }
 
     protected Optional<String> getNameOption() {
-        return Options.wrapExtension(descriptor.getOptions(), protogen.Options.serviceName);
+        return Options.wrapExtension(serviceDescriptor.getOptions(), protogen.Options.serviceName);
     }
 
     @Override
@@ -72,11 +79,11 @@ public class Service {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Service service = (Service) o;
-        return Objects.equals(descriptor, service.descriptor);
+        return Objects.equals(serviceDescriptor, service.serviceDescriptor);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(descriptor);
+        return Objects.hash(serviceDescriptor);
     }
 }

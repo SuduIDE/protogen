@@ -5,5 +5,5 @@ import org.jetbrains.annotations.NotNull;
 public interface NamingManager {
 
     @NotNull
-    String getDomainName(@NotNull String messageName);
+    String manageName(@NotNull String originalName);
 }

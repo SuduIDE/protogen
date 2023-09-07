@@ -9,32 +9,31 @@ import java.util.Optional;
 
 public class Method {
 
-    private final Descriptors.MethodDescriptor descriptor;
+    private final Descriptors.MethodDescriptor methodDescriptor;
 
-    public Method(Descriptors.MethodDescriptor descriptor) {
-        this.descriptor = descriptor;
+    public Method(Descriptors.MethodDescriptor methodDescriptor) {
+        this.methodDescriptor = methodDescriptor;
     }
 
     public String getName() {
-        return descriptor.getName();
+        return methodDescriptor.getName();
     }
 
     public Message getInputType() {
-        return new Message(descriptor.getInputType());
+        return new Message(methodDescriptor.getInputType());
     }
 
     public Message getOutputType() {
-        return new Message(descriptor.getOutputType());
+        return new Message(methodDescriptor.getOutputType());
     }
 
     public boolean isInputStreaming() {
-        return descriptor.isClientStreaming();
+        return methodDescriptor.isClientStreaming();
     }
 
     public boolean isOutputStreaming() {
-        return descriptor.isServerStreaming();
+        return methodDescriptor.isServerStreaming();
     }
-
 
     public final boolean isNullable() {
         return getNullableOption().orElse(false);
@@ -65,24 +64,24 @@ public class Method {
     }
 
     protected Optional<Boolean> getGenerateOption() {
-        return Options.wrapExtension(descriptor.getOptions(), protogen.Options.genMethod);
+        return Options.wrapExtension(methodDescriptor.getOptions(), protogen.Options.genMethod);
     }
 
     protected Optional<Boolean> getUnfoldRequestOption() {
-        return Options.wrapExtension(descriptor.getOptions(), protogen.Options.unfoldRequest);
+        return Options.wrapExtension(methodDescriptor.getOptions(), protogen.Options.unfoldRequest);
     }
 
     protected Optional<Boolean> getNullableOption() {
-        return Options.wrapExtension(descriptor.getOptions(), protogen.Options.nullable);
+        return Options.wrapExtension(methodDescriptor.getOptions(), protogen.Options.nullable);
     }
 
     public Optional<RepeatedContainer> getStreamToContainer() {
-        return Options.wrapExtension(descriptor.getOptions(), protogen.Options.streamToContainer)
+        return Options.wrapExtension(methodDescriptor.getOptions(), protogen.Options.streamToContainer)
                 .map(RepeatedContainer::fromGrpc);
     }
 
     protected Optional<String> getNameOption() {
-        return Options.wrapExtension(descriptor.getOptions(), protogen.Options.methodName);
+        return Options.wrapExtension(methodDescriptor.getOptions(), protogen.Options.methodName);
     }
 
     @Override
@@ -90,11 +89,11 @@ public class Method {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Method method = (Method) o;
-        return Objects.equals(descriptor, method.descriptor);
+        return Objects.equals(methodDescriptor, method.methodDescriptor);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(descriptor);
+        return Objects.hash(methodDescriptor);
     }
 }

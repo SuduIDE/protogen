@@ -15,47 +15,47 @@ import java.util.stream.Stream;
 
 public class File {
 
-    private final Descriptors.FileDescriptor descriptor;
+    private final Descriptors.FileDescriptor fileDescriptor;
 
-    public File(Descriptors.FileDescriptor descriptor) {
-        this.descriptor = descriptor;
+    public File(Descriptors.FileDescriptor fileDescriptor) {
+        this.fileDescriptor = fileDescriptor;
     }
 
     public @NotNull String getName() {
-        return descriptor.getName();
+        return fileDescriptor.getName();
     }
 
     public @NotNull String getProtoPackage() {
-        return descriptor.getPackage();
+        return fileDescriptor.getPackage();
     }
 
     public @NotNull List<? extends EnumOrMessage> getNested() {
-        var messages = descriptor.getMessageTypes().stream()
+        var messages = fileDescriptor.getMessageTypes().stream()
                 .map(Message::new);
-        var enums = descriptor.getEnumTypes().stream()
+        var enums = fileDescriptor.getEnumTypes().stream()
                 .map(Enum::new);
         return Stream.concat(messages, enums).toList();
     }
 
     public @NotNull List<? extends Service> getServices() {
-        return descriptor.getServices().stream()
+        return fileDescriptor.getServices().stream()
                 .map(Service::new)
                 .toList();
     }
 
     // =============
 
-    public final @NotNull String getGeneratePackage() {
+    public @NotNull String getGeneratePackage() {
         return getProtogenPackageOption()
                 .orElse(StringUtils.removeEnd(getJavaPackage(), ".grpc"));
     }
 
-    public final @NotNull String getJavaPackage() {
+    public @NotNull String getJavaPackage() {
         return getJavaPackageOption()
                 .orElse(getProtoPackage());
     }
 
-    public final @NotNull String getJavaOuterClassname() {
+    public @NotNull String getJavaOuterClassname() {
         if (getJavaOuterClassnameOption().isPresent()) {
             return getJavaOuterClassnameOption().get();
         }
@@ -76,65 +76,47 @@ public class File {
         return filename;
     }
 
-    @Nullable
-    public final String getEnclosingClass() {
+    public @Nullable String getEnclosingClass() {
         return getJavaMultipleFiles() ? null : getJavaOuterClassname();
     }
 
-    public final boolean getJavaMultipleFiles() {
-        return getJavaMultipleFilesOption().orElse(false);
+    public boolean getJavaMultipleFiles() {
+        return fileDescriptor.getOptions().getJavaMultipleFiles();
     }
 
     // =============
 
-    /**
-     * @return Whether generation of <b>all</b> entries of file is required.
-     * However, it doesn't applicable to determine whether scanning of the file is required.
-     * Primarily created for EnumOrMessage#goGenerate
-     */
-    public final boolean doGenerate() {
-        return getGenerateOption().orElse(false);
+    public boolean doEnableGenerator() {
+        return getEnableOption().orElse(false);
     }
 
-    public final boolean doUseNullabilityAnnotation(boolean isNullable) {
-        // !nullable -> disable_notnull == false  <=>   nullable || disable_notnull == false
+    public boolean doUseNullabilityAnnotation(boolean isNullable) {
+        // notNullable -> !disable_notnull
         return isNullable || !getDisableNotNullOption().orElse(false);
     }
 
     // =============
 
-    /*
-     * Options are not supposed to be used at high-level logic.
-     * They return only the value of an option in .proto file.
-     * Advanced logic taking into account other options and configuration values
-     * is placed at top-level methods such as doGenerate for getGenerateOption.
-     */
-
-    protected @NotNull Optional<Boolean> getJavaMultipleFilesOption() {
-        return Optional.of(descriptor.getOptions().getJavaMultipleFiles())
-                .filter($ -> descriptor.getOptions().hasJavaMultipleFiles());
-    }
-
     protected @NotNull Optional<String> getJavaOuterClassnameOption() {
-        return Optional.of(descriptor.getOptions().getJavaOuterClassname())
-                .filter($ -> descriptor.getOptions().hasJavaOuterClassname());
+        return Optional.of(fileDescriptor.getOptions().getJavaOuterClassname())
+                .filter($ -> fileDescriptor.getOptions().hasJavaOuterClassname());
     }
 
     protected @NotNull Optional<String> getProtogenPackageOption() {
-        return Options.wrapExtension(descriptor.getOptions(), protogen.Options.pkg);
+        return Options.wrapExtension(fileDescriptor.getOptions(), protogen.Options.pkg);
     }
 
     protected @NotNull Optional<String> getJavaPackageOption() {
-        return Optional.of(descriptor.getOptions().getJavaPackage())
-                .filter($ -> descriptor.getOptions().hasJavaPackage());
+        return Optional.of(fileDescriptor.getOptions().getJavaPackage())
+                .filter($ -> fileDescriptor.getOptions().hasJavaPackage());
     }
 
-    protected @NotNull Optional<Boolean> getGenerateOption() {
-        return Options.wrapExtension(descriptor.getOptions(), protogen.Options.enable);
+    protected @NotNull Optional<Boolean> getEnableOption() {
+        return Options.wrapExtension(fileDescriptor.getOptions(), protogen.Options.enable);
     }
 
     protected @NotNull Optional<Boolean> getDisableNotNullOption() {
-        return Options.wrapExtension(descriptor.getOptions(), protogen.Options.disableNotnull);
+        return Options.wrapExtension(fileDescriptor.getOptions(), protogen.Options.disableNotnull);
     }
 
     @Override
@@ -142,11 +124,11 @@ public class File {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         File file = (File) o;
-        return Objects.equals(descriptor, file.descriptor);
+        return Objects.equals(fileDescriptor, file.fileDescriptor);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(descriptor);
+        return Objects.hash(fileDescriptor);
     }
 }
