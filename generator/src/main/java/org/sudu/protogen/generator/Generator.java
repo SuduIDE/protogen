@@ -49,7 +49,7 @@ public class Generator {
             String packageName = file.getGeneratePackage();
             for (EnumOrMessage type : file.getNested()) {
                 if (!type.doGenerate()) continue;
-                generateType(type, false)
+                generateType(type)
                         .map(typeSpec -> JavaFile.builder(packageName, typeSpec)
                                 .indent(getIndentation())
                                 .build()
@@ -74,12 +74,9 @@ public class Generator {
         return result;
     }
 
-    private Stream<TypeSpec> generateType(EnumOrMessage descriptor, boolean forceGenerate) {
+    private Stream<TypeSpec> generateType(EnumOrMessage descriptor) {
         Stream<TypeSpec> result = Stream.of();
-        if (!descriptor.doGenerate() && !forceGenerate) return result;
-        for (EnumOrMessage nested : descriptor.getNested()) {
-            result = Stream.concat(result, generateType(nested, false));
-        }
+        if (!descriptor.doGenerate()) return result;
         TypeSpec generated = invokeTypeGenerator(descriptor);
         context.domains().put(descriptor, generated);
         result = Stream.concat(result, Stream.of(generated));
