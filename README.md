@@ -200,7 +200,7 @@ message GrpcPerson {
 
 ```java
 public record Person(
-        long pId,
+        long id,
         @NotNull String name,
         @Nullable String email
 ) {
@@ -208,7 +208,7 @@ public record Person(
     @NotNull
     public static Person fromGrpc(@NotNull GrpcPerson proto) {
         return new Person(
-                proto.getId().getId(),
+                proto.getId().getPId(),
                 proto.getName(),
                 proto.hasEmail() ? proto.getEmail() : null
         );
@@ -217,29 +217,13 @@ public record Person(
     @NotNull
     public GrpcPerson toGrpc() {
         GrpcPerson.Builder builder = GrpcPerson.newBuilder();
-        builder.setId(GrpcPersonId.newBuilder().setId(pId).build());
+        builder.setId(GrpcPersonId.newBuilder().sePtId(id).build());
         builder.setName(name);
         if (email != null) {
             builder.setEmail(email);
         }
         return builder.build();
     }
-}
-```
-
-As shown, the `id` field name is taken from the unfolded type. If you want to override it, place the (
-protogen.field_name) option in the consuming message.
-
-```protobuf
-message GrpcPersonId {
-  uint64 pId = 1;
-  option (protogen.unfold) = true;
-}
-
-message GrpcPerson {
-  GrpcPersonId id = 1 [(protogen.field_name) = "personId"];
-  string name = 2;
-  optional string email = 3;
 }
 ```
 
