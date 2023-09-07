@@ -4,6 +4,7 @@ import com.squareup.javapoet.TypeName;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 public record RegisteredTransformer(
         String protoType,
@@ -14,25 +15,57 @@ public record RegisteredTransformer(
 
     @NotNull
     public static List<RegisteredTransformer> defaultTransformers() {
-        return List.of(
-                new RegisteredTransformer(
-                        "google.protobuf.Timestamp",
-                        "java.time.Instant",
-                        new TransformRule("$T.ofEpochSecond($L.getSeconds(), $L.getNanos())"),
-                        new TransformRule(".setSeconds($L.getEpochSecond()).setNanos($L.getNano())")
+        RegisteredTransformer emptyTransformer = new RegisteredTransformer(
+                "google.protobuf.Empty",
+                "void",
+                new TransformRule("$L"),
+                new TransformRule("")
+        );
+        RegisteredTransformer timestampTransformer = new RegisteredTransformer(
+                "google.protobuf.Timestamp",
+                "java.time.Instant",
+                new TransformRule("$T.ofEpochSecond($L.getSeconds(), $L.getNanos())"),
+                new TransformRule(".setSeconds($L.getEpochSecond()).setNanos($L.getNano())")
+        );
+        RegisteredTransformer durationTransformer = new RegisteredTransformer(
+                "google.protobuf.Duration",
+                "java.time.Duration",
+                new TransformRule("$T.ofSeconds($L.getSeconds(), $L.getNanos())"),
+                new TransformRule(".setSeconds($L.getSeconds()).setNanos($L.getNano())")
+        );
+        RegisteredTransformer byteStringTransformer = new RegisteredTransformer(
+                "google.protobuf.BytesValue",
+                "com.google.protobuf.ByteString",
+                new TransformRule("$L.getValue()"),
+                new TransformRule(".setValue($L)")
+        );
+        return Stream.concat(
+                Stream.of(
+                        timestampTransformer,
+                        durationTransformer,
+                        emptyTransformer,
+                        byteStringTransformer
                 ),
-                new RegisteredTransformer(
-                        "google.protobuf.Duration",
-                        "java.time.Duration",
-                        new TransformRule("$T.ofSeconds($L.getSeconds(), $L.getNanos())"),
-                        new TransformRule(".setSeconds($L.getSeconds()).setNanos($L.getNano())")
-                ),
-                new RegisteredTransformer(
-                        "google.protobuf.Empty",
-                        "void",
-                        new TransformRule("$L"),
-                        new TransformRule("")
+                Stream.of(
+                        makeWrapperTransformer("google.protobuf.DoubleValue", "double"),
+                        makeWrapperTransformer("google.protobuf.FloatValue", "float"),
+                        makeWrapperTransformer("google.protobuf.Int64Value", "long"),
+                        makeWrapperTransformer("google.protobuf.UInt64Value", "long"),
+                        makeWrapperTransformer("google.protobuf.Int32Value", "int"),
+                        makeWrapperTransformer("google.protobuf.UInt32Value", "int"),
+                        makeWrapperTransformer("google.protobuf.BoolValue", "bool"),
+                        makeWrapperTransformer("google.protobuf.StringValue", "String")
                 )
+        ).toList();
+    }
+
+    @NotNull
+    private static RegisteredTransformer makeWrapperTransformer(String wrapperType, String javaClass) {
+        return new RegisteredTransformer(
+                wrapperType,
+                javaClass,
+                new TransformRule("$L.getValue()"),
+                new TransformRule(".setValue($L)")
         );
     }
 
