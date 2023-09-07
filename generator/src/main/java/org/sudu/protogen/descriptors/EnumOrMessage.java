@@ -1,9 +1,11 @@
 package org.sudu.protogen.descriptors;
 
+import com.squareup.javapoet.ClassName;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.sudu.protogen.config.Configuration;
+import org.sudu.protogen.config.naming.NamingManager;
+import org.sudu.protogen.utils.Name;
 
 import java.util.List;
 import java.util.Optional;
@@ -33,10 +35,31 @@ public abstract class EnumOrMessage {
         }
     }
 
-    public final String generatedName(Configuration configuration) {
+    public final ClassName getProtobufTypeName(NamingManager namingManager) {
+        if (getContainingType() == null) {
+            String javaPackage = getContainingFile().getJavaPackage();
+            String enclosingClass = getContainingFile().getEnclosingClass();
+            String className = enclosingClass == null ? getName() : enclosingClass + "." + getName();
+            return ClassName.get(javaPackage, className);
+        } else {
+            ClassName containing = getContainingType().getGeneratedTypeName(namingManager);
+            return ClassName.get(containing.packageName(), containing.simpleName(), getName());
+        }
+    }
+
+    public final ClassName getGeneratedTypeName(NamingManager namingManager) {
+        String customClass = customClass();
+        if (customClass != null) {
+            return ClassName.get(Name.getPackage(customClass), Name.getLastName(customClass));
+        }
+        String javaPackage = getContainingFile().getGeneratePackage();
+        return ClassName.get(javaPackage, generatedName(namingManager));
+    }
+
+    public final String generatedName(NamingManager namingManager) {
         Validate.validState(doGenerate(), "Check doGenerate() before calling generatedName()!");
         return getOverriddenNameOption()
-                .orElseGet(() -> configuration.namingManager().getDomainName(getName()));
+                .orElseGet(() -> namingManager.getDomainName(getName()));
     }
 
     public final boolean doGenerate() {

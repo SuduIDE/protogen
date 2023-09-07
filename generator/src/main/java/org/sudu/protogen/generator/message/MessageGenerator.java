@@ -89,10 +89,10 @@ public class MessageGenerator {
     }
 
     private ClassName protoType() {
-        return generationContext.protoTypeTable().getType(msgDescriptor);
+        return msgDescriptor.getProtobufTypeName(generationContext.configuration().namingManager());
     }
 
     private ClassName generatedType() {
-        return generationContext.domainTypeTable().getType(msgDescriptor);
+        return msgDescriptor.getGeneratedTypeName(generationContext.configuration().namingManager());
     }
 }

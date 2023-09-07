@@ -11,7 +11,6 @@ import org.sudu.protogen.config.YamlExternalConfigurationParser;
 import org.sudu.protogen.generator.GenerationContext;
 import org.sudu.protogen.generator.GenerationRequest;
 import org.sudu.protogen.generator.GenerationResult;
-import org.sudu.protogen.generator.TypeTable;
 import org.sudu.protogen.generator.field.processors.FieldTypeProcessor;
 import org.sudu.protogen.generator.type.processors.TypeProcessor;
 import org.sudu.protogen.plugin.Generator;
@@ -49,8 +48,6 @@ public class ProtogenGenerator extends Generator {
                 configuration,
                 TypeProcessor.Chain.getProcessingChain(),
                 FieldTypeProcessor.Chain.getProcessingChain(),
-                TypeTable.makeProtoTypeTable(allFiles, configuration),
-                TypeTable.makeDomainTypeTable(allFiles, configuration),
                 new HashMap<>(),
                 new HashMap<>()
         );

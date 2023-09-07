@@ -20,7 +20,7 @@ class RegisteredTypeProcessor extends TypeProcessor.Chain {
             if (!type.getFullName().matches(transformer.protoType())) continue;
             return new RegisteredType(
                     ClassName.get(Name.getPackage(transformer.javaClass()), Name.getLastName(transformer.javaClass())),
-                    context.protoTypeTable().getType(type),
+                    type.getProtobufTypeName(context.configuration().namingManager()),
                     transformer
             );
         }
