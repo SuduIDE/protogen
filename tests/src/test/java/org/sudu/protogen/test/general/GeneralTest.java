@@ -17,7 +17,7 @@ public class GeneralTest {
     @Test
     public void task_should_be_as_expected() {
         Class<?> taskClass = Task.class;
-        Assertions.assertEquals(String.class, utils.getComponentByName(taskClass, "uuid").getType());
+        Assertions.assertEquals(String.class, utils.getComponentByName(taskClass, "id").getType());
         Assertions.assertEquals(TaskStatus.class, utils.getComponentByName(taskClass, "status").getType());
         Assertions.assertEquals(Instant.class, utils.getComponentByName(taskClass, "createdAt").getType());
         Assertions.assertEquals(String.class, utils.getComponentByName(taskClass, "context").getType());
@@ -32,13 +32,13 @@ public class GeneralTest {
     @Test
     public void fromGrpc_should_set_all_fields() {
         GrpcTask grpcTask = GrpcTask.newBuilder()
-                .setId(GrpcTaskId.newBuilder().setUuid("uuid").build())
+                .setId(GrpcTaskId.newBuilder().setUuid("id").build())
                 .setStatus(GrpcTaskStatus.CREATED)
                 .setCreatedAt(Timestamp.newBuilder().setSeconds(1).build())
                 .setContext("context")
                 .build();
         Task task = Task.fromGrpc(grpcTask);
-        Assertions.assertEquals("uuid", task.uuid());
+        Assertions.assertEquals("id", task.id());
         Assertions.assertEquals(TaskStatus.CREATED, task.status());
         Assertions.assertEquals(Instant.ofEpochSecond(1), task.createdAt());
         Assertions.assertEquals("context", task.context());

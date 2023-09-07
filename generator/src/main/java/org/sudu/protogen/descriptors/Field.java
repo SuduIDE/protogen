@@ -74,8 +74,7 @@ public class Field {
     }
 
     public final String getGeneratedName() {
-        return getOverriddenNameOption()
-                .orElseGet(() -> isUnfolded() ? getUnfoldedField().getGeneratedName() : getName());
+        return getOverriddenNameOption().orElseGet(this::getName);
 
     }
 

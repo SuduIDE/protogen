@@ -36,7 +36,7 @@ public class UnfoldingTest {
         utils.getComponentByName(domain, "id");
         utils.getComponentByName(domain, "optionalId");
         utils.getComponentByName(domain, "repeatedId");
-        utils.getComponentByName(domain, "idName");
+        utils.getComponentByName(domain, "namedId");
     }
 
     @Test
