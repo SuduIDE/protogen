@@ -1,4 +1,5 @@
 import com.google.protobuf.gradle.id
+import com.google.protobuf.gradle.protobuf
 
 plugins {
     java
@@ -22,7 +23,11 @@ protobuf {
             it.dependsOn(project(":generator").tasks.findByName("shadowJar"))
             it.plugins {
                 id("grpc")
-                id("protogen")
+                id("protogen") {
+                    // protoc utilizes colons (the ":" character) as option separators,
+                    // so windows-paths broke options list. To overcome it I suggest to replace it with "*"
+                    option("config=$projectDir/src/test/proto/protogen.yaml".replace(":", "*"))
+                }
             }
         }
     }

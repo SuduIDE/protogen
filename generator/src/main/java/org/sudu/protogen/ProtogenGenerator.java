@@ -6,6 +6,8 @@ import com.google.protobuf.compiler.PluginProtos.CodeGeneratorResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.sudu.protogen.config.Configuration;
+import org.sudu.protogen.config.ExternalConfiguration;
+import org.sudu.protogen.config.YamlExternalConfigurationParser;
 import org.sudu.protogen.generator.GenerationContext;
 import org.sudu.protogen.generator.GenerationRequest;
 import org.sudu.protogen.generator.GenerationResult;
@@ -23,7 +25,13 @@ public class ProtogenGenerator extends Generator {
 
     @Override
     public List<CodeGeneratorResponse.File> generateFiles(CodeGeneratorRequest request) throws GeneratorException {
-        var configuration = Configuration.DEFAULT;
+        String requestParam = request.getParameter();
+        Configuration configuration = Configuration.DEFAULT;
+        if (!requestParam.isBlank()) {
+            String configFilePath = requestParam.replace("config=", "").replace("*", ":");
+            ExternalConfiguration externalConfiguration = new YamlExternalConfigurationParser(configFilePath).parse();
+            configuration = externalConfiguration.merge(Configuration.DEFAULT);
+        }
         return generate(RequestBuilder.fromProtocRequest(request), configuration)
                 .generatedFiles()
                 .stream()

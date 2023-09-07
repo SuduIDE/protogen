@@ -96,6 +96,6 @@ public class Generator {
     }
 
     private String getIndentation() {
-        return StringUtils.repeat(" ", 4);
+        return StringUtils.repeat(" ", context.configuration().indentationSize());
     }
 }

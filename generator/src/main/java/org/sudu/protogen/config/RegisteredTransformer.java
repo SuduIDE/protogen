@@ -1,6 +1,5 @@
 package org.sudu.protogen.config;
 
-import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.TypeName;
 import org.jetbrains.annotations.NotNull;
 
@@ -33,15 +32,6 @@ public record RegisteredTransformer(
                         "void",
                         new TransformRule("$L"),
                         new TransformRule("")
-                ),
-                new RegisteredTransformer(
-                        "org.sudu.api.dvfs.grpc.GrpcContent",
-                        "java.io.InputStream",
-                        new TransformRule("$L.getBytes().newInput()"),
-                        new TransformRule(
-                                ".setBytes($t.run(() -> ByteString.readFrom($L)))",
-                                ClassName.get("org.sudu.util", "Unchecked")
-                        )
                 )
         );
     }

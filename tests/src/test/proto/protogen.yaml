@@ -1,0 +1,16 @@
+indentationSize: 2
+registeredTransformers:
+  - protoType: "org.sudu.protogen.test.extconfig.GrpcTransformable"
+    javaClass: "int"
+    protoToJava:
+      rule: "$L.getA() + $L.getB()"
+    javaToProto:
+      rule: ".setA($L).setB(0)"
+  - protoType: "org.sudu.protogen.test.extconfig.GrpcMultiply"
+    javaClass: "int"
+    protoToJava:
+      rule: "$t.mul($L.getA(), $L.getB())"
+      params:
+        - org.sudu.protogen.test.extconfig.Utils
+    javaToProto:
+      rule: ".setA($L).setB(1)"
