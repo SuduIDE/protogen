@@ -42,7 +42,7 @@ public abstract class EnumOrMessage {
             String className = enclosingClass == null ? getName() : enclosingClass + "." + getName();
             return ClassName.get(javaPackage, className);
         } else {
-            ClassName containing = getContainingType().getGeneratedTypeName(namingManager);
+            ClassName containing = getContainingType().getProtobufTypeName(namingManager);
             return ClassName.get(containing.packageName(), containing.simpleName(), getName());
         }
     }
@@ -52,8 +52,13 @@ public abstract class EnumOrMessage {
         if (customClass != null) {
             return ClassName.get(Name.getPackage(customClass), Name.getLastName(customClass));
         }
-        String javaPackage = getContainingFile().getGeneratePackage();
-        return ClassName.get(javaPackage, generatedName(namingManager));
+        if (getContainingType() == null) {
+            String javaPackage = getContainingFile().getGeneratePackage();
+            return ClassName.get(javaPackage, generatedName(namingManager));
+        } else {
+            ClassName containing = getContainingType().getGeneratedTypeName(namingManager);
+            return ClassName.get(containing.packageName(), containing.simpleName(), generatedName(namingManager));
+        }
     }
 
     public final String generatedName(NamingManager namingManager) {

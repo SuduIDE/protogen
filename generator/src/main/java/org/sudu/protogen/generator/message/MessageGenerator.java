@@ -2,15 +2,17 @@ package org.sudu.protogen.generator.message;
 
 import com.squareup.javapoet.*;
 import org.jetbrains.annotations.NotNull;
+import org.sudu.protogen.descriptors.Enum;
+import org.sudu.protogen.descriptors.EnumOrMessage;
 import org.sudu.protogen.descriptors.Message;
 import org.sudu.protogen.generator.GenerationContext;
+import org.sudu.protogen.generator.enumeration.EnumGenerator;
 import org.sudu.protogen.generator.field.FieldGenerator;
 import org.sudu.protogen.generator.field.FieldProcessingResult;
 import org.sudu.protogen.utils.Poem;
 
 import javax.lang.model.element.Modifier;
 import java.util.List;
-import java.util.Objects;
 
 public class MessageGenerator {
 
@@ -83,8 +85,13 @@ public class MessageGenerator {
 
     private List<TypeSpec> generateNested() {
         return msgDescriptor.getNested().stream()
-                .map(generationContext.domains()::get)
-                .filter(Objects::nonNull) // nested elements could be marked as not to generate
+                .filter(EnumOrMessage::doGenerate)
+                .map(e -> {
+                    if (e instanceof Message msg)
+                        return new MessageGenerator(generationContext, msg).generate();
+                    else
+                        return new EnumGenerator(generationContext, (Enum) e).generate();
+                })
                 .toList();
     }
 

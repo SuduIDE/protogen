@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package org.sudu.protogen.test.nesting;
+
+import "protogen/options.proto";
+
+option java_multiple_files = true;
+option (.protogen.enable) = true;
+
+message GrpcA {
+  int32 a = 1;
+  GrpcB b = 2;
+
+  message GrpcB {
+    int32 b = 1;
+  }
+}
