@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package org.sudu.protogen.test.extconfig;
+
+import "protogen/options.proto";
+
+option java_multiple_files = true;
+option (.protogen.enable) = true;
+
+message GrpcTransformable {
+  int32 a = 1;
+  int32 b = 2;
+}
+
+message GrpcMultiply {
+  int32 a = 1;
+  int32 b = 2;
+}
+
+message GrpcSum {
+  GrpcTransformable sum = 1;
+  GrpcMultiply product = 2;
+}

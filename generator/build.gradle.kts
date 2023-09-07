@@ -69,6 +69,7 @@ dependencies {
     implementation(project(":options"))
     implementation(project(":javapoet"))
     implementation("com.google.protobuf:protobuf-java:3.21.9")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.15.2")
 
     implementation("org.apache.commons:commons-lang3:3.13.0")
     implementation("commons-io:commons-io:2.13.0")
