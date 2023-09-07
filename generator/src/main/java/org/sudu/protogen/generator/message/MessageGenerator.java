@@ -2,12 +2,9 @@ package org.sudu.protogen.generator.message;
 
 import com.squareup.javapoet.*;
 import org.jetbrains.annotations.NotNull;
-import org.sudu.protogen.descriptors.Enum;
 import org.sudu.protogen.descriptors.EnumOrMessage;
 import org.sudu.protogen.descriptors.Message;
 import org.sudu.protogen.generator.GenerationContext;
-import org.sudu.protogen.generator.enumeration.EnumGenerator;
-import org.sudu.protogen.generator.field.FieldGenerator;
 import org.sudu.protogen.generator.field.FieldProcessingResult;
 import org.sudu.protogen.utils.Poem;
 
@@ -27,7 +24,7 @@ public class MessageGenerator {
         this.generationContext = generationContext;
         this.msgDescriptor = msgDescriptor;
         this.processedFields = msgDescriptor.getFields().stream()
-                .map(field -> new FieldGenerator(generationContext, field).generate())
+                .map(field -> field.generate(generationContext))
                 .filter(FieldProcessingResult::isNonEmpty)
                 .toList();
     }
@@ -38,7 +35,11 @@ public class MessageGenerator {
                 .map(FieldProcessingResult::field)
                 .toList();
 
-        TypeSpec.Builder typeBuilder = getRecordBuilder(fields);
+        List<ParameterSpec> parameters = fields.stream()
+                .map(Poem::fieldToParameter)
+                .toList();
+        TypeSpec.Builder typeBuilder = TypeSpec.recordBuilder(generatedType().simpleName())
+                .addRecordComponents(parameters);
 
         boolean annotateNotNull = msgDescriptor.getContainingFile().doUseNullabilityAnnotation(false);
         msgDescriptor.getComparatorReference().ifPresent(
@@ -69,29 +70,10 @@ public class MessageGenerator {
         );
     }
 
-    private TypeSpec.Builder getRecordBuilder(List<FieldSpec> fields) {
-        List<ParameterSpec> parameters = fields.stream()
-                .map(Poem::fieldToParameter)
-                .toList();
-        return TypeSpec.recordBuilder(generatedType().simpleName())
-                .addRecordComponents(parameters);
-    }
-
-    private TypeSpec.Builder getClassBuilder(List<FieldSpec> fields) {
-        return TypeSpec.classBuilder(generatedType().simpleName())
-                .addFields(fields)
-                .addMethods(new ClassBoilerplateGenerator(generatedType(), fields).generateBoilerplate());
-    }
-
     private List<TypeSpec> generateNested() {
         return msgDescriptor.getNested().stream()
                 .filter(EnumOrMessage::doGenerate)
-                .map(e -> {
-                    if (e instanceof Message msg)
-                        return new MessageGenerator(generationContext, msg).generate();
-                    else
-                        return new EnumGenerator(generationContext, (Enum) e).generate();
-                })
+                .map(e -> e.generate(generationContext))
                 .toList();
     }
 

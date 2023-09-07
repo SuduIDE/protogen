@@ -35,7 +35,6 @@ public class Method {
         return descriptor.isServerStreaming();
     }
 
-
     public final boolean isNullable() {
         return getNullableOption().orElse(false);
     }

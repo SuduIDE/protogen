@@ -1,9 +1,12 @@
 package org.sudu.protogen.descriptors;
 
 import com.google.protobuf.Descriptors;
+import com.squareup.javapoet.TypeSpec;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sudu.protogen.Options;
+import org.sudu.protogen.generator.GenerationContext;
+import org.sudu.protogen.generator.enumeration.EnumGenerator;
 
 import java.util.List;
 import java.util.Objects;
@@ -44,6 +47,11 @@ public class Enum extends EnumOrMessage {
     @Override
     public List<EnumOrMessage> getNested() {
         return List.of();
+    }
+
+    @Override
+    public TypeSpec generate(GenerationContext context) {
+        return new EnumGenerator(context, this).generate();
     }
 
     @Override

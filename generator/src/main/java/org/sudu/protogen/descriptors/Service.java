@@ -2,7 +2,10 @@ package org.sudu.protogen.descriptors;
 
 import com.google.protobuf.Descriptors;
 import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.TypeSpec;
 import org.sudu.protogen.Options;
+import org.sudu.protogen.generator.GenerationContext;
+import org.sudu.protogen.generator.client.ClientGenerator;
 import org.sudu.protogen.utils.Name;
 
 import java.util.List;
@@ -53,6 +56,10 @@ public class Service {
     public final ClassName blockingStubClass() {
         ClassName stubClass = stubClass();
         return ClassName.get(stubClass.packageName(), stubClass.simpleName() + "." + getName() + "BlockingStub");
+    }
+
+    public final TypeSpec generate(GenerationContext context) {
+        return new ClientGenerator(context, this).generate();
     }
 
     protected Optional<Boolean> getAbstractOption() {

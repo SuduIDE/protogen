@@ -1,10 +1,12 @@
 package org.sudu.protogen.descriptors;
 
 import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.TypeSpec;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sudu.protogen.config.naming.NamingManager;
+import org.sudu.protogen.generator.GenerationContext;
 import org.sudu.protogen.utils.Name;
 
 import java.util.List;
@@ -85,6 +87,8 @@ public abstract class EnumOrMessage {
     public final String customClass() {
         return getCustomClassNameOption().orElse(null);
     }
+
+    public abstract TypeSpec generate(GenerationContext context);
 
     /*
      * Options are not supposed to be used at high-level logic.

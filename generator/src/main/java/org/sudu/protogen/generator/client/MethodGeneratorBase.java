@@ -4,7 +4,6 @@ import com.squareup.javapoet.*;
 import org.sudu.protogen.descriptors.Field;
 import org.sudu.protogen.descriptors.Method;
 import org.sudu.protogen.generator.GenerationContext;
-import org.sudu.protogen.generator.field.FieldGenerator;
 import org.sudu.protogen.generator.type.IteratorType;
 import org.sudu.protogen.generator.type.RepeatedType;
 import org.sudu.protogen.generator.type.TypeModel;
@@ -63,7 +62,7 @@ public abstract class MethodGeneratorBase {
         TypeModel type;
         if (method.doUnfoldResponse()) {
             Field field = method.getOutputType().getFields().get(0);
-            type = new FieldGenerator(context, field).generate().type();
+            type = field.generate(context).type();
         } else if (method.getOutputType().isDomain()) {
             type = context.typeProcessor().processType(method.getOutputType(), context);
         } else {

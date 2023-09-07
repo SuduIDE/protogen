@@ -6,7 +6,6 @@ import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.ParameterSpec;
 import org.sudu.protogen.descriptors.Method;
 import org.sudu.protogen.generator.GenerationContext;
-import org.sudu.protogen.generator.field.FieldGenerator;
 import org.sudu.protogen.generator.field.FieldProcessingResult;
 import org.sudu.protogen.generator.message.ToGrpcMethodGenerator;
 import org.sudu.protogen.generator.type.TypeModel;
@@ -23,7 +22,7 @@ public class UnfoldedRequestMethodGenerator extends MethodGeneratorBase {
     @Override
     protected List<ParameterSpec> parameters() {
         return method.getInputType().getFields().stream()
-                .map(f -> new FieldGenerator(context, f).generate())
+                .map(f -> f.generate(context))
                 .filter(FieldProcessingResult::isNonEmpty)
                 .map(FieldProcessingResult::field)
                 .map(Poem::fieldToParameter)
@@ -46,7 +45,7 @@ public class UnfoldedRequestMethodGenerator extends MethodGeneratorBase {
                     .build();
         } else {
             List<FieldProcessingResult> processedFields = method.getInputType().getFields().stream()
-                    .map(field -> new FieldGenerator(context, field).generate())
+                    .map(field -> field.generate(context))
                     .filter(FieldProcessingResult::isNonEmpty)
                     .toList();
             CodeBlock builder = new ToGrpcMethodGenerator(context, protoType, processedFields, false).builder("requestBuilder");

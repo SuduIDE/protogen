@@ -1,9 +1,12 @@
 package org.sudu.protogen.descriptors;
 
 import com.google.protobuf.Descriptors;
+import com.squareup.javapoet.TypeSpec;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sudu.protogen.Options;
+import org.sudu.protogen.generator.GenerationContext;
+import org.sudu.protogen.generator.message.MessageGenerator;
 
 import java.util.List;
 import java.util.Objects;
@@ -56,6 +59,11 @@ public class Message extends EnumOrMessage {
         var enums = descriptor.getEnumTypes().stream()
                 .map(Enum::new);
         return Stream.concat(messages, enums).toList();
+    }
+
+    @Override
+    public TypeSpec generate(GenerationContext context) {
+        return new MessageGenerator(context, this).generate();
     }
 
     /*

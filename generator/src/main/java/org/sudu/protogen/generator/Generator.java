@@ -4,23 +4,23 @@ import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeSpec;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
-import org.sudu.protogen.descriptors.Enum;
-import org.sudu.protogen.descriptors.*;
-import org.sudu.protogen.generator.client.ClientGenerator;
-import org.sudu.protogen.generator.enumeration.EnumGenerator;
-import org.sudu.protogen.generator.message.MessageGenerator;
+import org.sudu.protogen.descriptors.EnumOrMessage;
+import org.sudu.protogen.descriptors.File;
+import org.sudu.protogen.descriptors.Service;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
 
 public class Generator {
 
     private final GenerationContext context;
 
-    public Generator(@NotNull GenerationContext context) {
+    private final List<? extends File> filesToGenerate;
+
+    public Generator(@NotNull GenerationContext context, List<? extends File> filesToGenerate) {
         this.context = context;
+        this.filesToGenerate = filesToGenerate;
     }
 
     @NotNull
@@ -44,52 +44,26 @@ public class Generator {
     private List<JavaFile> generateFiles() {
         List<JavaFile> result = new ArrayList<>();
 
-        for (File file : context.filesToGenerate()) {
-
+        for (File file : filesToGenerate) {
             String packageName = file.getGeneratePackage();
             for (EnumOrMessage type : file.getNested()) {
                 if (!type.doGenerate()) continue;
-                generateType(type)
-                        .map(typeSpec -> JavaFile.builder(packageName, typeSpec)
-                                .indent(getIndentation())
-                                .build()
-                        )
-                        .forEach(result::add);
+                result.add(JavaFile.builder(packageName, type.generate(context))
+                        .indent(getIndentation())
+                        .build()
+                );
             }
-        }
-
-        for (File file : context.filesToGenerate()) {
-            String packageName = file.getGeneratePackage();
             for (Service service : file.getServices()) {
                 if (!service.doGenerate()) {
                     continue;
                 }
-                TypeSpec clientTypeSpec = new ClientGenerator(context, service).generate();
+                TypeSpec clientTypeSpec = service.generate(context);
                 result.add(JavaFile.builder(packageName, clientTypeSpec)
                         .indent(getIndentation())
                         .build());
             }
         }
-
         return result;
-    }
-
-    private Stream<TypeSpec> generateType(EnumOrMessage descriptor) {
-        Stream<TypeSpec> result = Stream.of();
-        if (!descriptor.doGenerate()) return result;
-        TypeSpec generated = invokeTypeGenerator(descriptor);
-        context.domains().put(descriptor, generated);
-        result = Stream.concat(result, Stream.of(generated));
-        return result;
-    }
-
-    @NotNull
-    private TypeSpec invokeTypeGenerator(EnumOrMessage type) {
-        if (type instanceof Message msg)
-            return new MessageGenerator(context, msg).generate();
-        else if (type instanceof Enum en)
-            return new EnumGenerator(context, en).generate();
-        throw new IllegalStateException();
     }
 
     private String getIndentation() {

@@ -4,6 +4,9 @@ import com.google.protobuf.Descriptors;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.Nullable;
 import org.sudu.protogen.Options;
+import org.sudu.protogen.generator.GenerationContext;
+import org.sudu.protogen.generator.field.FieldGenerator;
+import org.sudu.protogen.generator.field.FieldProcessingResult;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -68,7 +71,6 @@ public class Field {
     }
 
     public final Field getUnfoldedField() {
-        //noinspection DataFlowIssue because isUnfolded() true iff getMessageType() != null
         Validate.validState(isUnfolded());
         return getMessageType().getFields().get(0);
     }
@@ -80,6 +82,10 @@ public class Field {
 
     public final RepeatedContainer getRepeatedContainer() {
         return getRepeatedContainerOption().orElse(RepeatedContainer.LIST);
+    }
+
+    public final FieldProcessingResult generate(GenerationContext context) {
+        return new FieldGenerator(context, this).generate();
     }
 
     /*
