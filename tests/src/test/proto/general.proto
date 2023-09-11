@@ -44,3 +44,8 @@ message GrpcTasksBatch {
   GrpcBatchId id = 1;
   repeated GrpcTask tasks = 2 [(.protogen.repeated_container) = SET];
 }
+
+message GrpcRegisteredMapList {
+  map<string, google.protobuf.Timestamp> m = 1;
+  repeated google.protobuf.Timestamp l = 2;
+}

@@ -6,7 +6,7 @@ import org.sudu.protogen.config.RegisteredTransformer;
 
 import java.util.Arrays;
 
-public class RegisteredType extends TypeModel {
+public class RegisteredType extends DomainType {
 
     private final TypeName protoType;
 
