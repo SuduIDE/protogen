@@ -1,4 +1,5 @@
 plugins {
+    id("com.google.protobuf") version "0.9.1"
     `maven-publish`
     signing
     id("com.github.johnrengelman.shadow") version "8.1.1"
@@ -7,6 +8,11 @@ plugins {
 java {
     withJavadocJar()
     withSourcesJar()
+}
+
+val optionsJar = tasks.create<Jar>("optionsJar") {
+    archiveClassifier = "options"
+    from(sourceSets.main.get().proto)
 }
 
 signing {
@@ -56,6 +62,9 @@ publishing {
             artifact(tasks.shadowJar) {
                 classifier = "jvm"
             }
+            artifact(optionsJar) {
+                classifier = "options"
+            }
         }
     }
 }
@@ -66,11 +75,16 @@ tasks.shadowJar {
 }
 
 dependencies {
-    implementation(project(":options"))
     implementation(project(":javapoet"))
     implementation("com.google.protobuf:protobuf-java:3.21.9")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.15.2")
 
     implementation("org.apache.commons:commons-lang3:3.13.0")
     implementation("commons-io:commons-io:2.13.0")
+}
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:3.21.9"
+    }
 }
