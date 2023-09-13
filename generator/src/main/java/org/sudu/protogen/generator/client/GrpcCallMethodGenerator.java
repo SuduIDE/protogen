@@ -10,6 +10,7 @@ import org.sudu.protogen.descriptors.Method;
 import org.sudu.protogen.generator.GenerationContext;
 import org.sudu.protogen.generator.type.TypeModel;
 
+import javax.lang.model.element.Modifier;
 import java.util.List;
 
 public class GrpcCallMethodGenerator extends MethodGeneratorBase {
@@ -46,8 +47,13 @@ public class GrpcCallMethodGenerator extends MethodGeneratorBase {
     }
 
     @NotNull
-    protected CodeBlock onlyCallReturnExpression(TypeModel returnType, List<ParameterSpec> params) {
+    public CodeBlock onlyCallReturnExpression(TypeModel returnType, List<ParameterSpec> params) {
         ParameterSpec param = params.get(0);
         return CodeBlock.of("$N.$L($N)", stubField, method.getName(), param);
+    }
+
+    @Override
+    protected Iterable<Modifier> modifiers() {
+        return List.of(Modifier.PRIVATE);
     }
 }

@@ -9,6 +9,7 @@ import org.sudu.protogen.generator.type.IteratorType;
 import org.sudu.protogen.generator.type.RepeatedType;
 import org.sudu.protogen.generator.type.TypeModel;
 
+import javax.lang.model.element.Modifier;
 import java.util.List;
 
 public abstract class MethodGeneratorBase {
@@ -39,6 +40,7 @@ public abstract class MethodGeneratorBase {
         CodeBlock returnExpr = returnExpression(returnType, params);
 
         return MethodSpec.methodBuilder(method.generatedName())
+                .addModifiers(modifiers())
                 .addParameters(params)
                 .returns(returnType.getTypeName())
                 .addAnnotation(
@@ -49,6 +51,14 @@ public abstract class MethodGeneratorBase {
                 .addCode(body)
                 .addStatement(returnStatement(returnType.getTypeName(), returnExpr))
                 .build();
+    }
+
+    protected Iterable<Modifier> modifiers() {
+        if (method.protect()) {
+            return List.of(Modifier.PROTECTED);
+        } else {
+            return List.of(Modifier.PUBLIC);
+        }
     }
 
     private CodeBlock returnStatement(TypeName returnType, CodeBlock expr) {

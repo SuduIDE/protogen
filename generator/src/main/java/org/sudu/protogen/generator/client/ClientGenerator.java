@@ -56,30 +56,18 @@ public class ClientGenerator {
     }
 
     private MethodSpec generateWrappedRequestMethod(Method method) {
-        return new DomainRequestMethodBuilder(context, method, stubField).generate()
-                .toBuilder()
-                .addModifiers(Modifier.PUBLIC)
-                .build();
+        return new DomainRequestMethodBuilder(context, method, stubField).generate();
     }
 
     private MethodSpec generateParamsListMethod(Method method) {
-        return new UnfoldedRequestMethodGenerator(context, method, stubField).generate()
-                .toBuilder()
-                .addModifiers(Modifier.PUBLIC)
-                .build();
+        return new UnfoldedRequestMethodGenerator(context, method, stubField).generate();
     }
 
     private MethodSpec generateGrpcRequestMethod(Method method) {
         if (method.isOutputStreaming()) {
-            return new StreamingGrpcCallMethodGenerator(context, method, stubField).generate()
-                    .toBuilder()
-                    .addModifiers(Modifier.PRIVATE)
-                    .build();
+            return new StreamingGrpcCallMethodGenerator(context, method, stubField).generate();
         } else {
-            return new GrpcCallMethodGenerator(context, method, stubField).generate()
-                    .toBuilder()
-                    .addModifiers(Modifier.PRIVATE)
-                    .build();
+            return new GrpcCallMethodGenerator(context, method, stubField).generate();
         }
     }
 

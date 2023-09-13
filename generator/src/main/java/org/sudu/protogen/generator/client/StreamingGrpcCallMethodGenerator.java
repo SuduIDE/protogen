@@ -67,6 +67,11 @@ public class StreamingGrpcCallMethodGenerator extends MethodGeneratorBase {
         }
     }
 
+    @Override
+    protected Iterable<Modifier> modifiers() {
+        return List.of(Modifier.PRIVATE);
+    }
+
     private class IteratorWrapper {
 
         public CodeBlock wrapToIterable(String outerIteratorIdentifier, TypeModel domainType) {

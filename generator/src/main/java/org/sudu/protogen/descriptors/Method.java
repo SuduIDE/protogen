@@ -63,6 +63,11 @@ public class Method {
         return getOutputType().getFields().get(0);
     }
 
+    public boolean protect() {
+        return Options.wrapExtension(methodDescriptor.getOptions(), protogen.Options.protectMethod).orElse(false);
+    }
+
+
     protected Optional<Boolean> getGenerateOption() {
         return Options.wrapExtension(methodDescriptor.getOptions(), protogen.Options.genMethod);
     }

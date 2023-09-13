@@ -66,6 +66,9 @@ service SomeService {
   rpc commonGeneratedRequestUnfold(GrpcGeneratedRequest) returns (GrpcOneFieldResponse) {
     option (.protogen.unfold_request) = true;
   }
+  rpc commonGeneratedRequestProtected(GrpcGeneratedRequest) returns (google.protobuf.Empty) {
+    option (.protogen.protect_method) = true;
+  }
 
   rpc streamVoid(google.protobuf.Empty) returns (stream GrpcVoidResponse);
   rpc streamOneField(google.protobuf.Empty) returns (stream GrpcOneFieldResponse);
