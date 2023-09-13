@@ -1,9 +1,10 @@
 package org.sudu.protogen.generator.message;
 
+import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
-import com.squareup.javapoet.TypeName;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.sudu.protogen.generator.GenerationContext;
 import org.sudu.protogen.generator.field.FieldProcessingResult;
@@ -16,13 +17,13 @@ public class FromGrpcMethodGenerator {
 
     private static final String METHOD_NAME = "fromGrpc";
 
-    private static final String PROTO_PARAMETER_NAME = "proto";
+    private final String parameterName;
 
     private final GenerationContext generationContext;
 
-    private final TypeName generatedType;
+    private final ClassName generatedType;
 
-    private final TypeName protoType;
+    private final ClassName protoType;
 
     private final List<FieldProcessingResult> processedFields;
 
@@ -30,8 +31,8 @@ public class FromGrpcMethodGenerator {
 
     public FromGrpcMethodGenerator(
             @NotNull GenerationContext generationContext,
-            @NotNull TypeName generatedType,
-            @NotNull TypeName protoType,
+            @NotNull ClassName generatedType,
+            @NotNull ClassName protoType,
             @NotNull List<FieldProcessingResult> processedFields,
             boolean annotate
     ) {
@@ -40,6 +41,12 @@ public class FromGrpcMethodGenerator {
         this.protoType = protoType;
         this.processedFields = processedFields;
         this.annotate = annotate;
+
+        this.parameterName = buildParameterName(generatedType);
+    }
+
+    private static String buildParameterName(ClassName generatedType) {
+        return StringUtils.uncapitalize(generatedType.simpleName());
     }
 
     @NotNull
@@ -54,7 +61,7 @@ public class FromGrpcMethodGenerator {
     }
 
     private ParameterSpec parameter() {
-        ParameterSpec.Builder builder = ParameterSpec.builder(protoType, PROTO_PARAMETER_NAME);
+        ParameterSpec.Builder builder = ParameterSpec.builder(protoType, parameterName);
         if (annotate) builder.addAnnotation(generationContext.configuration().nonnullAnnotationClass());
         return builder.build();
     }
@@ -67,6 +74,6 @@ public class FromGrpcMethodGenerator {
     }
 
     private CodeBlock getTransformer(FieldProcessingResult f) {
-        return new FieldTransformerGenerator(f.type(), f.original().getName(), f.isNullable()).fromGrpc(PROTO_PARAMETER_NAME);
+        return new FieldTransformerGenerator(f.type(), f.original().getName(), f.isNullable()).fromGrpc(parameterName);
     }
 }
