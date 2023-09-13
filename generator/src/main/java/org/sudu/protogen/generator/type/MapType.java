@@ -35,7 +35,7 @@ public class MapType extends TypeModel {
 
     @Override
     public CodeBlock toGrpcTransformer(CodeBlock expr) {
-        if (keyModel instanceof DomainType || valueModel instanceof DomainType || keyModel instanceof UnfoldedType || valueModel instanceof UnfoldedType) {
+        if (!(keyModel instanceof PrimitiveTypeModel) || !(valueModel instanceof PrimitiveTypeModel)) {
             CodeBlock keyMapper = buildToMapper(keyModel, "getKey");
             CodeBlock valueMapper = buildToMapper(valueModel, "getValue");
             return mapMapper(expr, keyMapper, valueMapper);
@@ -45,7 +45,7 @@ public class MapType extends TypeModel {
 
     @Override
     public CodeBlock fromGrpcTransformer(CodeBlock expr) {
-        if (keyModel instanceof DomainType || valueModel instanceof DomainType || keyModel instanceof UnfoldedType || valueModel instanceof UnfoldedType) {
+        if (!(keyModel instanceof PrimitiveTypeModel) || !(valueModel instanceof PrimitiveTypeModel)) {
             CodeBlock keyMapper = buildFromMapper(keyModel, "getKey");
             CodeBlock valueMapper = buildFromMapper(valueModel, "getValue");
             return mapMapper(expr, keyMapper, valueMapper);
@@ -57,7 +57,7 @@ public class MapType extends TypeModel {
     private CodeBlock buildToMapper(TypeModel valueModel, String entryGetter) {
         CodeBlock lambdaParameter = CodeBlock.builder().add("i").build();
         CodeBlock valueMapper = null;
-        if (valueModel instanceof DomainType || valueModel instanceof UnfoldedType) {
+        if (!(valueModel instanceof PrimitiveTypeModel)) {
             CodeBlock valueGetter = CodeBlock.builder().add("$L.$L()", lambdaParameter, entryGetter).build();
             valueMapper = CodeBlock.builder()
                     .add("$L -> $L", lambdaParameter, valueModel.toGrpcTransformer(valueGetter))
@@ -72,7 +72,7 @@ public class MapType extends TypeModel {
     private CodeBlock buildFromMapper(TypeModel valueModel, String entryGetter) {
         CodeBlock lambdaParameter = CodeBlock.builder().add("i").build();
         CodeBlock valueMapper = null;
-        if (valueModel instanceof DomainType || valueModel instanceof UnfoldedType) {
+        if (!(valueModel instanceof PrimitiveTypeModel)) {
             CodeBlock valueGetter = CodeBlock.builder().add("$L.$L()", lambdaParameter, entryGetter).build();
             valueMapper = CodeBlock.builder()
                     .add("$L -> $L", lambdaParameter, valueModel.fromGrpcTransformer(valueGetter))

@@ -27,7 +27,7 @@ public class RepeatedType extends TypeModel {
 
     @Override
     public CodeBlock toGrpcTransformer(CodeBlock expr) {
-        if (elementModel instanceof DomainType || elementModel instanceof UnfoldedType) {
+        if (!(elementModel instanceof PrimitiveTypeModel)) {
             CodeBlock lambdaParameter = CodeBlock.of("i");
             CodeBlock mappingLambda = CodeBlock.builder()
                     .add("$L -> $L", lambdaParameter, elementModel.toGrpcTransformer(lambdaParameter))
@@ -39,7 +39,8 @@ public class RepeatedType extends TypeModel {
 
     @Override
     public CodeBlock fromGrpcTransformer(CodeBlock expr) {
-        if (elementModel instanceof DomainType || elementModel instanceof UnfoldedType || repeatedType != RepeatedContainer.LIST) {
+        // todo why don't we need to do this with lists? comment it
+        if (!(elementModel instanceof PrimitiveTypeModel) || repeatedType != RepeatedContainer.LIST) {
             CodeBlock lambdaParameter = CodeBlock.builder().add("i").build();
             CodeBlock mappingLambda = CodeBlock.builder()
                     .add("$L -> $L", lambdaParameter, elementModel.fromGrpcTransformer(lambdaParameter))
