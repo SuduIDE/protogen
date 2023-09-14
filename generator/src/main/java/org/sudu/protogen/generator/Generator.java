@@ -7,6 +7,8 @@ import org.jetbrains.annotations.NotNull;
 import org.sudu.protogen.descriptors.EnumOrMessage;
 import org.sudu.protogen.descriptors.File;
 import org.sudu.protogen.descriptors.Service;
+import org.sudu.protogen.generator.client.ClientGenerator;
+import org.sudu.protogen.generator.server.BaseServiceGenerator;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -57,8 +59,12 @@ public class Generator {
                 if (!service.doGenerate()) {
                     continue;
                 }
-                TypeSpec clientTypeSpec = service.generate(context);
+                TypeSpec clientTypeSpec = new ClientGenerator(context, service).generate();
                 result.add(JavaFile.builder(packageName, clientTypeSpec)
+                        .indent(getIndentation())
+                        .build());
+                TypeSpec serviceTypeSpec = new BaseServiceGenerator(context, service).generate();
+                result.add(JavaFile.builder(packageName, serviceTypeSpec)
                         .indent(getIndentation())
                         .build());
             }
