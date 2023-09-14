@@ -5,7 +5,6 @@ import org.sudu.protogen.descriptors.Field;
 import org.sudu.protogen.descriptors.Method;
 import org.sudu.protogen.generator.GenerationContext;
 import org.sudu.protogen.generator.field.FieldGenerator;
-import org.sudu.protogen.generator.type.IteratorType;
 import org.sudu.protogen.generator.type.RepeatedType;
 import org.sudu.protogen.generator.type.TypeModel;
 
@@ -88,12 +87,7 @@ public abstract class MethodGeneratorBase {
             if (type.getTypeName().toString().equalsIgnoreCase("void")) {
                 return type;
             }
-            var containerO = method.getStreamToContainer();
-            if (containerO.isPresent()) {
-                return new RepeatedType(type, containerO.get());
-            } else {
-                return new IteratorType(type);
-            }
+            return new RepeatedType(type, method.getStreamToContainer());
         }
         return type;
     }

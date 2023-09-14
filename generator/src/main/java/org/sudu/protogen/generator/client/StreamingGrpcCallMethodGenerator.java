@@ -3,9 +3,7 @@ package org.sudu.protogen.generator.client;
 import com.squareup.javapoet.*;
 import org.apache.commons.lang3.Validate;
 import org.sudu.protogen.descriptors.Method;
-import org.sudu.protogen.descriptors.RepeatedContainer;
 import org.sudu.protogen.generator.GenerationContext;
-import org.sudu.protogen.generator.type.IteratorType;
 import org.sudu.protogen.generator.type.RepeatedType;
 import org.sudu.protogen.generator.type.TypeModel;
 import org.sudu.protogen.utils.Name;
@@ -36,18 +34,12 @@ public class StreamingGrpcCallMethodGenerator extends MethodGeneratorBase {
             return CodeBlock.of("");
         }
         CodeBlock call = commonGen.onlyCallReturnExpression(returnType, params);
-        if (method.getStreamToContainer().isPresent()) {
-            Validate.validState(returnType instanceof RepeatedType);
-            RepeatedType repType = (RepeatedType) returnType;
-            return CodeBlock.builder()
-                    .addStatement("var response = $L", call)
-                    .addStatement(new IteratorWrapper().wrapToIterable("response", repType.getElementModel()))
-                    .build();
-        } else {
-            return CodeBlock.builder()
-                    .addStatement("var response = $L", call)
-                    .build();
-        }
+        Validate.validState(returnType instanceof RepeatedType);
+        RepeatedType repType = (RepeatedType) returnType;
+        return CodeBlock.builder()
+                .addStatement("var response = $L", call)
+                .addStatement(new IteratorWrapper().wrapToIterable("response", repType.getElementModel()))
+                .build();
     }
 
     @Override
@@ -55,16 +47,9 @@ public class StreamingGrpcCallMethodGenerator extends MethodGeneratorBase {
         if (returnType.getTypeName().toString().equalsIgnoreCase("void")) {
             return commonGen.onlyCallReturnExpression(returnType, params);
         }
-        var containerO = method.getStreamToContainer();
-        if (containerO.isPresent()) {
-            RepeatedContainer container = containerO.get();
-            return CodeBlock.of("$T.stream(iterable.spliterator(), false).collect($L)",
-                    StreamSupport.class, container.getCollectorExpr());
-        } else {
-            Validate.validState(returnType instanceof IteratorType);
-            IteratorType itType = (IteratorType) returnType;
-            return new IteratorWrapper().wrapIterator("response", itType.getIteratedType());
-        }
+        var container = method.getStreamToContainer();
+        return CodeBlock.of("$T.stream(iterable.spliterator(), false)$L",
+                StreamSupport.class, container.getCollectorExpr());
     }
 
     @Override

@@ -32,15 +32,15 @@ public class RepeatedType extends TypeModel {
             CodeBlock mappingLambda = CodeBlock.builder()
                     .add("$L -> $L", lambdaParameter, elementModel.toGrpcTransformer(lambdaParameter))
                     .build();
-            return listMapper(expr, mappingLambda);
+            expr = listMapper(expr, mappingLambda);
         }
-        return expr;
+        return repeatedType.convertInstanceToIterable(expr);
     }
 
     @Override
     public CodeBlock fromGrpcTransformer(CodeBlock expr) {
-        // todo why don't we need to do this with lists? comment it
-        if (!(elementModel instanceof PrimitiveTypeModel) || repeatedType != RepeatedContainer.LIST) {
+        expr = repeatedType.convertListToInstance(expr);
+        if (!(elementModel instanceof PrimitiveTypeModel)) {
             CodeBlock lambdaParameter = CodeBlock.builder().add("i").build();
             CodeBlock mappingLambda = CodeBlock.builder()
                     .add("$L -> $L", lambdaParameter, elementModel.fromGrpcTransformer(lambdaParameter))
@@ -53,10 +53,10 @@ public class RepeatedType extends TypeModel {
     @NotNull
     private CodeBlock listMapper(CodeBlock expr, CodeBlock mapper) {
         return CodeBlock.builder()
-                .add("$L.stream()\n", expr)
+                .add("$L\n", repeatedType.getToStreamExpr(expr))
                 .indent()
                 .add(".map($L)\n", mapper)
-                .add(".collect($L)", repeatedType.getCollectorExpr())
+                .add("$L", repeatedType.getCollectorExpr())
                 .unindent()
                 .build();
     }

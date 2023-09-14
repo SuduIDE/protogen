@@ -49,3 +49,8 @@ message GrpcRegisteredMapList {
   map<string, google.protobuf.Timestamp> m = 1;
   repeated google.protobuf.Timestamp l = 2;
 }
+
+message GrpcRepeatedTypes {
+  repeated string iterator = 1 [(.protogen.repeated_container) = ITERATOR];
+  repeated string stream = 2 [(.protogen.repeated_container) = STREAM];
+}

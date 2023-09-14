@@ -80,9 +80,10 @@ public class Method {
         return Options.wrapExtension(methodDescriptor.getOptions(), protogen.Options.nullable);
     }
 
-    public Optional<RepeatedContainer> getStreamToContainer() {
+    public RepeatedContainer getStreamToContainer() {
         return Options.wrapExtension(methodDescriptor.getOptions(), protogen.Options.streamToContainer)
-                .map(RepeatedContainer::fromGrpc);
+                .map(RepeatedContainer::fromGrpc)
+                .orElse(RepeatedContainer.ITERATOR);
     }
 
     protected Optional<String> getNameOption() {
