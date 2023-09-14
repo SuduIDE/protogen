@@ -28,7 +28,7 @@ public class ClientGenerator {
                 .addStatement("this.$N = $T.newBlockingStub($N)", stubField, service.stubClass(), BaseGrpcClient.channel)
                 .build();
 
-        TypeSpec.Builder builder = TypeSpec.classBuilder(service.generatedName())
+        TypeSpec.Builder builder = TypeSpec.classBuilder(service.generatedClientName())
                 .addModifiers(Modifier.PUBLIC)
                 .superclass(BaseGrpcClient.clazz)
                 .addField(stubField)
