@@ -12,6 +12,10 @@ enum RepeatedContainer {
   LIST = 0;
   // java.util.Set; collects using Collectors.toSet()
   SET = 1;
+  //
+  ITERATOR = 2;
+  //
+  STREAM = 3;
 }
 
 enum AccessModifier {
