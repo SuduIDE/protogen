@@ -3,6 +3,7 @@ syntax = "proto3";
 package org.sudu.protogen.test.client;
 
 import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
 import "protogen/options.proto";
 
 option java_multiple_files = true;
@@ -36,6 +37,10 @@ message GrpcMultiFieldResponse {
 message GrpcVoidResponse {
 }
 
+message GrpcListResponse {
+  repeated GrpcDomainId ids = 1;
+}
+
 message GrpcMultiFieldRequest {
   string r1 = 1;
   string r2 = 2;
@@ -55,7 +60,9 @@ service SomeService {
   }
 
   rpc commonVoid(GrpcMultiFieldRequest) returns (GrpcVoidResponse);
+  rpc commonInt(GrpcMultiFieldRequest) returns (google.protobuf.Int32Value);
   rpc commonEmpty(google.protobuf.Empty) returns (google.protobuf.Empty);
+  rpc commonRetList(google.protobuf.Empty) returns (GrpcListResponse);
   rpc commonMulti(GrpcMultiFieldRequest) returns (GrpcDomain);
   rpc commonMultiNullable(GrpcMultiFieldRequest) returns (GrpcDomain) {
     option (.protogen.nullable) = true;

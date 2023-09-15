@@ -13,6 +13,14 @@ public interface TypeProcessor {
     @NotNull
     TypeModel processType(@NotNull EnumOrMessage descriptor, @NotNull GenerationContext context);
 
+    default @Nullable TypeModel processTypeOrNull(@NotNull EnumOrMessage descriptor, @NotNull GenerationContext context) {
+        try {
+            return processType(descriptor, context);
+        } catch (IllegalArgumentException ignored) {
+            return null;
+        }
+    }
+
     abstract class Chain implements TypeProcessor {
 
         private @Nullable Chain next;

@@ -51,7 +51,7 @@ public class Method {
 
     public final boolean doUnfoldRequest() {
         return getUnfoldRequestOption()
-                .orElse(!getInputType().isDomain());
+                .orElse(!getInputType().isDomain()); // todo remove orElse
     }
 
     public final boolean doUnfoldResponse() {

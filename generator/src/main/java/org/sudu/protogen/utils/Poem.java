@@ -11,6 +11,7 @@ public class Poem {
         return ParameterSpec.builder(field.type, field.name).addAnnotations(field.annotations).build();
     }
 
+
     @NotNull
     public static CodeBlock separatedSequence(@NotNull Iterable<CodeBlock> blocks, @NotNull String separator) {
         CodeBlock.Builder builder = CodeBlock.builder();
