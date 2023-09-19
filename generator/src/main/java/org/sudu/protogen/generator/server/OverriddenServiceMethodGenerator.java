@@ -1,11 +1,11 @@
 package org.sudu.protogen.generator.server;
 
 import com.squareup.javapoet.*;
+import one.util.streamex.StreamEx;
 import org.jetbrains.annotations.Nullable;
 import org.sudu.protogen.descriptors.Method;
 import org.sudu.protogen.generator.GenerationContext;
 import org.sudu.protogen.generator.field.FieldGenerator;
-import org.sudu.protogen.generator.field.FieldProcessingResult;
 import org.sudu.protogen.generator.message.FieldTransformerGenerator;
 import org.sudu.protogen.generator.type.TypeModel;
 import org.sudu.protogen.generator.type.UnfoldedType;
@@ -13,7 +13,6 @@ import org.sudu.protogen.utils.Poem;
 
 import javax.lang.model.element.Modifier;
 import java.util.List;
-import java.util.stream.Stream;
 
 /**
  * Overrides default stub method to pass request and response as domain objects or list of fields
@@ -82,24 +81,22 @@ public class OverriddenServiceMethodGenerator {
         if (requestType != null && !method.doUnfoldRequest()) {
             return CodeBlock.of("$L",
                     Poem.separatedSequence(
-                            Stream.concat(
-                                    Stream.of(requestType.fromGrpcTransformer(CodeBlock.of("request"))),
-                                    generateResponseObserver().stream()
-                            ).toList(),
+                            StreamEx.of(requestType.fromGrpcTransformer(CodeBlock.of("request")))
+                                    .append(generateResponseObserver())
+                                    .toList(),
                             ",\n"
                     )
             );
         }
         // todo think about how to took out such logic because client does the same
-        List<CodeBlock> unfoldedRequestFields = method.getInputType().getFields().stream()
-                .map(field -> new FieldGenerator(context, field).generate())
-                .filter(FieldProcessingResult::isNonVoid)
+        List<CodeBlock> unfoldedRequestFields = FieldGenerator.generateSeveral(method.getInputType().getFields(), context)
                 .map(f -> new FieldTransformerGenerator(f.type(), f.original().getName(), f.isNullable())
-                        .fromGrpc("request"))
-                .toList();
-        return CodeBlock.of("$L",
-                Poem.separatedSequence(Stream.concat(unfoldedRequestFields.stream(), generateResponseObserver().stream()).toList(), ",\n")
-        );
+                        .fromGrpc("request")
+                ).toList();
+        return CodeBlock.of("$L", Poem.separatedSequence(
+                StreamEx.of(unfoldedRequestFields).append(generateResponseObserver()).toList(),
+                ",\n"
+        ));
     }
 
     /**
@@ -115,12 +112,12 @@ public class OverriddenServiceMethodGenerator {
         }
         if (method.doUnfoldResponse()) {
             var field = method.unfoldedResponseField();
-            TypeModel type = context.processType(field);
-            return List.of(CodeBlock.of(
-                    "$L", new AnonymousStreamObserverGenerator(
-                            new UnfoldedType(type, field.getName(), method.getOutputType().getProtobufTypeName())
-                    ).generate()
-            ));
+            TypeModel type = new UnfoldedType(
+                    context.processType(field),
+                    field.getName(),
+                    method.getOutputType().getProtobufTypeName()
+            );
+            return List.of(CodeBlock.of("$L", new AnonymousStreamObserverGenerator(type).generate()));
         }
         return List.of(CodeBlock.of("responseObserver"));
     }
@@ -131,7 +128,7 @@ public class OverriddenServiceMethodGenerator {
      * {@code GrpcSomeRequest request, StreamObserver<GrpcSomeResponse> response}
      * </pre>
      */
-    private Iterable<ParameterSpec> generateMethodParameters() {
+    private List<ParameterSpec> generateMethodParameters() {
         TypeName requestType = method.getInputType().getProtobufTypeName();
         TypeName responseType = method.getOutputType().getProtobufTypeName();
         ParameterizedTypeName responseObserverType = ParameterizedTypeName.get(

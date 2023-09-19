@@ -7,6 +7,9 @@ import org.sudu.protogen.generator.GenerationContext;
 import org.sudu.protogen.generator.type.TypeModel;
 import org.sudu.protogen.utils.Poem;
 
+import java.util.Collection;
+import java.util.stream.Stream;
+
 public class FieldGenerator {
 
     private final GenerationContext context;
@@ -16,6 +19,12 @@ public class FieldGenerator {
     public FieldGenerator(GenerationContext context, Field field) {
         this.context = context;
         this.field = field;
+    }
+
+    public static Stream<FieldProcessingResult> generateSeveral(Collection<Field> fields, GenerationContext context) {
+        return fields.stream()
+                .map(field -> new FieldGenerator(context, field).generate())
+                .filter(FieldProcessingResult::isNonVoid);
     }
 
     @NotNull

@@ -1,6 +1,7 @@
 package org.sudu.protogen.generator.server;
 
 import com.squareup.javapoet.*;
+import one.util.streamex.StreamEx;
 import org.jetbrains.annotations.Nullable;
 import org.sudu.protogen.descriptors.Method;
 import org.sudu.protogen.generator.GenerationContext;
@@ -84,13 +85,9 @@ public class AbstractServiceMethodGenerator {
                 ).filter(Objects::nonNull).toList();
             }
         }
-        return Stream.concat(
-                method.getInputType().getFields().stream()
-                        .map(f -> new FieldGenerator(context, f).generate())
-                        .filter(FieldProcessingResult::isNonVoid)
-                        .map(FieldProcessingResult::field)
-                        .map(Poem::fieldToParameter),
-                Stream.of(generateObserverParameter())
-        ).filter(Objects::nonNull).toList();
+        Stream<ParameterSpec> unfoldedFields = FieldGenerator.generateSeveral(method.getInputType().getFields(), context)
+                .map(FieldProcessingResult::field)
+                .map(Poem::fieldToParameter);
+        return StreamEx.of(unfoldedFields).append(generateObserverParameter()).nonNull().toList();
     }
 }
