@@ -74,7 +74,7 @@ public abstract class MethodGeneratorBase {
             Field field = method.getOutputType().getFields().get(0);
             type = new FieldGenerator(context, field).generate().type();
         } else if (method.getOutputType().isDomain()) {
-            type = context.typeProcessor().processType(method.getOutputType(), context);
+            type = context.typeProcessor().processType(method.getOutputType(), context.configuration());
         } else {
             if (method.getOutputType().getFields().isEmpty()) {
                 type = new TypeModel(TypeName.VOID);

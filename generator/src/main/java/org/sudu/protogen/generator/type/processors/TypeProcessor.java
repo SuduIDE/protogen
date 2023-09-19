@@ -2,24 +2,15 @@ package org.sudu.protogen.generator.type.processors;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.sudu.protogen.config.Configuration;
 import org.sudu.protogen.descriptors.EnumOrMessage;
-import org.sudu.protogen.generator.GenerationContext;
 import org.sudu.protogen.generator.type.TypeModel;
 
 import java.util.List;
 
 public interface TypeProcessor {
 
-    @NotNull
-    TypeModel processType(@NotNull EnumOrMessage descriptor, @NotNull GenerationContext context);
-
-    default @Nullable TypeModel processTypeOrNull(@NotNull EnumOrMessage descriptor, @NotNull GenerationContext context) {
-        try {
-            return processType(descriptor, context);
-        } catch (IllegalArgumentException ignored) {
-            return null;
-        }
-    }
+    @Nullable TypeModel processType(@NotNull EnumOrMessage descriptor, @NotNull Configuration configuration);
 
     abstract class Chain implements TypeProcessor {
 
@@ -40,19 +31,19 @@ public interface TypeProcessor {
         }
 
         @Override
-        public @NotNull TypeModel processType(@NotNull EnumOrMessage descriptor, @NotNull GenerationContext context) {
-            return next(descriptor, context);
+        public @Nullable TypeModel processType(@NotNull EnumOrMessage descriptor, @NotNull Configuration configuration) {
+            return next(descriptor, configuration);
         }
 
         private void setNext(@NotNull Chain typeProcessor) {
             this.next = typeProcessor;
         }
 
-        protected final @NotNull TypeModel next(@NotNull EnumOrMessage descriptor, @NotNull GenerationContext context) {
+        protected final @Nullable TypeModel next(@NotNull EnumOrMessage descriptor, @NotNull Configuration configuration) {
             if (next != null) {
-                return next.processType(descriptor, context);
+                return next.processType(descriptor, configuration);
             }
-            throw new IllegalArgumentException("Failed to generate a Java type for " + descriptor.getFullName());
+            return null;
         }
     }
 }

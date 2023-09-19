@@ -22,11 +22,11 @@ public record FieldProcessingResult(
         );
     }
 
-    public boolean isEmpty() {
+    public boolean isVoid() {
         return type.getTypeName().equals(TypeName.VOID);
     }
 
-    public boolean isNonEmpty() {
-        return !isEmpty();
+    public boolean isNonVoid() {
+        return !isVoid();
     }
 }

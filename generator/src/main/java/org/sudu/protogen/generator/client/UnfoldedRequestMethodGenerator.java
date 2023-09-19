@@ -24,7 +24,7 @@ public class UnfoldedRequestMethodGenerator extends MethodGeneratorBase {
     protected List<ParameterSpec> parameters() {
         return method.getInputType().getFields().stream()
                 .map(f -> new FieldGenerator(context, f).generate())
-                .filter(FieldProcessingResult::isNonEmpty)
+                .filter(FieldProcessingResult::isNonVoid)
                 .map(FieldProcessingResult::field)
                 .map(Poem::fieldToParameter)
                 .toList();
@@ -47,7 +47,7 @@ public class UnfoldedRequestMethodGenerator extends MethodGeneratorBase {
         } else {
             List<FieldProcessingResult> processedFields = method.getInputType().getFields().stream()
                     .map(field -> new FieldGenerator(context, field).generate())
-                    .filter(FieldProcessingResult::isNonEmpty)
+                    .filter(FieldProcessingResult::isNonVoid)
                     .toList();
             CodeBlock builder = new ToGrpcMethodGenerator(context, protoType, processedFields, false).builder("requestBuilder");
             return CodeBlock.builder()

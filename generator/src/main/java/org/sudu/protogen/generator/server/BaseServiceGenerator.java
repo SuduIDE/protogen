@@ -23,7 +23,7 @@ public class BaseServiceGenerator {
     public TypeSpec generate() {
         TypeSpec.Builder builder = TypeSpec.classBuilder(service.generatedServiceName())
                 .addModifiers(Modifier.PUBLIC, Modifier.ABSTRACT)
-                .superclass(superclass())
+                .superclass(protobufStubType())
                 .addAnnotation(AnnotationSpec.builder(ClassName.get(Generated.class)).addMember("value", CodeBlock.of("\"protogen\"")).build())
                 .addMethods(methods());
 
@@ -33,14 +33,15 @@ public class BaseServiceGenerator {
     private Iterable<MethodSpec> methods() {
         return service.getMethods().stream()
                 .filter(Method::doGenerate)
-                .flatMap(method -> Stream.of(
-                        new AbstractServiceMethodGenerator(context, method).generate(),
-                        new OverriddenServiceMethodGenerator(context, method).generate()
-                ))
+                .flatMap(method -> {
+                    MethodSpec abstractMethod = new AbstractServiceMethodGenerator(context, method).generate();
+                    MethodSpec overriddenMethod = new OverriddenServiceMethodGenerator(context, method, abstractMethod).generate();
+                    return Stream.of(abstractMethod, overriddenMethod);
+                })
                 .toList();
     }
 
-    private TypeName superclass() {
+    private TypeName protobufStubType() {
         return ClassName.get(
                 service.getContainingFile().getProtoPackage(),
                 service.getName() + "Grpc",

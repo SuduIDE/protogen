@@ -7,7 +7,6 @@ import org.sudu.protogen.generator.type.PrimitiveTypeModel;
 import org.sudu.protogen.generator.type.RepeatedType;
 import org.sudu.protogen.generator.type.TypeModel;
 import org.sudu.protogen.generator.type.UnfoldedType;
-import org.sudu.protogen.utils.Poem;
 
 class UnfoldedFieldTypeProcessor extends FieldTypeProcessor.Chain {
 
@@ -22,7 +21,7 @@ class UnfoldedFieldTypeProcessor extends FieldTypeProcessor.Chain {
             TypeModel processedModel = new UnfoldedType(
                     unfoldedType,
                     unfoldedField.getName(),
-                    Poem.className(unfoldedField.getContainingMessage().getFullName())
+                    unfoldedField.getContainingMessage().getProtobufTypeName()
             );
             if (field.isList()) {
                 return new RepeatedType(

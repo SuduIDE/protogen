@@ -27,7 +27,7 @@ public class MessageGenerator {
         this.msgDescriptor = msgDescriptor;
         this.processedFields = msgDescriptor.getFields().stream()
                 .map(field -> new FieldGenerator(generationContext, field).generate())
-                .filter(FieldProcessingResult::isNonEmpty)
+                .filter(FieldProcessingResult::isNonVoid)
                 .toList();
     }
 

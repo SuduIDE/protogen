@@ -10,7 +10,7 @@ import org.sudu.protogen.generator.type.TypeModel;
 import org.sudu.protogen.utils.Poem;
 
 import javax.lang.model.element.Modifier;
-import java.util.List;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 public class AbstractServiceMethodGenerator {
@@ -19,15 +19,15 @@ public class AbstractServiceMethodGenerator {
 
     private final Method method;
 
-    private final @Nullable TypeModel requestTypeModel;
+    private final @Nullable TypeModel requestType;
 
-    private final @Nullable TypeModel responseTypeModel;
+    private final @Nullable TypeModel responseType;
 
     public AbstractServiceMethodGenerator(GenerationContext context, Method method) {
         this.context = context;
         this.method = method;
-        this.requestTypeModel = context.typeProcessor().processTypeOrNull(method.getInputType(), context);
-        this.responseTypeModel = context.typeProcessor().processTypeOrNull(method.getOutputType(), context);
+        this.requestType = context.processType(method.getInputType());
+        this.responseType = context.processType(method.getOutputType());
     }
 
     public MethodSpec generate() {
@@ -38,52 +38,59 @@ public class AbstractServiceMethodGenerator {
                 .build();
     }
 
-    private List<ParameterSpec> generateObserverParameter() {
-        if (responseTypeModel != null && responseTypeModel.getTypeName() == TypeName.VOID) {
-            return List.of();
+    /**
+     * Generates a parameter for response observer or returns null if it is not required
+     */
+    @Nullable
+    private ParameterSpec generateObserverParameter() {
+        if (responseType != null && responseType.getTypeName() == TypeName.VOID) {
+            return null;
         }
         if (method.getOutputType().getFields().isEmpty()) {
-            return List.of();
+            return null;
         }
         TypeName type = ParameterizedTypeName.get(
                 ClassName.get("io.grpc.stub", "StreamObserver"),
-                returnType().box()
+                responseType().box() // as a processed type could be a primitive, always box it
         );
-        return List.of(ParameterSpec.builder(type, "responseObserver").build());
+        return ParameterSpec.builder(type, "responseObserver").build();
     }
 
-    private TypeName returnType() {
-        if (responseTypeModel != null) {
-            return responseTypeModel.getTypeName();
+    /**
+     * If the return type is processed by a type processor, returns it
+     * If the response message is one-field, unfolds it
+     * Otherwise generates protoc-generated class
+     */
+    private TypeName responseType() {
+        if (responseType != null) {
+            return responseType.getTypeName();
         }
-        if (method.getOutputType().getFields().size() == 1) {
-            var field = method.getOutputType().getFields().get(0);
-            FieldProcessingResult fpr = new FieldGenerator(context, field).generate();
-            return fpr.type().getTypeName();
+        if (method.doUnfoldResponse()) {
+            var field = method.unfoldedResponseField();
+            return context.processType(field).getTypeName();
         }
         return method.getOutputType().getProtobufTypeName();
     }
 
-    protected Iterable<ParameterSpec> generateMethodParameters() {
-        if (requestTypeModel != null && requestTypeModel.getTypeName() == TypeName.VOID) {
-            return generateObserverParameter();
-        }
-        if (requestTypeModel != null && !method.doUnfoldRequest()) {
-            return Stream.concat(
-                    Stream.of(ParameterSpec.builder(
-                            requestTypeModel.getTypeName(),
-                            "request"
-                    ).build()),
-                    generateObserverParameter().stream()
-            ).toList();
+    private Iterable<ParameterSpec> generateMethodParameters() {
+        if (requestType != null) {
+            if (requestType.getTypeName() == TypeName.VOID) {
+                return Stream.of(generateObserverParameter()).filter(Objects::nonNull).toList();
+            }
+            if (!method.doUnfoldRequest()) {
+                return Stream.of(
+                        ParameterSpec.builder(requestType.getTypeName(), "request").build(),
+                        generateObserverParameter()
+                ).filter(Objects::nonNull).toList();
+            }
         }
         return Stream.concat(
                 method.getInputType().getFields().stream()
                         .map(f -> new FieldGenerator(context, f).generate())
-                        .filter(FieldProcessingResult::isNonEmpty)
+                        .filter(FieldProcessingResult::isNonVoid)
                         .map(FieldProcessingResult::field)
                         .map(Poem::fieldToParameter),
-                generateObserverParameter().stream()
-        ).toList();
+                Stream.of(generateObserverParameter())
+        ).filter(Objects::nonNull).toList();
     }
 }
