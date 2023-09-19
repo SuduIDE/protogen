@@ -114,8 +114,7 @@ public class OverriddenServiceMethodGenerator {
             var field = method.unfoldedResponseField();
             TypeModel type = new UnfoldedType(
                     context.processType(field),
-                    field.getName(),
-                    method.getOutputType().getProtobufTypeName()
+                    method.getOutputType()
             );
             return List.of(CodeBlock.of("$L", new AnonymousStreamObserverGenerator(type).generate()));
         }

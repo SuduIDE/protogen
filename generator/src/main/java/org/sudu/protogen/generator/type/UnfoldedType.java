@@ -2,7 +2,8 @@ package org.sudu.protogen.generator.type;
 
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.TypeName;
-import org.sudu.protogen.utils.Name;
+import org.apache.commons.lang3.Validate;
+import org.sudu.protogen.descriptors.Message;
 
 public class UnfoldedType extends TypeModel {
 
@@ -12,23 +13,12 @@ public class UnfoldedType extends TypeModel {
 
     private final TypeName unfoldedTypeName;
 
-    public UnfoldedType(TypeModel type, String unfoldedFieldName, TypeName unfoldedTypeName) {
+    public UnfoldedType(TypeModel type, Message unfoldedType) {
         super(type.getTypeName());
+        Validate.validState(unfoldedType.getFields().size() == 1);
         this.type = type;
-        this.unfoldedFieldName = Name.toCamelCase(unfoldedFieldName);
-        this.unfoldedTypeName = unfoldedTypeName;
-    }
-
-    public TypeModel getType() {
-        return type;
-    }
-
-    public String getUnfoldedFieldName() {
-        return unfoldedFieldName;
-    }
-
-    public TypeName getUnfoldedTypeName() {
-        return unfoldedTypeName;
+        this.unfoldedFieldName = unfoldedType.getFields().get(0).getName();
+        this.unfoldedTypeName = unfoldedType.getProtobufTypeName();
     }
 
     @Override

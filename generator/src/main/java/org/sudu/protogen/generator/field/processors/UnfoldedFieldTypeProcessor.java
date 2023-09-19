@@ -20,8 +20,7 @@ class UnfoldedFieldTypeProcessor extends FieldTypeProcessor.Chain {
             }
             TypeModel processedModel = new UnfoldedType(
                     unfoldedType,
-                    unfoldedField.getName(),
-                    unfoldedField.getContainingMessage().getProtobufTypeName()
+                    unfoldedField.getContainingMessage()
             );
             if (field.isList()) {
                 return new RepeatedType(
