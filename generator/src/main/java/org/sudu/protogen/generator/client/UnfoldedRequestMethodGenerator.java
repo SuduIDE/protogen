@@ -60,7 +60,7 @@ public class UnfoldedRequestMethodGenerator extends MethodGeneratorBase {
     @Override
     protected CodeBlock returnExpression(TypeModel returnType, List<ParameterSpec> params) {
         return CodeBlock.builder()
-                .add("$L(request)", method.generatedName())
+                .add("$LStubCall(request)", method.generatedName())
                 .build();
     }
 }

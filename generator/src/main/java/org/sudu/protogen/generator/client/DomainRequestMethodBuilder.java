@@ -34,9 +34,9 @@ public class DomainRequestMethodBuilder extends MethodGeneratorBase {
     @Override
     protected CodeBlock returnExpression(TypeModel returnType, List<ParameterSpec> params) {
         if (params.isEmpty()) {
-            return CodeBlock.of("$L($L)", method.generatedName(), requestType.toGrpcTransformer(CodeBlock.of("")));
+            return CodeBlock.of("$LStubCall($L)", method.generatedName(), requestType.toGrpcTransformer(CodeBlock.of("")));
         }
         ParameterSpec requestParam = params.get(0);
-        return CodeBlock.of("$L($L)", method.generatedName(), requestType.toGrpcTransformer(CodeBlock.of("$N", requestParam)));
+        return CodeBlock.of("$LStubCall($L)", method.generatedName(), requestType.toGrpcTransformer(CodeBlock.of("$N", requestParam)));
     }
 }
