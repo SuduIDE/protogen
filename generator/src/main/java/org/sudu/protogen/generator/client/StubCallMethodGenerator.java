@@ -1,6 +1,7 @@
 package org.sudu.protogen.generator.client;
 
 import com.squareup.javapoet.*;
+import org.sudu.protogen.BaseClientUtils;
 import org.sudu.protogen.descriptors.Method;
 import org.sudu.protogen.descriptors.RepeatedContainer;
 import org.sudu.protogen.generator.GenerationContext;
@@ -13,8 +14,11 @@ import java.util.List;
 public class StubCallMethodGenerator {
 
     protected final FieldSpec stubField;
+
     private final GenerationContext context;
+
     private final Method method;
+
     private final TypeModel returnType;
 
     public StubCallMethodGenerator(GenerationContext context, Method method, TypeModel returnType, FieldSpec stubField) {
@@ -59,11 +63,10 @@ public class StubCallMethodGenerator {
         }
 
         if (method.isNullable()) {
-            returnExpr = CodeBlock.of("nullifyIfNotFound(() -> $L)", returnExpr);
+            returnExpr = CodeBlock.of("$T.nullifyIfNotFound(() -> $L)", BaseClientUtils.class, returnExpr);
         }
 
-        // todo research why
-        if (!returnType.getTypeName().toString().equalsIgnoreCase("void")) {
+        if (returnType.getTypeName() != TypeName.VOID) {
             returnExpr = CodeBlock.of("return $L", returnExpr);
         }
         return CodeBlock.builder().add(body).addStatement(returnExpr).build();
