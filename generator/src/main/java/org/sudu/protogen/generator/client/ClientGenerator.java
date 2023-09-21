@@ -4,6 +4,9 @@ import com.squareup.javapoet.*;
 import org.sudu.protogen.descriptors.Method;
 import org.sudu.protogen.descriptors.Service;
 import org.sudu.protogen.generator.GenerationContext;
+import org.sudu.protogen.generator.type.RepeatedType;
+import org.sudu.protogen.generator.type.TypeModel;
+import org.sudu.protogen.generator.type.UnfoldedType;
 
 import javax.annotation.processing.Generated;
 import javax.lang.model.element.Modifier;
@@ -64,11 +67,35 @@ public class ClientGenerator {
     }
 
     private MethodSpec generateGrpcRequestMethod(Method method) {
-        if (method.isOutputStreaming()) {
-            return new StreamingGrpcCallMethodGenerator(context, method, stubField).generate();
+
+//            var responseType = context.processType(method.getOutputType());
+        return new StubCallMethodGenerator(context, method, getReturnType(method), stubField).generate();
+
+    }
+
+    protected TypeModel getReturnType(Method method) {
+        var responseType = context.processType(method.getOutputType());
+        TypeModel type;
+        if (responseType != null) {
+            type = responseType;
+        } else if (method.doUnfoldResponse(responseType)) {
+            type = new UnfoldedType(context.processType(method.unfoldedResponseField()), method.getOutputType());
         } else {
-            return new GrpcCallMethodGenerator(context, method, stubField).generate();
+            if (method.getOutputType().getFields().isEmpty()) {
+                type = new TypeModel(TypeName.VOID);
+            } else {
+                throw new IllegalStateException(("Unable to create a method returning %s because request consist of more than " +
+                        "1 field and doesn't have a domain object.").formatted(method.getOutputType().getFullName()));
+            }
         }
+        if (method.isOutputStreaming()) {
+//            // todo research why
+            if (type.getTypeName().toString().equalsIgnoreCase("void")) {
+                return type;
+            }
+            return new RepeatedType(type, method.getStreamToContainer());
+        }
+        return type;
     }
 
 }

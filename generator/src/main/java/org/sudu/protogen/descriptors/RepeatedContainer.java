@@ -17,7 +17,7 @@ public enum RepeatedContainer {
     LIST(ClassName.get(List.class)) {
         @Override
         public CodeBlock getCollectorExpr() {
-            return CodeBlock.of(".collect($T.toList())", Collectors.class);
+            return CodeBlock.of(".toList()");
         }
 
         @Override

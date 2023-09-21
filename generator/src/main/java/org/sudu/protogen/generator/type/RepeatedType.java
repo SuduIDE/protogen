@@ -25,6 +25,10 @@ public class RepeatedType extends TypeModel {
         return elementModel;
     }
 
+    public RepeatedContainer getRepeatedType() {
+        return repeatedType;
+    }
+
     @Override
     public CodeBlock toGrpcTransformer(CodeBlock expr) {
         if (!(elementModel instanceof PrimitiveTypeModel)) {

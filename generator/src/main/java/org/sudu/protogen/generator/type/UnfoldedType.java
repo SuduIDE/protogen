@@ -13,17 +13,18 @@ public class UnfoldedType extends TypeModel {
 
     private final TypeName unfoldedTypeName;
 
-    public UnfoldedType(TypeModel type, Message unfoldedType) {
+    public UnfoldedType(TypeModel type, Message originalMessage) {
         super(type.getTypeName());
-        Validate.validState(unfoldedType.getFields().size() == 1);
+        Validate.validState(originalMessage.getFields().size() == 1);
         this.type = type;
-        this.unfoldedFieldName = unfoldedType.getFields().get(0).getName();
-        this.unfoldedTypeName = unfoldedType.getProtobufTypeName();
+        this.unfoldedFieldName = originalMessage.getFields().get(0).getName();
+        this.unfoldedTypeName = originalMessage.getProtobufTypeName();
     }
 
     @Override
     public CodeBlock fromGrpcTransformer(CodeBlock expr) {
-        return CodeBlock.of("$L.$L()", type.fromGrpcTransformer(expr), type.getterMethod(unfoldedFieldName));
+        return type.fromGrpcTransformer(CodeBlock.of("$L.$L()", expr, type.getterMethod(unfoldedFieldName)));
+//        return CodeBlock.of("$L.$L()", type.fromGrpcTransformer(expr), type.getterMethod(unfoldedFieldName));
     }
 
     @Override
