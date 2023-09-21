@@ -51,26 +51,11 @@ public class ClientGenerator {
     }
 
     private Stream<MethodSpec> generateRpcMethod(Method method) {
-        MethodSpec publicApi = method.doUnfoldRequest() || context.processType(method.getInputType()) == null
-                ? generateParamsListMethod(method)
-                : generateWrappedRequestMethod(method);
-        MethodSpec grpcRequestMethod = generateGrpcRequestMethod(method);
+        TypeModel returnType = getReturnType(method);
+        TypeModel requestType = context.processType(method.getInputType());
+        MethodSpec publicApi = new ApiMethodGeneratorBase(context, method, returnType, requestType).generate();
+        MethodSpec grpcRequestMethod = new StubCallMethodGenerator(context, method, returnType, stubField).generate();
         return Stream.of(grpcRequestMethod, publicApi);
-    }
-
-    private MethodSpec generateWrappedRequestMethod(Method method) {
-        return new DomainRequestMethodBuilder(context, method, stubField).generate();
-    }
-
-    private MethodSpec generateParamsListMethod(Method method) {
-        return new UnfoldedRequestMethodGenerator(context, method, stubField).generate();
-    }
-
-    private MethodSpec generateGrpcRequestMethod(Method method) {
-
-//            var responseType = context.processType(method.getOutputType());
-        return new StubCallMethodGenerator(context, method, getReturnType(method), stubField).generate();
-
     }
 
     protected TypeModel getReturnType(Method method) {
