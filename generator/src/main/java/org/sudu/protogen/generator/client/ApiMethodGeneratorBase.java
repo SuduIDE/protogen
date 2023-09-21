@@ -96,8 +96,7 @@ public class ApiMethodGeneratorBase {
             }
         }
         returnExpr = CodeBlock.of("$LStubCall(grpcRequest)", method.generatedName());
-        // todo research
-        if (!returnType.getTypeName().toString().equalsIgnoreCase("void")) {
+        if (returnType.getTypeName() != TypeName.VOID) {
             returnExpr = CodeBlock.of("return $L", returnExpr);
         }
         return CodeBlock.builder().add(body).addStatement(returnExpr).build();

@@ -13,6 +13,7 @@ java {
 val optionsJar = tasks.create<Jar>("optionsJar") {
     archiveClassifier = "options"
     from(sourceSets.main.get().proto)
+    from(project(":javaApi").sourceSets.main.get().java)
 }
 
 signing {
@@ -76,6 +77,7 @@ tasks.shadowJar {
 
 dependencies {
     implementation(project(":javapoet"))
+    implementation(project(":javaApi"))
     implementation("com.google.protobuf:protobuf-java:3.21.9")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.15.2")
 
