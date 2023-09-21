@@ -1,10 +1,9 @@
 package org.sudu.protogen.generator.client;
 
 import com.squareup.javapoet.*;
-import org.sudu.protogen.descriptors.Field;
+import org.jetbrains.annotations.Nullable;
 import org.sudu.protogen.descriptors.Method;
 import org.sudu.protogen.generator.GenerationContext;
-import org.sudu.protogen.generator.field.FieldGenerator;
 import org.sudu.protogen.generator.type.RepeatedType;
 import org.sudu.protogen.generator.type.TypeModel;
 
@@ -19,10 +18,16 @@ public abstract class MethodGeneratorBase {
 
     protected final FieldSpec stubField;
 
+    protected final @Nullable TypeModel requestType;
+
+    protected final @Nullable TypeModel responseType;
+
     public MethodGeneratorBase(GenerationContext context, Method method, FieldSpec stubField) {
         this.context = context;
         this.method = method;
         this.stubField = stubField;
+        this.requestType = context.processType(method.getInputType());
+        this.responseType = context.processType(method.getOutputType());
     }
 
     protected abstract List<ParameterSpec> parameters();
@@ -70,11 +75,10 @@ public abstract class MethodGeneratorBase {
 
     protected TypeModel getReturnType() {
         TypeModel type;
-        if (method.doUnfoldResponse()) {
-            Field field = method.getOutputType().getFields().get(0);
-            type = new FieldGenerator(context, field).generate().type();
-        } else if (method.getOutputType().isDomain()) {
-            type = context.typeProcessor().processType(method.getOutputType(), context.configuration());
+        if (responseType != null) {
+            type = responseType;
+        } else if (method.doUnfoldResponse(responseType)) {
+            type = context.processType(method.unfoldedResponseField());
         } else {
             if (method.getOutputType().getFields().isEmpty()) {
                 type = new TypeModel(TypeName.VOID);

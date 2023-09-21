@@ -91,7 +91,7 @@ public class StreamingGrpcCallMethodGenerator extends MethodGeneratorBase {
 
         private MethodSpec next(String outerIteratorIdentifier, TypeModel domainType) {
             CodeBlock next = CodeBlock.of("$L.next()", outerIteratorIdentifier);
-            if (method.doUnfoldResponse()) {
+            if (method.doUnfoldResponse(responseType)) {
                 next = next.toBuilder().add(".get$L()", Name.toCamelCase(method.unfoldedResponseField().getName())).build();
             }
             return MethodSpec.methodBuilder("next")

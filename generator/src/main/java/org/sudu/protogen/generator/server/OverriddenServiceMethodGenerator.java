@@ -75,28 +75,27 @@ public class OverriddenServiceMethodGenerator {
      * Either unfolds request params into list of fields, or returns a domain object
      */
     private CodeBlock generateAbstractMethodCallParams() {
-        if (requestType != null && requestType.getTypeName() == TypeName.VOID) {
+        if (requestType == null || method.doUnfoldRequest()) {
+            List<CodeBlock> unfoldedRequestFields = FieldGenerator.generateSeveral(method.getInputType().getFields(), context)
+                    .map(f -> new FieldTransformerGenerator(f.type(), f.original().getName(), f.isNullable())
+                            .fromGrpc("request")
+                    ).toList();
+            return CodeBlock.of("$L", Poem.separatedSequence(
+                    StreamEx.of(unfoldedRequestFields).append(generateResponseObserver()).toList(),
+                    ",\n"
+            ));
+        }
+        if (requestType.getTypeName() == TypeName.VOID) {
             return Poem.separatedSequence(generateResponseObserver(), ",\n");
         }
-        if (requestType != null && !method.doUnfoldRequest()) {
-            return CodeBlock.of("$L",
-                    Poem.separatedSequence(
-                            StreamEx.of(requestType.fromGrpcTransformer(CodeBlock.of("request")))
-                                    .append(generateResponseObserver())
-                                    .toList(),
-                            ",\n"
-                    )
-            );
-        }
-        // todo think about how to took out such logic because client does the same
-        List<CodeBlock> unfoldedRequestFields = FieldGenerator.generateSeveral(method.getInputType().getFields(), context)
-                .map(f -> new FieldTransformerGenerator(f.type(), f.original().getName(), f.isNullable())
-                        .fromGrpc("request")
-                ).toList();
-        return CodeBlock.of("$L", Poem.separatedSequence(
-                StreamEx.of(unfoldedRequestFields).append(generateResponseObserver()).toList(),
-                ",\n"
-        ));
+        return CodeBlock.of("$L",
+                Poem.separatedSequence(
+                        StreamEx.of(requestType.fromGrpcTransformer(CodeBlock.of("request")))
+                                .append(generateResponseObserver())
+                                .toList(),
+                        ",\n"
+                )
+        );
     }
 
     /**
@@ -110,7 +109,7 @@ public class OverriddenServiceMethodGenerator {
             if (responseType.getTypeName() == TypeName.VOID) return List.of();
             return List.of(CodeBlock.of("$L", new AnonymousStreamObserverGenerator(responseType).generate()));
         }
-        if (method.doUnfoldResponse()) {
+        if (method.doUnfoldResponse(responseType)) {
             var field = method.unfoldedResponseField();
             TypeModel type = new UnfoldedType(
                     context.processType(field),
