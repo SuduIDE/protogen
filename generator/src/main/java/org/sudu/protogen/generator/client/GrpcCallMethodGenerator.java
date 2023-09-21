@@ -34,8 +34,8 @@ public class GrpcCallMethodGenerator extends MethodGeneratorBase {
     protected CodeBlock returnExpression(TypeModel returnType, List<ParameterSpec> params) {
         CodeBlock returnExpr = onlyCallReturnExpression(returnType, params);
 
-        if (method.doUnfoldResponse()) {
-            Field field = method.getOutputType().getFields().get(0);
+        if (method.doUnfoldResponse(responseType)) {
+            Field field = method.unfoldedResponseField();
             returnExpr = CodeBlock.of("$L.$L()", returnExpr, returnType.getterMethod(field.getName()));
         }
 

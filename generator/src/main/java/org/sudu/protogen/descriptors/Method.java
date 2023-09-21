@@ -1,8 +1,9 @@
 package org.sudu.protogen.descriptors;
 
 import com.google.protobuf.Descriptors;
-import org.apache.commons.lang3.Validate;
+import org.jetbrains.annotations.Nullable;
 import org.sudu.protogen.Options;
+import org.sudu.protogen.generator.type.TypeModel;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -50,16 +51,14 @@ public class Method {
     }
 
     public final boolean doUnfoldRequest() {
-        return getUnfoldRequestOption()
-                .orElse(!getInputType().isDomain()); // todo remove orElse
+        return getUnfoldRequestOption().orElse(false);
     }
 
-    public final boolean doUnfoldResponse() {
-        return !getOutputType().isDomain() && getOutputType().getFields().size() == 1;
+    public final boolean doUnfoldResponse(@Nullable TypeModel responseType) {
+        return responseType == null && getOutputType().getFields().size() == 1;
     }
 
     public final Field unfoldedResponseField() {
-        Validate.validState(doUnfoldResponse());
         return getOutputType().getFields().get(0);
     }
 

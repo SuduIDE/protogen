@@ -34,6 +34,7 @@ public class RegisteredType extends TypeModel {
             }
             if (tokens.hasNext()) builder.add("$L", l);
         }
+        if (transformRule.rule().endsWith("$L")) builder.add("$L", l);
         return builder.build();
     }
 

@@ -66,7 +66,7 @@ public class AbstractServiceMethodGenerator {
         if (responseType != null) {
             return responseType.getTypeName();
         }
-        if (method.doUnfoldResponse()) {
+        if (method.doUnfoldResponse(responseType)) {
             var field = method.unfoldedResponseField();
             return context.processType(field).getTypeName();
         }
@@ -74,20 +74,18 @@ public class AbstractServiceMethodGenerator {
     }
 
     private Iterable<ParameterSpec> generateMethodParameters() {
-        if (requestType != null) {
-            if (requestType.getTypeName() == TypeName.VOID) {
-                return Stream.of(generateObserverParameter()).filter(Objects::nonNull).toList();
-            }
-            if (!method.doUnfoldRequest()) {
-                return Stream.of(
-                        ParameterSpec.builder(requestType.getTypeName(), "request").build(),
-                        generateObserverParameter()
-                ).filter(Objects::nonNull).toList();
-            }
+        if (requestType == null || method.doUnfoldRequest()) {
+            Stream<ParameterSpec> unfoldedFields = FieldGenerator.generateSeveral(method.getInputType().getFields(), context)
+                    .map(FieldProcessingResult::field)
+                    .map(Poem::fieldToParameter);
+            return StreamEx.of(unfoldedFields).append(generateObserverParameter()).nonNull().toList();
         }
-        Stream<ParameterSpec> unfoldedFields = FieldGenerator.generateSeveral(method.getInputType().getFields(), context)
-                .map(FieldProcessingResult::field)
-                .map(Poem::fieldToParameter);
-        return StreamEx.of(unfoldedFields).append(generateObserverParameter()).nonNull().toList();
+        if (requestType.getTypeName() == TypeName.VOID) {
+            return Stream.of(generateObserverParameter()).filter(Objects::nonNull).toList();
+        }
+        return Stream.of(
+                ParameterSpec.builder(requestType.getTypeName(), "request").build(),
+                generateObserverParameter()
+        ).filter(Objects::nonNull).toList();
     }
 }

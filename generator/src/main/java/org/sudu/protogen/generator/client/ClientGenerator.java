@@ -48,7 +48,7 @@ public class ClientGenerator {
     }
 
     private Stream<MethodSpec> generateRpcMethod(Method method) {
-        MethodSpec publicApi = method.doUnfoldRequest()
+        MethodSpec publicApi = method.doUnfoldRequest() || context.processType(method.getInputType()) == null
                 ? generateParamsListMethod(method)
                 : generateWrappedRequestMethod(method);
         MethodSpec grpcRequestMethod = generateGrpcRequestMethod(method);
