@@ -74,7 +74,7 @@ service SomeService {
     option (.protogen.unfold_request) = true;
   }
   rpc commonGeneratedRequestProtected(GrpcGeneratedRequest) returns (google.protobuf.Empty) {
-    option (.protogen.protect_method) = true;
+    option (.protogen.access_modifier) = PROTECTED;
   }
 
   rpc streamVoid(google.protobuf.Empty) returns (stream GrpcVoidResponse);

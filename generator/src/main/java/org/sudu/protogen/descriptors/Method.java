@@ -5,6 +5,7 @@ import org.jetbrains.annotations.Nullable;
 import org.sudu.protogen.Options;
 import org.sudu.protogen.generator.type.TypeModel;
 
+import javax.lang.model.element.Modifier;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -62,8 +63,15 @@ public class Method {
         return getOutputType().getFields().get(0);
     }
 
-    public boolean protect() {
-        return Options.wrapExtension(methodDescriptor.getOptions(), protogen.Options.protectMethod).orElse(false);
+    public Modifier getAccessModifier() {
+        return Options.wrapExtension(methodDescriptor.getOptions(), protogen.Options.accessModifier)
+                .map(option -> switch (option) {
+                    case PUBLIC -> Modifier.PUBLIC;
+                    case PRIVATE -> Modifier.PRIVATE;
+                    case PROTECTED -> Modifier.PROTECTED;
+                    case UNRECOGNIZED -> throw new IllegalStateException();
+                })
+                .orElse(Modifier.PUBLIC);
     }
 
 
