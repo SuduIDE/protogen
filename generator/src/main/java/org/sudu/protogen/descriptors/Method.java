@@ -37,8 +37,9 @@ public class Method {
         return methodDescriptor.isServerStreaming();
     }
 
-    public final boolean isNullable() {
-        return getNullableOption().orElse(false);
+    public final protogen.Options.IfNotFound ifNotFoundBehavior() {
+        return Options.wrapExtension(methodDescriptor.getOptions(), protogen.Options.ifNotFound)
+                .orElse(protogen.Options.IfNotFound.IGNORE);
     }
 
     public final String generatedName() {
@@ -81,10 +82,6 @@ public class Method {
 
     protected Optional<Boolean> getUnfoldRequestOption() {
         return Options.wrapExtension(methodDescriptor.getOptions(), protogen.Options.unfoldRequest);
-    }
-
-    protected Optional<Boolean> getNullableOption() {
-        return Options.wrapExtension(methodDescriptor.getOptions(), protogen.Options.nullable);
     }
 
     public RepeatedContainer getStreamToContainer() {

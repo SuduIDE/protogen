@@ -7,6 +7,7 @@ import org.sudu.protogen.descriptors.RepeatedContainer;
 import org.sudu.protogen.generator.GenerationContext;
 import org.sudu.protogen.generator.type.RepeatedType;
 import org.sudu.protogen.generator.type.TypeModel;
+import protogen.Options;
 
 import javax.lang.model.element.Modifier;
 import java.util.List;
@@ -35,7 +36,7 @@ public class StubCallMethodGenerator {
                 .addCode(body())
                 .returns(returnType.getTypeName())
                 .addAnnotation(
-                        method.isNullable()
+                        method.ifNotFoundBehavior() == Options.IfNotFound.NULLIFY
                                 ? context.configuration().nullableAnnotationClass()
                                 : context.configuration().nonnullAnnotationClass()
                 )
@@ -62,8 +63,10 @@ public class StubCallMethodGenerator {
             returnExpr = returnType.fromGrpcTransformer(returnExpr);
         }
 
-        if (method.isNullable()) {
-            returnExpr = CodeBlock.of("$T.nullifyIfNotFound(() -> $L)", BaseClientUtils.class, returnExpr);
+        switch (method.ifNotFoundBehavior()) {
+            case NULLIFY ->
+                    returnExpr = CodeBlock.of("$T.nullifyIfNotFound(() -> $L)", BaseClientUtils.class, returnExpr);
+            case EMPTY -> returnExpr = CodeBlock.of("$T.emptyIfNotFound(() -> $L)", BaseClientUtils.class, returnExpr);
         }
 
         if (returnType.getTypeName() != TypeName.VOID) {
