@@ -10,7 +10,6 @@ import org.sudu.protogen.generator.message.ToGrpcMethodGenerator;
 import org.sudu.protogen.generator.type.TypeModel;
 import org.sudu.protogen.utils.Poem;
 
-import javax.lang.model.element.Modifier;
 import java.util.List;
 
 public class ApiMethodGeneratorBase {
@@ -33,7 +32,7 @@ public class ApiMethodGeneratorBase {
     public MethodSpec generate() {
         List<ParameterSpec> params = params();
         return MethodSpec.methodBuilder(method.generatedName())
-                .addModifiers(modifiers())
+                .addModifiers(method.getAccessModifier())
                 .returns(returnType.getTypeName())
                 .addParameters(params)
                 .addCode(body(params))
@@ -43,13 +42,6 @@ public class ApiMethodGeneratorBase {
                                 : context.configuration().nonnullAnnotationClass()
                 )
                 .build();
-    }
-
-    private Iterable<Modifier> modifiers() {
-        if (method.protect()) {
-            return List.of(Modifier.PROTECTED);
-        }
-        return List.of(Modifier.PUBLIC);
     }
 
     private List<ParameterSpec> params() {

@@ -21,6 +21,7 @@ enum RepeatedContainer {
 enum AccessModifier {
   PUBLIC = 0;
   PROTECTED = 1;
+  PRIVATE = 2;
 }
 
 extend google.protobuf.FileOptions {
@@ -160,6 +161,7 @@ extend google.protobuf.MethodOptions {
    * }
    */
   string method_name = 5505;
-  // Makes generated method protected;
-  bool protect_method = 5506;
+  // Allows to make your method public/proteceted/private
+  AccessModifier access_modifier = 5506;
+
 }
