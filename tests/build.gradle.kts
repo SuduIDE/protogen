@@ -34,7 +34,7 @@ protobuf {
 
 dependencies {
     protobuf(project(":generator"))
-    implementation(project(":javaApi"))
+    implementation(project(":options"))
     implementation("io.grpc:grpc-protobuf:1.51.0")
     implementation("io.grpc:grpc-stub:1.51.0")
     implementation("io.grpc:grpc-services:1.51.0")

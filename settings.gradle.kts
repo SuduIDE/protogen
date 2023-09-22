@@ -2,7 +2,7 @@ rootProject.name = "protogen"
 
 include(
     "javapoet",
-    "javaApi",
+    "options",
     "generator",
     "tests"
 )
