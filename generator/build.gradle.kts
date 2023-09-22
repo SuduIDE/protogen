@@ -10,12 +10,6 @@ java {
     withSourcesJar()
 }
 
-val optionsJar = tasks.create<Jar>("optionsJar") {
-    archiveClassifier = "options"
-    from(sourceSets.main.get().proto)
-    from(project(":javaApi").sourceSets.main.get().java)
-}
-
 signing {
     sign(publishing.publications)
 }
@@ -63,7 +57,7 @@ publishing {
             artifact(tasks.shadowJar) {
                 classifier = "jvm"
             }
-            artifact(optionsJar) {
+            artifact(project(":options").tasks.jar) {
                 classifier = "options"
             }
         }
@@ -77,7 +71,7 @@ tasks.shadowJar {
 
 dependencies {
     implementation(project(":javapoet"))
-    implementation(project(":javaApi"))
+    implementation(project(":options"))
     implementation("com.google.protobuf:protobuf-java:3.21.9")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.15.2")
 
