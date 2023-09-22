@@ -8,10 +8,6 @@ protobuf {
     }
 }
 
-tasks.jar {
-    archiveClassifier = "options"
-}
-
 dependencies {
     implementation("io.grpc:grpc-api:1.51.0")
     implementation("com.google.protobuf:protobuf-java:3.21.9")
