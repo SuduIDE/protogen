@@ -5,6 +5,7 @@ import com.squareup.javapoet.TypeName;
 import org.sudu.protogen.config.RegisteredTransformer;
 
 import java.util.Arrays;
+import java.util.List;
 
 public class RegisteredType extends TypeModel {
 
@@ -19,23 +20,23 @@ public class RegisteredType extends TypeModel {
     }
 
     private CodeBlock fromRule(RegisteredTransformer.TransformRule transformRule, CodeBlock l, TypeName t) {
-        var tokens = Arrays.stream(transformRule.rule().split("\\$L")).iterator();
-        var builder = CodeBlock.builder();
+        // The regexp is to split keeping delimiters
+        // See https://stackoverflow.com/questions/2206378/how-to-split-a-string-but-also-keep-the-delimiters
+        List<String> tokens = Arrays.stream(transformRule.rule().split("((?<=\\$L)|(?=\\$L))"))
+                .flatMap(token -> Arrays.stream(token.split("((?<=\\$T)|(?=\\$T))")))
+                .flatMap(token -> Arrays.stream(token.split("((?<=\\$t)|(?=\\$t))")))
+                .toList();
+        CodeBlock.Builder codeBuilder = CodeBlock.builder();
         int paramIt = 0;
-        while (tokens.hasNext()) {
-            var typedTokens = Arrays.stream(tokens.next().split("\\$T")).iterator();
-            while (typedTokens.hasNext()) {
-                var parametrizedTokens = Arrays.stream(typedTokens.next().split("\\$t")).iterator();
-                while (parametrizedTokens.hasNext()) {
-                    builder.add(parametrizedTokens.next());
-                    if (parametrizedTokens.hasNext()) builder.add("$T", transformRule.params()[paramIt++]);
-                }
-                if (typedTokens.hasNext()) builder.add("$T", t);
+        for (String token : tokens) {
+            switch (token) {
+                case "$L" -> codeBuilder.add("$L", l);
+                case "$T" -> codeBuilder.add("$T", t);
+                case "$t" -> codeBuilder.add("$T", transformRule.params()[paramIt++]);
+                default -> codeBuilder.add(token);
             }
-            if (tokens.hasNext()) builder.add("$L", l);
         }
-        if (transformRule.rule().endsWith("$L")) builder.add("$L", l);
-        return builder.build();
+        return codeBuilder.build();
     }
 
     @Override
