@@ -9,6 +9,7 @@ import org.sudu.protogen.generator.field.FieldProcessingResult;
 import org.sudu.protogen.generator.message.ToGrpcMethodGenerator;
 import org.sudu.protogen.generator.type.TypeModel;
 import org.sudu.protogen.utils.Poem;
+import protogen.Options;
 
 import java.util.List;
 
@@ -37,7 +38,7 @@ public class ApiMethodGeneratorBase {
                 .addParameters(params)
                 .addCode(body(params))
                 .addAnnotation(
-                        method.isNullable()
+                        method.ifNotFoundBehavior() == Options.IfNotFound.NULLIFY
                                 ? context.configuration().nullableAnnotationClass()
                                 : context.configuration().nonnullAnnotationClass()
                 )

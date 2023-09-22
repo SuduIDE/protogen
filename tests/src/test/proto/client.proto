@@ -65,7 +65,7 @@ service SomeService {
   rpc commonRetList(google.protobuf.Empty) returns (GrpcListResponse);
   rpc commonMulti(GrpcMultiFieldRequest) returns (GrpcDomain);
   rpc commonMultiNullable(GrpcMultiFieldRequest) returns (GrpcDomain) {
-    option (.protogen.nullable) = true;
+    option (.protogen.if_not_found) = NULLIFY;
   }
   rpc commonUnfolded(GrpcMultiFieldRequest) returns (GrpcDomainId);
   rpc commonOneField(GrpcMultiFieldRequest) returns (GrpcOneFieldResponse);

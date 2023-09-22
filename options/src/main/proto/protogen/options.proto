@@ -24,6 +24,12 @@ enum AccessModifier {
   PRIVATE = 2;
 }
 
+enum IfNotFound {
+  IGNORE = 0;
+  NULLIFY = 1;
+  EMPTY = 2;
+}
+
 extend google.protobuf.FileOptions {
   // Asks protogen to generate the whole content of the file excluding *Request/*Response messages
   bool enable = 5000;
@@ -149,7 +155,7 @@ extend google.protobuf.MethodOptions {
   // If enabled, applies field unfolding for request parameters even if input is a domain object
   bool unfold_request = 5502;
   // Annotates method with @Nullable and wraps response into nullifyIfNotFound method of BaseGrpcClient
-  bool nullable = 5503;
+  IfNotFound if_not_found = 5503;
   // If method is output-streaming, collects its output into a specified container using spliterator
   RepeatedContainer stream_to_container = 5504;
   /*
@@ -161,7 +167,7 @@ extend google.protobuf.MethodOptions {
    * }
    */
   string method_name = 5505;
-  // Allows to make your method public/proteceted/private
+  // Allows to make your method public/protected/private
   AccessModifier access_modifier = 5506;
 
 }
