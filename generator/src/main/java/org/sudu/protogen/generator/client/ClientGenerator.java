@@ -21,7 +21,7 @@ public class ClientGenerator {
             `option (protogen.abstract) = true;` and make your own class.
             """;
 
-    static final ClassName managedChannelClass = ClassName.get("io.grpc", "ManagedChannel");
+    static final ClassName channelClass = ClassName.get("io.grpc", "Channel");
 
     private final GenerationContext context;
 
@@ -36,9 +36,6 @@ public class ClientGenerator {
     }
 
     public TypeSpec generate() {
-//        CodeBlock constructorsBody = CodeBlock.builder()
-//                .addStatement("this.$N = $T.newBlockingStub($N)", stubField, service.stubClass(), BaseGrpcClient.channel)
-//                .build();
 
         TypeSpec.Builder builder = TypeSpec.classBuilder(service.generatedClientName())
                 .addModifiers(Modifier.PUBLIC)
@@ -62,8 +59,8 @@ public class ClientGenerator {
         return List.of(
                 MethodSpec.constructorBuilder()
                         .addModifiers(Modifier.PUBLIC)
-                        .addParameter(ParameterSpec.builder(managedChannelClass, "managedChannel").build())
-                        .addCode(CodeBlock.of("this.blockingStub = $T.newBlockingStub($L);", service.stubClass(), "managedChannel"))
+                        .addParameter(ParameterSpec.builder(channelClass, "channel").build())
+                        .addCode(CodeBlock.of("this.blockingStub = $T.newBlockingStub($L);", service.stubClass(), "channel"))
                         .build(),
                 MethodSpec.constructorBuilder()
                         .addModifiers(Modifier.PUBLIC)
