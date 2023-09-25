@@ -5,6 +5,7 @@ import com.squareup.javapoet.TypeName;
 import org.jetbrains.annotations.NotNull;
 import org.sudu.protogen.descriptors.Field;
 import org.sudu.protogen.generator.type.TypeModel;
+import org.sudu.protogen.generator.type.VoidType;
 
 public record FieldProcessingResult(
         @NotNull Field original,
@@ -17,7 +18,7 @@ public record FieldProcessingResult(
         return new FieldProcessingResult(
                 original,
                 FieldSpec.builder(TypeName.VOID, "empty").build(),
-                new TypeModel(TypeName.VOID),
+                new VoidType(),
                 false
         );
     }

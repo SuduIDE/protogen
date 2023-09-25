@@ -1,7 +1,6 @@
 package org.sudu.protogen.generator.server;
 
 import com.squareup.javapoet.*;
-import one.util.streamex.StreamEx;
 import org.jetbrains.annotations.Nullable;
 import org.sudu.protogen.descriptors.Method;
 import org.sudu.protogen.generator.GenerationContext;
@@ -11,8 +10,7 @@ import org.sudu.protogen.generator.type.TypeModel;
 import org.sudu.protogen.utils.Poem;
 
 import javax.lang.model.element.Modifier;
-import java.util.Objects;
-import java.util.stream.Stream;
+import java.util.List;
 
 public class AbstractServiceMethodGenerator {
 
@@ -32,36 +30,26 @@ public class AbstractServiceMethodGenerator {
     }
 
     public MethodSpec generate() {
-        return MethodSpec.methodBuilder(method.generatedName())
-                .returns(TypeName.VOID)
+        MethodSpec.Builder builder = MethodSpec.methodBuilder(method.generatedName())
                 .addModifiers(Modifier.PROTECTED, Modifier.ABSTRACT)
-                .addParameters(generateMethodParameters())
-                .build();
+                .addParameters(generateRequestParameters());
+        specifyResponseWay(builder);
+        return builder.build();
     }
 
     /**
-     * Generates a parameter for response observer or returns null if it is not required
+     * Either adds a return type or a {@code StreamObserver<Response> } parameter
      */
-    @Nullable
-    private ParameterSpec generateObserverParameter() {
-        if (responseType != null && responseType.getTypeName() == TypeName.VOID) {
-            return null;
+    private void specifyResponseWay(MethodSpec.Builder methodBuilder) {
+        TypeName returnType = responseType();
+        if (method.isOutputStreaming()) {
+            methodBuilder.returns(TypeName.VOID);
+            methodBuilder.addParameter(generateObserverParameter(returnType));
+        } else {
+            methodBuilder.returns(returnType);
         }
-        if (method.getOutputType().getFields().isEmpty()) {
-            return null;
-        }
-        TypeName type = ParameterizedTypeName.get(
-                ClassName.get("io.grpc.stub", "StreamObserver"),
-                responseType().box() // as a processed type could be a primitive, always box it
-        );
-        return ParameterSpec.builder(type, "responseObserver").build();
     }
 
-    /**
-     * If the return type is processed by a type processor, returns it
-     * If the response message is one-field, unfolds it
-     * Otherwise generates protoc-generated class
-     */
     private TypeName responseType() {
         if (responseType != null) {
             return responseType.getTypeName();
@@ -73,19 +61,24 @@ public class AbstractServiceMethodGenerator {
         return method.getOutputType().getProtobufTypeName();
     }
 
-    private Iterable<ParameterSpec> generateMethodParameters() {
+    private Iterable<ParameterSpec> generateRequestParameters() {
         if (requestType == null || method.doUnfoldRequest()) {
-            Stream<ParameterSpec> unfoldedFields = FieldGenerator.generateSeveral(method.getInputType().getFields(), context)
+            return FieldGenerator.generateSeveral(method.getInputType().getFields(), context)
                     .map(FieldProcessingResult::field)
-                    .map(Poem::fieldToParameter);
-            return StreamEx.of(unfoldedFields).append(generateObserverParameter()).nonNull().toList();
+                    .map(Poem::fieldToParameter)
+                    .toList();
         }
         if (requestType.getTypeName() == TypeName.VOID) {
-            return Stream.of(generateObserverParameter()).filter(Objects::nonNull).toList();
+            return List.of();
         }
-        return Stream.of(
-                ParameterSpec.builder(requestType.getTypeName(), "request").build(),
-                generateObserverParameter()
-        ).filter(Objects::nonNull).toList();
+        return List.of(ParameterSpec.builder(requestType.getTypeName(), "request").build());
+    }
+
+    private ParameterSpec generateObserverParameter(TypeName responseType) {
+        TypeName observerType = ParameterizedTypeName.get(
+                ClassName.get("io.grpc.stub", "StreamObserver"),
+                responseType.box()
+        );
+        return ParameterSpec.builder(observerType, "responseObserver").build();
     }
 }

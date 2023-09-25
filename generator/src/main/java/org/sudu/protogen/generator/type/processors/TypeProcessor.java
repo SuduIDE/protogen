@@ -20,7 +20,8 @@ public interface TypeProcessor {
 
             var chain = List.of( // Ordering is important!
                     new RegisteredTypeProcessor(),
-                    new DomainTypeProcessor()
+                    new DomainTypeProcessor(),
+                    new EmptyMessageProcessor()
             );
             for (int i = 0; i < chain.size() - 1; ++i) {
                 var current = chain.get(i);
@@ -31,9 +32,7 @@ public interface TypeProcessor {
         }
 
         @Override
-        public @Nullable TypeModel processType(@NotNull EnumOrMessage descriptor, @NotNull Configuration configuration) {
-            return next(descriptor, configuration);
-        }
+        public abstract @Nullable TypeModel processType(@NotNull EnumOrMessage descriptor, @NotNull Configuration configuration);
 
         private void setNext(@NotNull Chain typeProcessor) {
             this.next = typeProcessor;

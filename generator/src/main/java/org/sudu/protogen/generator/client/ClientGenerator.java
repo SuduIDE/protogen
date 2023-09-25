@@ -7,6 +7,7 @@ import org.sudu.protogen.generator.GenerationContext;
 import org.sudu.protogen.generator.type.RepeatedType;
 import org.sudu.protogen.generator.type.TypeModel;
 import org.sudu.protogen.generator.type.UnfoldedType;
+import org.sudu.protogen.generator.type.VoidType;
 
 import javax.annotation.processing.Generated;
 import javax.lang.model.element.Modifier;
@@ -82,7 +83,7 @@ public class ClientGenerator {
 
     protected TypeModel getMethodReturnType(Method method) {
         if (method.getOutputType().getFields().isEmpty()) {
-            return new TypeModel(TypeName.VOID);
+            return new VoidType();
         }
         var responseType = context.processType(method.getOutputType());
         TypeModel type;
