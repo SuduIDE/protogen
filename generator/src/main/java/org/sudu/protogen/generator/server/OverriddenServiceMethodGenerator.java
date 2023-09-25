@@ -93,8 +93,10 @@ public class OverriddenServiceMethodGenerator {
                 grpcType = responsedTypeModel.toGrpcTransformer(grpcType);
             }
             return CodeBlock.of("""
-                    responseObserver.onNext($L);
-                    responseObserver.onCompleted();
+                    try {
+                        responseObserver.onNext($L);
+                    } catch (Throwable $$t) { responseObserver.onError($$t); }
+                    finally { responseObserver.onCompleted(); }
                     """, grpcType);
         }
     }
