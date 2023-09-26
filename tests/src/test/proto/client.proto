@@ -78,7 +78,9 @@ service SomeService {
   }
 
   rpc streamVoid(google.protobuf.Empty) returns (stream GrpcVoidResponse);
+  rpc streamVoidById(GrpcDomainId) returns (stream GrpcVoidResponse);
   rpc streamOneField(google.protobuf.Empty) returns (stream GrpcOneFieldResponse);
+  rpc streamOneFieldFromMulti(GrpcMultiFieldRequest) returns (stream GrpcOneFieldResponse);
   rpc streamDomain(google.protobuf.Empty) returns (stream GrpcDomainResponse);
   rpc streamDomainList(google.protobuf.Empty) returns (stream GrpcDomainResponse) {
     option (.protogen.stream_to_container) = LIST;

@@ -16,30 +16,6 @@ import java.util.List;
 
 /**
  * Overrides default stub method to pass request and response as domain objects or list of fields
- * Example:
- * <pre>{@code
- * @Override
- * public void someMethod(GrpcSomeRequest request, StreamObserver<GrpcSomeDomain> responseObserver) {
- *  someMethod(
- *      request.getA(),
- *      request.getB(),
- *      new StreamObserver<SomeDomain>() {
- *
- *          public void onNext(SomeDomain value) {
- *              responseObserver.onNext(value.toGrpc());
- *          }
- *
- *          public void onError(Throwable t) {
- *              responseObserver.onError(t);
- *          }
- *
- *          public void onCompleted() {
- *              responseObserver.onCompleted();
- *          }
- *      }
- *  );
- * }
- * }</pre>
  */
 public class OverriddenServiceMethodGenerator {
 
@@ -78,39 +54,34 @@ public class OverriddenServiceMethodGenerator {
         if (method.doUnfoldResponse(responseType)) {
             return new UnfoldedType(context.processType(method.unfoldedResponseField()), method.getOutputType());
         }
-        return null;
+        return new TypeModel(method.getOutputType().getProtobufTypeName());
     }
 
     @NotNull
     private CodeBlock generateBody() {
-        CodeBlock abstractMethodCall = CodeBlock.of("$N($L)", abstractMethodSpec, generateAbstractMethodCallParams());
-        if (method.isOutputStreaming()) {
-            return CodeBlock.builder().addStatement(abstractMethodCall).build();
-        } else {
-            CodeBlock grpcType = abstractMethodCall;
-            TypeModel responsedTypeModel = responseTypeModel();
-            if (responsedTypeModel != null) {
-                grpcType = responsedTypeModel.toGrpcTransformer(grpcType);
-            }
-            return CodeBlock.of("""
-                    try {
-                        responseObserver.onNext($L);
-                    } catch (Throwable $$t) { responseObserver.onError($$t); }
-                    finally { responseObserver.onCompleted(); }
-                    """, grpcType);
-        }
+        return CodeBlock.of("""
+                try {
+                    $L
+                } catch (Throwable $$t) { responseObserver.onError($$t); }
+                finally { responseObserver.onCompleted(); }
+                """, generateAbstractMethodCall());
     }
 
-    /**
-     * Either unfolds request params into list of fields, or returns a domain object
-     */
-    private CodeBlock generateAbstractMethodCallParams() {
-        CodeBlock callParams = requestCallParams();
+    private CodeBlock generateAbstractMethodCall() {
+        CodeBlock requestCallParams = requestCallParams();
         if (method.isOutputStreaming()) {
-            if (!callParams.equals(CodeBlock.of(""))) callParams = callParams.toBuilder().add(",$W").build();
-            callParams = callParams.toBuilder().add("$L", responseObserverCallParam()).build();
+            if (!requestCallParams.equals(CodeBlock.of("")))
+                requestCallParams = requestCallParams.toBuilder().add(",$W").build();
+            return CodeBlock.of("$N($L(value) -> responseObserver.onNext($L));",
+                    abstractMethodSpec,
+                    requestCallParams,
+                    responseTypeModel().toGrpcTransformer(CodeBlock.of("value"))
+            );
+        } else {
+            CodeBlock methodCall = CodeBlock.of("$N($L)", abstractMethodSpec, requestCallParams);
+            methodCall = responseTypeModel().toGrpcTransformer(methodCall);
+            return CodeBlock.of("responseObserver.onNext($L);", methodCall);
         }
-        return callParams;
     }
 
     private CodeBlock requestCallParams() {
@@ -126,27 +97,6 @@ public class OverriddenServiceMethodGenerator {
         return requestType.fromGrpcTransformer(CodeBlock.of("request"));
     }
 
-    private CodeBlock responseObserverCallParam() {
-        if (responseType != null) {
-            return CodeBlock.of("$L", new AnonymousStreamObserverGenerator(responseType).generate());
-        }
-        if (method.doUnfoldResponse(responseType)) {
-            var field = method.unfoldedResponseField();
-            TypeModel type = new UnfoldedType(
-                    context.processType(field),
-                    method.getOutputType()
-            );
-            return CodeBlock.of("$L", new AnonymousStreamObserverGenerator(type).generate());
-        }
-        return CodeBlock.of("responseObserver");
-    }
-
-    /**
-     * <pre>
-     * Default protobuf stub method parameters:
-     * {@code GrpcSomeRequest request, StreamObserver<GrpcSomeResponse> response}
-     * </pre>
-     */
     private List<ParameterSpec> generateMethodParameters() {
         TypeName requestType = method.getInputType().getProtobufTypeName();
         TypeName responseType = method.getOutputType().getProtobufTypeName();
@@ -158,68 +108,5 @@ public class OverriddenServiceMethodGenerator {
                 ParameterSpec.builder(requestType, "request").build(),
                 ParameterSpec.builder(responseObserverType, "responseObserver").build()
         );
-    }
-
-    /**
-     * Decorates {@code StreamObserver<GrpcType>} to {@code StreamObserver<Type>}</code>
-     * <pre>{@code
-     * new StreamObserver<Type>() {
-     *
-     *  public void onNext(Type value) {
-     *      responseObserver.onNext(value.toGrpc());
-     *  }
-     *
-     *  public void onError(Throwable t) {
-     *      responseObserver.onError(t);
-     *  }
-     *
-     *  public void onCompleted() {
-     *      responseObserver.onCompleted();
-     *  }
-     * }
-     * }</pre>
-     */
-    private static class AnonymousStreamObserverGenerator {
-
-        private final TypeModel domainType;
-
-        public AnonymousStreamObserverGenerator(TypeModel domainType) {
-            this.domainType = domainType;
-        }
-
-        public TypeSpec generate() {
-            return TypeSpec.anonymousClassBuilder("")
-                    .addSuperinterface(ParameterizedTypeName.get(
-                            ClassName.get("io.grpc.stub", "StreamObserver"),
-                            domainType.getTypeName().box()
-                    ))
-                    .addMethod(onNextMethod())
-                    .addMethod(onErrorMethod())
-                    .addMethod(onCompletedMethod())
-                    .build();
-        }
-
-        private MethodSpec onCompletedMethod() {
-            return MethodSpec.methodBuilder("onCompleted")
-                    .addModifiers(Modifier.PUBLIC)
-                    .addStatement("responseObserver.onCompleted()")
-                    .build();
-        }
-
-        private MethodSpec onErrorMethod() {
-            return MethodSpec.methodBuilder("onError")
-                    .addModifiers(Modifier.PUBLIC)
-                    .addParameter(ParameterSpec.builder(ClassName.get(Throwable.class), "t").build())
-                    .addStatement("responseObserver.onError(t)")
-                    .build();
-        }
-
-        private MethodSpec onNextMethod() {
-            return MethodSpec.methodBuilder("onNext")
-                    .addModifiers(Modifier.PUBLIC)
-                    .addParameter(ParameterSpec.builder(domainType.getTypeName().box(), "value").build())
-                    .addStatement("responseObserver.onNext($L)", domainType.toGrpcTransformer(CodeBlock.of("value")))
-                    .build();
-        }
     }
 }

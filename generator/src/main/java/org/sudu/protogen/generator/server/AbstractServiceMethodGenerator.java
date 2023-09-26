@@ -76,7 +76,7 @@ public class AbstractServiceMethodGenerator {
 
     private ParameterSpec generateObserverParameter(TypeName responseType) {
         TypeName observerType = ParameterizedTypeName.get(
-                ClassName.get("io.grpc.stub", "StreamObserver"),
+                ClassName.get("java.util.function", "Consumer"),
                 responseType.box()
         );
         return ParameterSpec.builder(observerType, "responseObserver").build();
