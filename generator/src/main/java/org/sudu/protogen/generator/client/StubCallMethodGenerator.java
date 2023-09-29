@@ -1,6 +1,7 @@
 package org.sudu.protogen.generator.client;
 
 import com.squareup.javapoet.*;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sudu.protogen.descriptors.Method;
 import org.sudu.protogen.descriptors.RepeatedContainer;
@@ -36,7 +37,7 @@ public class StubCallMethodGenerator {
         return MethodSpec.methodBuilder(method.generatedName() + "StubCall")
                 .addModifiers(Modifier.PRIVATE)
                 .addParameters(parameters())
-                .addCode(new BodyGenerator().withIfNotFound().get())
+                .addCode(new BodyGenerator().get())
                 .returns(returnType.getTypeName())
                 .addAnnotation(
                         method.ifNotFoundBehavior() == NULLIFY
@@ -50,10 +51,15 @@ public class StubCallMethodGenerator {
 
         @Override
         public CodeBlock get() {
+            return new IfNotFoundDecorator(getStrategy()).get();
+        }
+
+        @NotNull
+        private BodyGenerator getStrategy() {
             if (method.isOutputStreaming()) {
-                return new StreamingBodyGenerator().get();
+                return new StreamingBodyGenerator();
             } else {
-                return new CommonBodyGenerator().get();
+                return new CommonBodyGenerator();
             }
         }
 
@@ -64,7 +70,7 @@ public class StubCallMethodGenerator {
                 if (returnType.getTypeName() != TypeName.VOID) {
                     returnExpr = CodeBlock.of("return $L", returnType.fromGrpcTransformer(returnExpr));
                 }
-                return CodeBlock.builder().addStatement(returnExpr).build();
+                return returnExpr.toBuilder().add(";").build();
             }
         }
 
@@ -73,23 +79,20 @@ public class StubCallMethodGenerator {
             @Override
             public CodeBlock get() {
                 if (!(returnType instanceof RepeatedType repType)) throw new IllegalArgumentException();
-                CodeBlock body = CodeBlock.of("var iterator = $N.$L(request);\n", stubField, method.getName());
                 // I write mapping here manually because input is always an Iterator<Grpc..> and output is specified by the RepeatedContainer option
                 // So RepeatedType.fromGrpcTransformer is not suitable because it does only T<U> <--> T<V> mappings
-                CodeBlock mappingExpr = CodeBlock.of("i -> $L", repType.getElementModel().fromGrpcTransformer(CodeBlock.of("i")));
-                return CodeBlock.builder()
-                        .add(body)
-                        .addStatement("return $L\n.map($L)$L",
-                                RepeatedContainer.ITERATOR.getToStreamExpr(CodeBlock.of("iterator")),
-                                mappingExpr,
-                                repType.getRepeatedType().getCollectorExpr()
-                        )
-                        .build();
+                return CodeBlock.of("""
+                                var iterator = $N.$L(request);
+                                return $L
+                                $>.map(i -> $L)$L;$<
+                                """,
+                        stubField,
+                        method.getName(),
+                        RepeatedContainer.ITERATOR.getToStreamExpr(CodeBlock.of("iterator")),
+                        repType.getElementModel().fromGrpcTransformer(CodeBlock.of("i")),
+                        repType.getRepeatedType().getCollectorExpr()
+                );
             }
-        }
-
-        private BodyGenerator withIfNotFound() {
-            return new IfNotFoundDecorator(this);
         }
 
         private class IfNotFoundDecorator extends BodyGenerator {

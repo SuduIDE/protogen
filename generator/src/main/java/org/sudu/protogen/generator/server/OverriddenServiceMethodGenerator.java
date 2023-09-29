@@ -61,7 +61,7 @@ public class OverriddenServiceMethodGenerator {
     private CodeBlock generateBody() {
         return CodeBlock.of("""
                 try {
-                    $L
+                $>$L$<
                 } catch (Throwable $$t) { responseObserver.onError($$t); }
                 finally { responseObserver.onCompleted(); }
                 """, generateAbstractMethodCall());
