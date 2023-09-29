@@ -79,15 +79,14 @@ public class ClientGenerator {
     }
 
     protected TypeModel getMethodReturnType(Method method) {
-        if (method.getOutputType().getFields().isEmpty()) {
-            return new VoidType();
-        }
         var responseType = context.processType(method.getOutputType());
         TypeModel type;
         if (responseType != null) {
             type = responseType;
         } else if (method.doUnfoldResponse(responseType)) {
             type = new UnfoldedType(context.processType(method.unfoldedResponseField()), method.getOutputType());
+        } else if (method.getOutputType().getFields().isEmpty()) {
+            type = new VoidType();
         } else {
             throw new IllegalStateException(("Unable to create a method returning %s because request consist of more than " +
                     "1 field and doesn't have a domain object.").formatted(method.getOutputType().getFullName()));

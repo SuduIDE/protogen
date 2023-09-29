@@ -13,4 +13,9 @@ public class VoidType extends TypeModel {
     public CodeBlock toGrpcTransformer(CodeBlock expr) {
         return CodeBlock.of("null");
     }
+
+    @Override
+    public CodeBlock fromGrpcTransformer(CodeBlock expr) {
+        return CodeBlock.of("(Void)null");
+    }
 }

@@ -50,28 +50,42 @@ public class StubCallMethodGenerator {
 
         @Override
         public CodeBlock get() {
-            CodeBlock returnExpr = CodeBlock.of("$N.$L(request)", stubField, method.getName());
-            CodeBlock body = CodeBlock.of("");
+            if (method.isOutputStreaming()) {
+                return new StreamingBodyGenerator().get();
+            } else {
+                return new CommonBodyGenerator().get();
+            }
+        }
 
-            if (returnType instanceof RepeatedType repType) { // i.e. method is streaming non-void
-                body = CodeBlock.builder()
-                        .addStatement(
-                                "var iterator = $L",
-                                returnExpr
-                        )
-                        .build();
+        private class CommonBodyGenerator extends BodyGenerator {
+            @Override
+            public CodeBlock get() {
+                CodeBlock returnExpr = CodeBlock.of("$N.$L(request)", stubField, method.getName());
+                if (returnType.getTypeName() != TypeName.VOID) {
+                    returnExpr = CodeBlock.of("return $L", returnType.fromGrpcTransformer(returnExpr));
+                }
+                return CodeBlock.builder().addStatement(returnExpr).build();
+            }
+        }
+
+        private class StreamingBodyGenerator extends BodyGenerator {
+
+            @Override
+            public CodeBlock get() {
+                if (!(returnType instanceof RepeatedType repType)) throw new IllegalArgumentException();
+                CodeBlock body = CodeBlock.of("var iterator = $N.$L(request);\n", stubField, method.getName());
                 // I write mapping here manually because input is always an Iterator<Grpc..> and output is specified by the RepeatedContainer option
                 // So RepeatedType.fromGrpcTransformer is not suitable because it does only T<U> <--> T<V> mappings
                 CodeBlock mappingExpr = CodeBlock.of("i -> $L", repType.getElementModel().fromGrpcTransformer(CodeBlock.of("i")));
-                returnExpr = CodeBlock.of("$L\n.map($L)$L", RepeatedContainer.ITERATOR.getToStreamExpr(CodeBlock.of("iterator")), mappingExpr, repType.getRepeatedType().getCollectorExpr());
-            } else {
-                // Don't transform if returnType is streaming (RepeatedType), see the comment above
-                returnExpr = returnType.fromGrpcTransformer(returnExpr);
+                return CodeBlock.builder()
+                        .add(body)
+                        .addStatement("return $L\n.map($L)$L",
+                                RepeatedContainer.ITERATOR.getToStreamExpr(CodeBlock.of("iterator")),
+                                mappingExpr,
+                                repType.getRepeatedType().getCollectorExpr()
+                        )
+                        .build();
             }
-            if (returnType.getTypeName() != TypeName.VOID) {
-                returnExpr = CodeBlock.of("return $L", returnExpr);
-            }
-            return CodeBlock.builder().add(body).addStatement(returnExpr).build();
         }
 
         private BodyGenerator withIfNotFound() {
