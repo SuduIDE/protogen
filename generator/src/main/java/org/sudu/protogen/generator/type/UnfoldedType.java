@@ -21,6 +21,10 @@ public class UnfoldedType extends TypeModel {
         this.unfoldedTypeName = originalMessage.getProtobufTypeName();
     }
 
+    public TypeModel getType() {
+        return type;
+    }
+
     @Override
     public CodeBlock fromGrpcTransformer(CodeBlock expr) {
         return type.fromGrpcTransformer(CodeBlock.of("$L.$L()", expr, type.getterMethod(unfoldedFieldName)));

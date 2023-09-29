@@ -4,10 +4,7 @@ import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import protogen.Options;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.Spliterators;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -24,6 +21,11 @@ public enum RepeatedContainer {
         public CodeBlock getToStreamExpr(CodeBlock thisRef) {
             return CodeBlock.of("$L.stream()", thisRef);
         }
+
+        @Override
+        public CodeBlock getEmptyOne() {
+            return CodeBlock.of("new $T<>()", ArrayList.class);
+        }
     },
 
     SET(ClassName.get(Set.class)) {
@@ -35,6 +37,11 @@ public enum RepeatedContainer {
         @Override
         public CodeBlock getToStreamExpr(CodeBlock thisRef) {
             return CodeBlock.of("$L.stream()", thisRef);
+        }
+
+        @Override
+        public CodeBlock getEmptyOne() {
+            return CodeBlock.of("new $T<>()", HashSet.class);
         }
     },
 
@@ -63,6 +70,11 @@ public enum RepeatedContainer {
         public CodeBlock convertInstanceToIterable(CodeBlock thisRef) {
             return CodeBlock.of("() -> $L", thisRef);
         }
+
+        @Override
+        public CodeBlock getEmptyOne() {
+            return CodeBlock.of("$T.emptyIterator()", Collections.class);
+        }
     },
 
     STREAM(ClassName.get(Stream.class)) {
@@ -84,6 +96,11 @@ public enum RepeatedContainer {
         @Override
         public CodeBlock convertInstanceToIterable(CodeBlock thisRef) {
             return CodeBlock.of("$L.toList()", thisRef);
+        }
+
+        @Override
+        public CodeBlock getEmptyOne() {
+            return CodeBlock.of("$T.empty()", Stream.class);
         }
     };
 
@@ -112,6 +129,8 @@ public enum RepeatedContainer {
      * Builds an expressions collecting a stream into the container
      */
     public abstract CodeBlock getCollectorExpr();
+
+    public abstract CodeBlock getEmptyOne();
 
     /**
      * Builds an expression converting a java.Util.List instance into the container

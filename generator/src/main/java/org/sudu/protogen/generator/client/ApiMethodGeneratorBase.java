@@ -2,6 +2,8 @@ package org.sudu.protogen.generator.client;
 
 import com.squareup.javapoet.*;
 import org.jetbrains.annotations.Nullable;
+import org.sudu.protogen.EmptyIfNotFound;
+import org.sudu.protogen.NullifyIfNotFound;
 import org.sudu.protogen.descriptors.Method;
 import org.sudu.protogen.generator.GenerationContext;
 import org.sudu.protogen.generator.field.FieldGenerator;
@@ -32,7 +34,7 @@ public class ApiMethodGeneratorBase {
 
     public MethodSpec generate() {
         List<ParameterSpec> params = params();
-        return MethodSpec.methodBuilder(method.generatedName())
+        MethodSpec.Builder builder = MethodSpec.methodBuilder(method.generatedName())
                 .addModifiers(method.getAccessModifier())
                 .returns(returnType.getTypeName())
                 .addParameters(params)
@@ -41,8 +43,12 @@ public class ApiMethodGeneratorBase {
                         method.ifNotFoundBehavior() == Options.IfNotFound.NULLIFY
                                 ? context.configuration().nullableAnnotationClass()
                                 : context.configuration().nonnullAnnotationClass()
-                )
-                .build();
+                );
+        switch (method.ifNotFoundBehavior()) {
+            case NULLIFY -> builder.addAnnotation(NullifyIfNotFound.class);
+            case EMPTY -> builder.addAnnotation(EmptyIfNotFound.class);
+        }
+        return builder.build();
     }
 
     private List<ParameterSpec> params() {

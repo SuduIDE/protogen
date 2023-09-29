@@ -62,7 +62,9 @@ service SomeService {
   rpc commonVoid(GrpcMultiFieldRequest) returns (GrpcVoidResponse);
   rpc commonInt(GrpcMultiFieldRequest) returns (google.protobuf.Int32Value);
   rpc commonEmpty(google.protobuf.Empty) returns (google.protobuf.Empty);
-  rpc commonRetList(google.protobuf.Empty) returns (GrpcListResponse);
+  rpc commonRetList(google.protobuf.Empty) returns (GrpcListResponse) {
+    option (.protogen.if_not_found) = EMPTY;
+  }
   rpc commonMulti(GrpcMultiFieldRequest) returns (GrpcDomain);
   rpc commonMultiNullable(GrpcMultiFieldRequest) returns (GrpcDomain) {
     option (.protogen.if_not_found) = NULLIFY;
@@ -81,7 +83,9 @@ service SomeService {
   rpc streamVoidById(GrpcDomainId) returns (stream GrpcVoidResponse);
   rpc streamOneField(google.protobuf.Empty) returns (stream GrpcOneFieldResponse);
   rpc streamOneFieldFromMulti(GrpcMultiFieldRequest) returns (stream GrpcOneFieldResponse);
-  rpc streamDomain(google.protobuf.Empty) returns (stream GrpcDomainResponse);
+  rpc streamDomain(google.protobuf.Empty) returns (stream GrpcDomainResponse) {
+    option (.protogen.if_not_found) = EMPTY;
+  }
   rpc streamDomainList(google.protobuf.Empty) returns (stream GrpcDomainResponse) {
     option (.protogen.stream_to_container) = LIST;
   }
