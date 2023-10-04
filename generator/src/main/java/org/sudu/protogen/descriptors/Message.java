@@ -85,6 +85,10 @@ public class Message extends EnumOrMessage {
         return super.doGenerate();
     }
 
+    public Optional<String> getTopic() {
+        return Options.wrapExtension(messageDescriptor.getOptions(), protogen.Options.topic);
+    }
+
     // -----------------
 
     protected Optional<Boolean> getUnfoldOption() {

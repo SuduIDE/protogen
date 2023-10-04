@@ -48,6 +48,11 @@ public class MessageGenerator {
                 comparator -> addComparable(typeBuilder, comparator)
         );
 
+        msgDescriptor.getTopic().ifPresent(topic -> typeBuilder.addField(
+                FieldSpec.builder(ClassName.get(String.class), "TOPIC", Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
+                        .initializer(CodeBlock.of("\"$L\"", topic)).build()
+        ));
+
         return typeBuilder
                 .multiLineRecord(true)
                 .addModifiers(Modifier.PUBLIC)
