@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-public class Enum extends EnumOrMessage {
+public class Enum extends EnumOrMessage implements Descriptor {
 
     private final Descriptors.EnumDescriptor enumDescriptor;
 

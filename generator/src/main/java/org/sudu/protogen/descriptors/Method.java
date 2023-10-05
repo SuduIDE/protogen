@@ -9,7 +9,7 @@ import javax.lang.model.element.Modifier;
 import java.util.Objects;
 import java.util.Optional;
 
-public class Method {
+public class Method implements Descriptor {
 
     private final Descriptors.MethodDescriptor methodDescriptor;
 

@@ -8,19 +8,23 @@ import org.sudu.protogen.generator.type.TypeModel;
 
 public class DomainFieldTypeProcessor extends FieldTypeProcessor.Chain {
 
+    public DomainFieldTypeProcessor(@NotNull GenerationContext context) {
+        super(context);
+    }
+
     @Override
-    public @NotNull TypeModel processType(@NotNull Field field, @NotNull GenerationContext context) {
+    public @NotNull TypeModel processType(@NotNull Field field) {
         EnumOrMessage descriptor = switch (field.getType()) {
             case MESSAGE -> field.getMessageType();
             case ENUM -> field.getEnumType();
             default -> null;
         };
         if (descriptor != null) {
-            TypeModel type = context.typeProcessor().processType(descriptor, context.configuration());
+            TypeModel type = getContext().typeManager().processType(descriptor);
             if (type != null) {
                 return type;
             }
         }
-        return next(field, context);
+        return next(field);
     }
 }

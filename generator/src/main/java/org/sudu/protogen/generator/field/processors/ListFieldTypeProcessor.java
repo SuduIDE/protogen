@@ -8,9 +8,13 @@ import org.sudu.protogen.generator.type.TypeModel;
 
 class ListFieldTypeProcessor extends FieldTypeProcessor.Chain {
 
+    public ListFieldTypeProcessor(@NotNull GenerationContext context) {
+        super(context);
+    }
+
     @Override
-    public @NotNull TypeModel processType(@NotNull Field field, @NotNull GenerationContext context) {
-        TypeModel type = next(field, context);
+    public @NotNull TypeModel processType(@NotNull Field field) {
+        TypeModel type = next(field);
         return field.isList()
                 ? new RepeatedType(type, field.getRepeatedContainer())
                 : type;

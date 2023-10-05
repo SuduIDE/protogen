@@ -1,23 +1,90 @@
 package org.sudu.protogen.generator;
 
+import com.squareup.javapoet.TypeSpec;
 import org.sudu.protogen.config.Configuration;
-import org.sudu.protogen.descriptors.EnumOrMessage;
-import org.sudu.protogen.descriptors.Field;
+import org.sudu.protogen.descriptors.Enum;
+import org.sudu.protogen.descriptors.*;
+import org.sudu.protogen.generator.client.ClientGenerator;
+import org.sudu.protogen.generator.enumeration.EnumGenerator;
+import org.sudu.protogen.generator.field.FieldGenerator;
+import org.sudu.protogen.generator.field.FieldProcessingResult;
 import org.sudu.protogen.generator.field.processors.FieldTypeProcessor;
+import org.sudu.protogen.generator.message.MessageGenerator;
+import org.sudu.protogen.generator.server.ServiceGenerator;
 import org.sudu.protogen.generator.type.TypeModel;
 import org.sudu.protogen.generator.type.processors.TypeProcessor;
 
-public record GenerationContext(
-        Configuration configuration,
-        TypeProcessor typeProcessor,
-        FieldTypeProcessor fieldTypeProcessor
-) {
+public final class GenerationContext {
 
-    public TypeModel processType(EnumOrMessage enumOrMessage) {
-        return typeProcessor.processType(enumOrMessage, configuration);
+    private final Configuration configuration;
+    private final GeneratorsHolder holder;
+    private final TypeManager typeManager;
+
+    public GenerationContext(Configuration configuration) {
+        this.configuration = configuration;
+        this.holder = new GeneratorsHolder();
+        this.typeManager = new TypeManager();
     }
 
-    public TypeModel processType(Field field) {
-        return fieldTypeProcessor.processType(field, this);
+    public Configuration configuration() {
+        return configuration;
+    }
+
+    public GeneratorsHolder generatorsHolder() {
+        return holder;
+    }
+
+    public TypeManager typeManager() {
+        return typeManager;
+    }
+
+    public class TypeManager {
+
+        private final FieldTypeProcessor fieldTypeProcessor = FieldTypeProcessor.Chain.getProcessingChain(GenerationContext.this);
+
+        private final TypeProcessor typeProcessor = TypeProcessor.Chain.getProcessingChain(GenerationContext.this);
+
+        public TypeModel processType(EnumOrMessage enumOrMessage) {
+            return typeProcessor.processType(enumOrMessage);
+        }
+
+        public TypeModel processType(Field field) {
+            return fieldTypeProcessor.processType(field);
+        }
+    }
+
+    public class GeneratorsHolder {
+
+        private final DescriptorGenerator<Field, FieldProcessingResult> fieldGenerator = new FieldGenerator(GenerationContext.this).withCache();
+        private final DescriptorGenerator<Message, TypeSpec> messageGenerator = new MessageGenerator(GenerationContext.this).withCache();
+        private final DescriptorGenerator<Enum, TypeSpec> enumGenerator = new EnumGenerator(GenerationContext.this).withCache();
+        private final DescriptorGenerator<Service, TypeSpec> clientGenerator = new ClientGenerator(GenerationContext.this).withCache();
+        private final DescriptorGenerator<Service, TypeSpec> serviceGenerator = new ServiceGenerator(GenerationContext.this).withCache();
+
+        public FieldProcessingResult field(Field field) {
+            return fieldGenerator.generate(field);
+        }
+
+        public TypeSpec generate(Enum anEnum) {
+            return enumGenerator.generate(anEnum);
+        }
+
+        public TypeSpec generate(Message message) {
+            return messageGenerator.generate(message);
+        }
+
+        public TypeSpec generate(EnumOrMessage enumOrMessage) {
+            if (enumOrMessage instanceof Enum en) return generate(en);
+            if (enumOrMessage instanceof Message msg) return generate(msg);
+            throw new IllegalStateException();
+        }
+
+        public TypeSpec generateClient(Service service) {
+            return clientGenerator.generate(service);
+        }
+
+        public TypeSpec generateService(Service service) {
+            return serviceGenerator.generate(service);
+        }
     }
 }

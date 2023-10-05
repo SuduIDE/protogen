@@ -10,8 +10,12 @@ import org.sudu.protogen.generator.type.TypeModel;
 
 class PrimitiveFieldTypeProcessor extends FieldTypeProcessor.Chain {
 
+    public PrimitiveFieldTypeProcessor(@NotNull GenerationContext context) {
+        super(context);
+    }
+
     @Override
-    public @NotNull TypeModel processType(@NotNull Field field, @NotNull GenerationContext context) {
+    public @NotNull TypeModel processType(@NotNull Field field) {
         return switch (field.getType()) {
             case INT -> boxIfNullable(field, TypeName.INT);
             case LONG -> boxIfNullable(field, TypeName.LONG);
@@ -20,7 +24,7 @@ class PrimitiveFieldTypeProcessor extends FieldTypeProcessor.Chain {
             case BOOLEAN -> boxIfNullable(field, TypeName.BOOLEAN);
             case STRING -> boxIfNullable(field, ClassName.get(String.class));
             case BYTE_STRING -> new TypeModel(ClassName.get("com.google.protobuf", "ByteString"));
-            default -> next(field, context);
+            default -> next(field);
         };
     }
 

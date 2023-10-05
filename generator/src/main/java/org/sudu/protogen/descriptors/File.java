@@ -13,7 +13,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-public class File {
+public class File implements Descriptor {
 
     private final Descriptors.FileDescriptor fileDescriptor;
 

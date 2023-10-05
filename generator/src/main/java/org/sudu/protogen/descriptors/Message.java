@@ -10,7 +10,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-public class Message extends EnumOrMessage {
+public class Message extends EnumOrMessage implements Descriptor {
 
     private final Descriptors.Descriptor messageDescriptor;
 

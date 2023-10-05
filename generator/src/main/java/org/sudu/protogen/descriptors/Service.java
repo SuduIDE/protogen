@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-public class Service {
+public class Service implements Descriptor {
 
     private final Descriptors.ServiceDescriptor serviceDescriptor;
 

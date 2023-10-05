@@ -8,7 +8,7 @@ import org.sudu.protogen.Options;
 import java.util.Objects;
 import java.util.Optional;
 
-public class Field {
+public class Field implements Descriptor {
 
     private final Descriptors.FieldDescriptor descriptor;
 

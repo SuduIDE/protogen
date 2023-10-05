@@ -33,8 +33,8 @@ public class OverriddenServiceMethodGenerator {
         this.context = context;
         this.method = method;
         this.abstractMethodSpec = abstractMethodSpec;
-        this.requestType = context.processType(method.getInputType());
-        this.responseType = context.processType(method.getOutputType());
+        this.requestType = context.typeManager().processType(method.getInputType());
+        this.responseType = context.typeManager().processType(method.getOutputType());
     }
 
     public MethodSpec generate() {
@@ -52,7 +52,7 @@ public class OverriddenServiceMethodGenerator {
             return responseType;
         }
         if (method.doUnfoldResponse(responseType)) {
-            return new UnfoldedType(context.processType(method.unfoldedResponseField()), method.getOutputType());
+            return new UnfoldedType(context.typeManager().processType(method.unfoldedResponseField()), method.getOutputType());
         }
         return new TypeModel(method.getOutputType().getProtobufTypeName());
     }

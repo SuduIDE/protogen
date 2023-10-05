@@ -10,7 +10,7 @@ import org.sudu.protogen.utils.Name;
 import java.util.List;
 import java.util.Optional;
 
-public abstract class EnumOrMessage {
+public abstract class EnumOrMessage implements Descriptor {
 
     public abstract @NotNull String getName();
 

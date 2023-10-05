@@ -10,11 +10,15 @@ import org.sudu.protogen.generator.type.UnfoldedType;
 
 class UnfoldedFieldTypeProcessor extends FieldTypeProcessor.Chain {
 
+    public UnfoldedFieldTypeProcessor(@NotNull GenerationContext context) {
+        super(context);
+    }
+
     @Override
-    public @NotNull TypeModel processType(@NotNull Field field, @NotNull GenerationContext context) {
+    public @NotNull TypeModel processType(@NotNull Field field) {
         if (field.isUnfolded()) {
             Field unfoldedField = field.getUnfoldedField();
-            TypeModel unfoldedType = context.fieldTypeProcessor().processType(unfoldedField, context);
+            TypeModel unfoldedType = getContext().typeManager().processType(unfoldedField);
             if (unfoldedType instanceof PrimitiveTypeModel primType && field.isNullable()) {
                 unfoldedType = new TypeModel(primType.getTypeName().box());
             }
@@ -30,6 +34,6 @@ class UnfoldedFieldTypeProcessor extends FieldTypeProcessor.Chain {
             }
             return processedModel;
         }
-        return next(field, context);
+        return next(field);
     }
 }

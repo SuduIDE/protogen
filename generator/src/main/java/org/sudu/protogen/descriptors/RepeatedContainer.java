@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-public enum RepeatedContainer {
+public enum RepeatedContainer implements Descriptor {
 
     LIST(ClassName.get(List.class)) {
         @Override

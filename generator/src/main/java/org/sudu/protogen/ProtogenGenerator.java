@@ -11,8 +11,6 @@ import org.sudu.protogen.config.YamlExternalConfigurationParser;
 import org.sudu.protogen.generator.GenerationContext;
 import org.sudu.protogen.generator.GenerationRequest;
 import org.sudu.protogen.generator.GenerationResult;
-import org.sudu.protogen.generator.field.processors.FieldTypeProcessor;
-import org.sudu.protogen.generator.type.processors.TypeProcessor;
 import org.sudu.protogen.plugin.Generator;
 import org.sudu.protogen.plugin.GeneratorException;
 
@@ -42,11 +40,7 @@ public class ProtogenGenerator extends Generator {
         var filesToGenerate = allFiles.stream()
                 .filter(file -> request.filesToGenerateNames().contains(file.getName()))
                 .toList();
-        var context = new GenerationContext(
-                configuration,
-                TypeProcessor.Chain.getProcessingChain(),
-                FieldTypeProcessor.Chain.getProcessingChain()
-        );
+        var context = new GenerationContext(configuration);
         return new org.sudu.protogen.generator.Generator(context, filesToGenerate).generate();
     }
 

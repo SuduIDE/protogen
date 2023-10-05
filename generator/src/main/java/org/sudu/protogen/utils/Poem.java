@@ -4,6 +4,13 @@ import com.squareup.javapoet.*;
 import org.jetbrains.annotations.NotNull;
 import org.sudu.protogen.generator.GenerationContext;
 
+import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Collector;
+
 public class Poem {
 
     @NotNull
@@ -52,5 +59,34 @@ public class Poem {
         } else {
             builder.addAnnotation(context.configuration().nonnullAnnotationClass());
         }
+    }
+
+    public static Collector<CodeBlock, CodeBlock.Builder, CodeBlock> joinCodeBlocks() {
+        return new Collector<>() {
+            @Override
+            public Supplier<CodeBlock.Builder> supplier() {
+                return CodeBlock::builder;
+            }
+
+            @Override
+            public BiConsumer<CodeBlock.Builder, CodeBlock> accumulator() {
+                return CodeBlock.Builder::add;
+            }
+
+            @Override
+            public BinaryOperator<CodeBlock.Builder> combiner() {
+                return (builder1, builder2) -> builder1.add(builder2.build());
+            }
+
+            @Override
+            public Function<CodeBlock.Builder, CodeBlock> finisher() {
+                return CodeBlock.Builder::build;
+            }
+
+            @Override
+            public Set<Characteristics> characteristics() {
+                return Set.of();
+            }
+        };
     }
 }

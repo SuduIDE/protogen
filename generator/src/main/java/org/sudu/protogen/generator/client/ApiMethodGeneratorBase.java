@@ -93,7 +93,7 @@ public class ApiMethodGeneratorBase {
     @NotNull
     private CodeBlock buildNonDomainRequest(ClassName requestProtoType) {
         List<FieldProcessingResult> processedFields = method.getInputType().getFields().stream()
-                .map(field -> new FieldGenerator(context, field).generate())
+                .map(field -> context.generatorsHolder().field(field))
                 .filter(FieldProcessingResult::isNonVoid)
                 .toList();
         CodeBlock builder = new ToGrpcMethodGenerator(context, requestProtoType, processedFields, false).builder("requestBuilder");

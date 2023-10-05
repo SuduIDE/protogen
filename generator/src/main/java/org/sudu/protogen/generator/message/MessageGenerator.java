@@ -4,91 +4,105 @@ import com.squareup.javapoet.*;
 import org.jetbrains.annotations.NotNull;
 import org.sudu.protogen.descriptors.EnumOrMessage;
 import org.sudu.protogen.descriptors.Message;
-import org.sudu.protogen.generator.EnumOrMessageGenerator;
+import org.sudu.protogen.generator.DescriptorGenerator;
 import org.sudu.protogen.generator.GenerationContext;
-import org.sudu.protogen.generator.field.FieldGenerator;
 import org.sudu.protogen.generator.field.FieldProcessingResult;
 import org.sudu.protogen.utils.Poem;
 
 import javax.lang.model.element.Modifier;
 import java.util.List;
 
-public class MessageGenerator {
+public class MessageGenerator implements DescriptorGenerator<Message, TypeSpec> {
 
     private final GenerationContext generationContext;
-    private final Message msgDescriptor;
-    private final List<FieldProcessingResult> processedFields;
 
-    public MessageGenerator(
-            @NotNull GenerationContext generationContext,
-            @NotNull Message msgDescriptor
-    ) {
+    public MessageGenerator(@NotNull GenerationContext generationContext) {
         this.generationContext = generationContext;
-        this.msgDescriptor = msgDescriptor;
-        this.processedFields = msgDescriptor.getFields().stream()
-                .map(field -> new FieldGenerator(generationContext, field).generate())
-                .filter(FieldProcessingResult::isNonVoid)
-                .toList();
     }
 
     @NotNull
-    public TypeSpec generate() {
-        List<FieldSpec> fields = processedFields.stream()
-                .map(FieldProcessingResult::field)
+    public TypeSpec generate(@NotNull Message msgDescriptor) {
+        TypeSpec.Builder typeBuilder = TypeSpec.recordBuilder(generatedType(msgDescriptor).simpleName());
+
+        List<FieldProcessingResult> processedFields = msgDescriptor.getFields().stream()
+                .map(field -> generationContext.generatorsHolder().field(field))
+                .filter(FieldProcessingResult::isNonVoid)
                 .toList();
 
-        List<ParameterSpec> parameters = fields.stream()
-                .map(Poem::fieldToParameter)
-                .toList();
-        TypeSpec.Builder typeBuilder = TypeSpec.recordBuilder(generatedType().simpleName())
-                .addRecordComponents(parameters);
-
-        boolean annotateNotNull = msgDescriptor.getContainingFile().doUseNullabilityAnnotation(false);
-        msgDescriptor.getComparatorReference().ifPresent(
-                comparator -> addComparable(typeBuilder, comparator)
-        );
-
-        msgDescriptor.getTopic().ifPresent(topic -> typeBuilder.addField(
-                FieldSpec.builder(ClassName.get(String.class), "TOPIC", Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
-                        .initializer(CodeBlock.of("\"$L\"", topic)).build()
-        ));
+        addComponents(processedFields, typeBuilder);
+        implementComparable(msgDescriptor, typeBuilder);
+        addTopicField(msgDescriptor, typeBuilder);
+        addTransformingMethods(msgDescriptor, processedFields, typeBuilder);
 
         return typeBuilder
                 .multiLineRecord(true)
                 .addModifiers(Modifier.PUBLIC)
-                .addTypes(generateNested())
-                .addMethod(new FromGrpcMethodGenerator(generationContext, generatedType(), protoType(), processedFields, annotateNotNull).generate())
-                .addMethod(new ToGrpcMethodGenerator(generationContext, protoType(), processedFields, annotateNotNull).generate())
+                .addTypes(generateNested(msgDescriptor))
                 .build();
     }
 
-    private void addComparable(TypeSpec.Builder typeBuilder, String comparator) {
-        ClassName type = generatedType();
-        typeBuilder.addSuperinterface(ParameterizedTypeName.get(ClassName.get(Comparable.class), type));
-        ParameterSpec methodParameter = ParameterSpec.builder(type, "rhs").build();
-        typeBuilder.addMethod(
-                MethodSpec.methodBuilder("compareTo")
-                        .addModifiers(Modifier.PUBLIC)
-                        .returns(TypeName.INT)
-                        .addParameter(methodParameter)
-                        .addAnnotation(ClassName.get(Override.class))
-                        .addStatement("return $L.compare(this, $N)", comparator, methodParameter)
-                        .build()
-        );
+    private void addComponents(List<FieldProcessingResult> processedFields, TypeSpec.Builder typeBuilder) {
+        List<ParameterSpec> parameters = processedFields.stream()
+                .map(FieldProcessingResult::field)
+                .map(Poem::fieldToParameter)
+                .toList();
+        typeBuilder.addRecordComponents(parameters);
     }
 
-    private List<TypeSpec> generateNested() {
+    private void implementComparable(@NotNull Message msgDescriptor, TypeSpec.Builder typeBuilder) {
+        msgDescriptor.getComparatorReference().ifPresent(comparator -> {
+            ClassName type = generatedType(msgDescriptor);
+            typeBuilder.addSuperinterface(ParameterizedTypeName.get(ClassName.get(Comparable.class), type));
+            ParameterSpec methodParameter = ParameterSpec.builder(type, "rhs").build();
+            typeBuilder.addMethod(
+                    MethodSpec.methodBuilder("compareTo")
+                            .addModifiers(Modifier.PUBLIC)
+                            .returns(TypeName.INT)
+                            .addParameter(methodParameter)
+                            .addAnnotation(ClassName.get(Override.class))
+                            .addStatement("return $L.compare(this, $N)", comparator, methodParameter)
+                            .build()
+            );
+        });
+    }
+
+    private void addTopicField(@NotNull Message msgDescriptor, TypeSpec.Builder typeBuilder) {
+        msgDescriptor.getTopic().ifPresent(topic -> typeBuilder.addField(
+                FieldSpec.builder(ClassName.get(String.class), "TOPIC", Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
+                        .initializer(CodeBlock.of("\"$L\"", topic)).build()
+        ));
+    }
+
+    private void addTransformingMethods(@NotNull Message msgDescriptor, List<FieldProcessingResult> processedFields, TypeSpec.Builder typeBuilder) {
+        boolean annotateNotNull = msgDescriptor.getContainingFile().doUseNullabilityAnnotation(false);
+        typeBuilder
+                .addMethod(new FromGrpcMethodGenerator(
+                        generationContext,
+                        generatedType(msgDescriptor),
+                        protoType(msgDescriptor),
+                        processedFields,
+                        annotateNotNull
+                ).generate())
+                .addMethod(new ToGrpcMethodGenerator(
+                        generationContext,
+                        protoType(msgDescriptor),
+                        processedFields,
+                        annotateNotNull
+                ).generate());
+    }
+
+    private List<TypeSpec> generateNested(@NotNull Message msgDescriptor) {
         return msgDescriptor.getNested().stream()
                 .filter(EnumOrMessage::doGenerate)
-                .map(e -> new EnumOrMessageGenerator(generationContext, e).generate())
+                .map(e -> generationContext.generatorsHolder().generate(e))
                 .toList();
     }
 
-    private ClassName protoType() {
+    private ClassName protoType(@NotNull Message msgDescriptor) {
         return msgDescriptor.getProtobufTypeName();
     }
 
-    private ClassName generatedType() {
+    private ClassName generatedType(@NotNull Message msgDescriptor) {
         return msgDescriptor.getDomainTypeName(generationContext.configuration().namingManager());
     }
 }

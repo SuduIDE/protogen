@@ -25,8 +25,8 @@ public class AbstractServiceMethodGenerator {
     public AbstractServiceMethodGenerator(GenerationContext context, Method method) {
         this.context = context;
         this.method = method;
-        this.requestType = context.processType(method.getInputType());
-        this.responseType = context.processType(method.getOutputType());
+        this.requestType = context.typeManager().processType(method.getInputType());
+        this.responseType = context.typeManager().processType(method.getOutputType());
     }
 
     public MethodSpec generate() {
@@ -56,7 +56,7 @@ public class AbstractServiceMethodGenerator {
         }
         if (method.doUnfoldResponse(responseType)) {
             var field = method.unfoldedResponseField();
-            return context.processType(field).getTypeName();
+            return context.typeManager().processType(field).getTypeName();
         }
         return method.getOutputType().getProtobufTypeName();
     }
