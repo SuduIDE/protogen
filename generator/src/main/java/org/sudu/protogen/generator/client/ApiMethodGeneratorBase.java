@@ -59,7 +59,7 @@ public class ApiMethodGeneratorBase {
                 return List.of();
             }
             if (!method.doUnfoldRequest()) {
-                return List.of(ParameterSpec.builder(requestType.getTypeName(), "request").build());
+                return List.of(ParameterSpec.builder(requestType.getTypeName(), "request").addAnnotation(NotNull.class).build());
             }
         }
         // Unfolds request into a fields list

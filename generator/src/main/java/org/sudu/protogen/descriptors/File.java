@@ -91,8 +91,8 @@ public class File implements Descriptor {
     }
 
     public boolean doUseNullabilityAnnotation(boolean isNullable) {
-        // notNullable -> !disable_notnull
-        return isNullable || !getDisableNotNullOption().orElse(false);
+        // disable_notnull -> nullable
+        return !getDisableNotNullOption().orElse(false) || isNullable;
     }
 
     // =============

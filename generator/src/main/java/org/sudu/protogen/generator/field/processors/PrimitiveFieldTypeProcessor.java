@@ -22,7 +22,7 @@ class PrimitiveFieldTypeProcessor extends FieldTypeProcessor.Chain {
             case FLOAT -> boxIfNullable(field, TypeName.FLOAT);
             case DOUBLE -> boxIfNullable(field, TypeName.DOUBLE);
             case BOOLEAN -> boxIfNullable(field, TypeName.BOOLEAN);
-            case STRING -> boxIfNullable(field, ClassName.get(String.class));
+            case STRING -> new TypeModel(ClassName.get(String.class));
             case BYTE_STRING -> new TypeModel(ClassName.get("com.google.protobuf", "ByteString"));
             default -> next(field);
         };
