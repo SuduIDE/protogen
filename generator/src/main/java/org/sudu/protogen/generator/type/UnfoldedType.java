@@ -28,7 +28,6 @@ public class UnfoldedType extends TypeModel {
     @Override
     public CodeBlock fromGrpcTransformer(CodeBlock expr) {
         return type.fromGrpcTransformer(CodeBlock.of("$L.$L()", expr, type.getterMethod(unfoldedFieldName)));
-//        return CodeBlock.of("$L.$L()", type.fromGrpcTransformer(expr), type.getterMethod(unfoldedFieldName));
     }
 
     @Override
