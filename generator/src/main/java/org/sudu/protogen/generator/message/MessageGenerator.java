@@ -25,7 +25,7 @@ public class MessageGenerator implements DescriptorGenerator<Message, TypeSpec> 
         TypeSpec.Builder typeBuilder = TypeSpec.recordBuilder(generatedType(msgDescriptor).simpleName());
 
         List<FieldProcessingResult> processedFields = msgDescriptor.getFields().stream()
-                .map(field -> generationContext.generatorsHolder().field(field))
+                .map(field -> generationContext.generatorsHolder().generate(field))
                 .filter(FieldProcessingResult::isNonVoid)
                 .toList();
 

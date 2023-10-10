@@ -6,7 +6,6 @@ import com.google.protobuf.compiler.PluginProtos.CodeGeneratorResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.sudu.protogen.config.Configuration;
-import org.sudu.protogen.config.ExternalConfiguration;
 import org.sudu.protogen.config.YamlExternalConfigurationParser;
 import org.sudu.protogen.generator.GenerationContext;
 import org.sudu.protogen.generator.GenerationRequest;
@@ -22,25 +21,24 @@ public class ProtogenGenerator extends Generator {
     @Override
     public List<CodeGeneratorResponse.File> generateFiles(CodeGeneratorRequest request) throws GeneratorException {
         String requestParam = request.getParameter();
-        Configuration configuration = Configuration.DEFAULT;
+        Configuration configuration = Configuration.builder().build();
         if (!requestParam.isBlank()) {
             String configFilePath = requestParam.replace("config=", "").replace("*", ":");
-            ExternalConfiguration externalConfiguration = new YamlExternalConfigurationParser(configFilePath).parse();
-            configuration = externalConfiguration.merge(Configuration.DEFAULT);
+            configuration = new YamlExternalConfigurationParser(configFilePath).parse();
         }
-        return generate(RequestBuilder.fromProtocRequest(request), configuration)
+        return generate(RequestBuilder.fromProtocRequest(request, configuration))
                 .generatedFiles()
                 .stream()
                 .map(this::buildFile)
                 .toList();
     }
 
-    private GenerationResult generate(GenerationRequest request, Configuration configuration) {
+    private GenerationResult generate(GenerationRequest request) {
         var allFiles = request.allFiles();
         var filesToGenerate = allFiles.stream()
                 .filter(file -> request.filesToGenerateNames().contains(file.getName()))
                 .toList();
-        var context = new GenerationContext(configuration);
+        var context = new GenerationContext(request.configuration());
         return new org.sudu.protogen.generator.Generator(context, filesToGenerate).generate();
     }
 

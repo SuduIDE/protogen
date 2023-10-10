@@ -5,7 +5,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sudu.protogen.descriptors.Method;
 import org.sudu.protogen.generator.GenerationContext;
-import org.sudu.protogen.generator.field.FieldGenerator;
+import org.sudu.protogen.generator.field.FieldProcessingResult;
 import org.sudu.protogen.generator.message.FieldTransformerGenerator;
 import org.sudu.protogen.generator.type.TypeModel;
 import org.sudu.protogen.generator.type.UnfoldedType;
@@ -86,9 +86,12 @@ public class OverriddenServiceMethodGenerator {
 
     private CodeBlock requestCallParams() {
         if (requestType == null || method.doUnfoldRequest()) {
-            List<CodeBlock> unfoldedRequestFields = FieldGenerator.generateSeveral(method.getInputType().getFields(), context)
+            List<CodeBlock> unfoldedRequestFields = method.getInputType().getFields().stream()
+                    .map(field -> context.generatorsHolder().generate(field))
+                    .filter(FieldProcessingResult::isNonVoid)
                     .map(f -> new FieldTransformerGenerator(f.type(), f.original().getName(), f.isNullable())
-                            .fromGrpc("request")).toList();
+                            .fromGrpc("request")
+                    ).toList();
             return CodeBlock.of("$L", Poem.separatedSequence(unfoldedRequestFields, ",$W"));
         }
         if (requestType.getTypeName() == TypeName.VOID) {

@@ -59,7 +59,7 @@ public class Field implements Descriptor {
         return getType() == Type.MESSAGE && getMessageType().isUnfolded();
     }
 
-    public final boolean isIgnored() {
+    public final boolean isUnused() {
         return getUnusedFieldOption().orElse(false);
     }
 

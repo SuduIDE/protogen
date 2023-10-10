@@ -61,7 +61,7 @@ public final class GenerationContext {
         private final DescriptorGenerator<Service, TypeSpec> clientGenerator = new ClientGenerator(GenerationContext.this).withCache();
         private final DescriptorGenerator<Service, TypeSpec> serviceGenerator = new ServiceGenerator(GenerationContext.this).withCache();
 
-        public FieldProcessingResult field(Field field) {
+        public FieldProcessingResult generate(Field field) {
             return fieldGenerator.generate(field);
         }
 

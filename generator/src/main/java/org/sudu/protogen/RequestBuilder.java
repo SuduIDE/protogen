@@ -3,6 +3,7 @@ package org.sudu.protogen;
 import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.compiler.PluginProtos;
+import org.sudu.protogen.config.Configuration;
 import org.sudu.protogen.descriptors.File;
 import org.sudu.protogen.generator.GenerationRequest;
 import org.sudu.protogen.plugin.GeneratorException;
@@ -14,13 +15,13 @@ import java.util.Map;
 
 public class RequestBuilder {
 
-    public static GenerationRequest fromProtocRequest(PluginProtos.CodeGeneratorRequest protocRequest) {
+    public static GenerationRequest fromProtocRequest(PluginProtos.CodeGeneratorRequest protocRequest, Configuration configuration) {
         var extractedFiles = extractFileDescriptors(protocRequest.getProtoFileList());
         List<File> allFiles = extractedFiles.stream()
                 .map(File::new)
                 .toList();
         List<String> filesToGenerate = protocRequest.getFileToGenerateList().stream().toList();
-        return new GenerationRequest(allFiles, filesToGenerate);
+        return new GenerationRequest(allFiles, filesToGenerate, configuration);
     }
 
     private static List<Descriptors.FileDescriptor> extractFileDescriptors(List<DescriptorProtos.FileDescriptorProto> fileDescriptorProtoList) {

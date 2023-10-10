@@ -4,7 +4,6 @@ import com.squareup.javapoet.*;
 import org.jetbrains.annotations.Nullable;
 import org.sudu.protogen.descriptors.Method;
 import org.sudu.protogen.generator.GenerationContext;
-import org.sudu.protogen.generator.field.FieldGenerator;
 import org.sudu.protogen.generator.field.FieldProcessingResult;
 import org.sudu.protogen.generator.type.TypeModel;
 import org.sudu.protogen.utils.Poem;
@@ -63,7 +62,9 @@ public class AbstractServiceMethodGenerator {
 
     private Iterable<ParameterSpec> generateRequestParameters() {
         if (requestType == null || method.doUnfoldRequest()) {
-            return FieldGenerator.generateSeveral(method.getInputType().getFields(), context)
+            return method.getInputType().getFields().stream()
+                    .map(field -> context.generatorsHolder().generate(field))
+                    .filter(FieldProcessingResult::isNonVoid)
                     .map(FieldProcessingResult::field)
                     .map(Poem::fieldToParameter)
                     .toList();

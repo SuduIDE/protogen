@@ -25,7 +25,7 @@ protobuf {
                 id("protogen") {
                     // protoc utilizes colons (the ":" character) as option separators,
                     // so windows-paths broke options list. To overcome it I suggest to replace it with "*"
-                    option("config=$projectDir/src/test/proto/protogen.yaml".replace(":", "*"))
+                    option("config=$projectDir/src/test/proto/protogen/".replace(":", "*"))
                 }
             }
         }

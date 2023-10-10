@@ -8,9 +8,6 @@ import org.sudu.protogen.generator.GenerationContext;
 import org.sudu.protogen.generator.type.TypeModel;
 import org.sudu.protogen.utils.Poem;
 
-import java.util.Collection;
-import java.util.stream.Stream;
-
 public class FieldGenerator implements DescriptorGenerator<Field, FieldProcessingResult> {
 
     private final GenerationContext context;
@@ -19,16 +16,9 @@ public class FieldGenerator implements DescriptorGenerator<Field, FieldProcessin
         this.context = context;
     }
 
-    @Deprecated
-    public static Stream<FieldProcessingResult> generateSeveral(Collection<Field> fields, GenerationContext context) {
-        return fields.stream()
-                .map(field -> context.generatorsHolder().field(field))
-                .filter(FieldProcessingResult::isNonVoid);
-    }
-
     @NotNull
     public FieldProcessingResult generate(Field field) {
-        if (field.isIgnored()) {
+        if (field.isUnused()) {
             return FieldProcessingResult.empty(field);
         }
 

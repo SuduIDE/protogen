@@ -7,7 +7,6 @@ import org.sudu.protogen.EmptyIfNotFound;
 import org.sudu.protogen.NullifyIfNotFound;
 import org.sudu.protogen.descriptors.Method;
 import org.sudu.protogen.generator.GenerationContext;
-import org.sudu.protogen.generator.field.FieldGenerator;
 import org.sudu.protogen.generator.field.FieldProcessingResult;
 import org.sudu.protogen.generator.message.ToGrpcMethodGenerator;
 import org.sudu.protogen.generator.type.TypeModel;
@@ -63,7 +62,9 @@ public class ApiMethodGeneratorBase {
             }
         }
         // Unfolds request into a fields list
-        return FieldGenerator.generateSeveral(method.getInputType().getFields(), context)
+        return method.getInputType().getFields().stream()
+                .map(field -> context.generatorsHolder().generate(field))
+                .filter(FieldProcessingResult::isNonVoid)
                 .map(FieldProcessingResult::field)
                 .map(Poem::fieldToParameter)
                 .toList();
@@ -93,7 +94,7 @@ public class ApiMethodGeneratorBase {
     @NotNull
     private CodeBlock buildNonDomainRequest(ClassName requestProtoType) {
         List<FieldProcessingResult> processedFields = method.getInputType().getFields().stream()
-                .map(field -> context.generatorsHolder().field(field))
+                .map(field -> context.generatorsHolder().generate(field))
                 .filter(FieldProcessingResult::isNonVoid)
                 .toList();
         CodeBlock builder = new ToGrpcMethodGenerator(context, requestProtoType, processedFields, false).builder("requestBuilder");
