@@ -23,6 +23,9 @@ class MapFieldTypeProcessor extends FieldTypeProcessor.Chain {
                 .filter(f -> f.getName().equals("key")).findFirst().orElseThrow();
         Field value = entryDescriptor.getFields().stream()
                 .filter(f -> f.getName().equals("value")).findFirst().orElseThrow();
-        return new MapType(next(key), next(value));
+        return new MapType(
+                getContext().typeManager().processType(key),
+                getContext().typeManager().processType(value)
+        );
     }
 }

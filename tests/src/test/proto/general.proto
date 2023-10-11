@@ -40,6 +40,10 @@ message GrpcTask {
   optional string context = 4;
 }
 
+message GrpcTaskMapped {
+  map<string, GrpcTask> taskMap = 1;
+}
+
 message GrpcTasksBatch {
   GrpcBatchId id = 1;
   repeated GrpcTask tasks = 2 [(.protogen.repeated_container) = SET];

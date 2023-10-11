@@ -37,6 +37,10 @@ message GrpcGeneratedIdConsumer {
   GrpcGeneratedId genId = 1;
 }
 
+message GrpcUnfoldedMap {
+  map<int64, GrpcId> idMap = 1;
+}
+
 message GrpcDomain {
   GrpcId id = 1;
   GrpcOptionalId optionalId = 2;
