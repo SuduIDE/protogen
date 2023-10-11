@@ -57,7 +57,7 @@ public interface FieldTypeProcessor {
             if (next != null) {
                 return next.processType(field);
             }
-            throw new IllegalArgumentException("Failed to generate Java type for the field " + field.getName());
+            throw new IllegalArgumentException("Failed to generate Java type for the field " + field.getFullName());
         }
     }
 }
