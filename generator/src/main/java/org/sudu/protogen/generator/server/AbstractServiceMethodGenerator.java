@@ -1,6 +1,7 @@
 package org.sudu.protogen.generator.server;
 
 import com.squareup.javapoet.*;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sudu.protogen.descriptors.Method;
 import org.sudu.protogen.generator.GenerationContext;
@@ -72,7 +73,7 @@ public class AbstractServiceMethodGenerator {
         if (requestType.getTypeName() == TypeName.VOID) {
             return List.of();
         }
-        return List.of(ParameterSpec.builder(requestType.getTypeName(), "request").build());
+        return List.of(ParameterSpec.builder(requestType.getTypeName(), "request").addAnnotation(NotNull.class).build());
     }
 
     private ParameterSpec generateObserverParameter(TypeName responseType) {
@@ -80,6 +81,6 @@ public class AbstractServiceMethodGenerator {
                 ClassName.get("java.util.function", "Consumer"),
                 responseType.box()
         );
-        return ParameterSpec.builder(observerType, "responseObserver").build();
+        return ParameterSpec.builder(observerType, "responseObserver").addAnnotation(NotNull.class).build();
     }
 }
