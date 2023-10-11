@@ -8,7 +8,7 @@ option java_multiple_files = true;
 option (.protogen.enable) = true;
 
 message GrpcId {
-  optional string id = 1;
+  int32 id = 1;
   option (.protogen.unfold) = true;
 }
 
@@ -37,13 +37,8 @@ message GrpcGeneratedIdConsumer {
   GrpcGeneratedId genId = 1;
 }
 
-message GrpcIdBatch {
-  repeated GrpcId ids = 1;
-  option (.protogen.unfold) = true;
-}
-
 message GrpcUnfoldedMap {
-  map<int64, GrpcIdBatch> idMap = 1;
+  map<int64, GrpcId> idMap = 1;
 }
 
 message GrpcDomain {
