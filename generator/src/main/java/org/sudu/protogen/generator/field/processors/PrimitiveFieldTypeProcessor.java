@@ -8,7 +8,7 @@ import org.sudu.protogen.generator.GenerationContext;
 import org.sudu.protogen.generator.type.PrimitiveTypeModel;
 import org.sudu.protogen.generator.type.TypeModel;
 
-class PrimitiveFieldTypeProcessor extends FieldTypeProcessor.Chain {
+public class PrimitiveFieldTypeProcessor extends FieldTypeProcessor.Chain {
 
     public PrimitiveFieldTypeProcessor(@NotNull GenerationContext context) {
         super(context);
@@ -22,7 +22,7 @@ class PrimitiveFieldTypeProcessor extends FieldTypeProcessor.Chain {
             case FLOAT -> boxIfNullable(field, TypeName.FLOAT);
             case DOUBLE -> boxIfNullable(field, TypeName.DOUBLE);
             case BOOLEAN -> boxIfNullable(field, TypeName.BOOLEAN);
-            case STRING -> new TypeModel(ClassName.get(String.class));
+            case STRING -> boxIfNullable(field, ClassName.get(String.class));
             case BYTE_STRING -> new TypeModel(ClassName.get("com.google.protobuf", "ByteString"));
             default -> next(field);
         };

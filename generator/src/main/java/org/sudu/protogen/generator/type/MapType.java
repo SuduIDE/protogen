@@ -6,7 +6,9 @@ import com.squareup.javapoet.ParameterizedTypeName;
 import org.jetbrains.annotations.NotNull;
 import org.sudu.protogen.utils.Name;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class MapType extends TypeModel {
@@ -34,33 +36,36 @@ public class MapType extends TypeModel {
     }
 
     @Override
-    public CodeBlock toGrpcTransformer(CodeBlock expr) {
+    public CodeBlock toGrpcTransformer(CodeBlock expr, Set<String> usedDefinitions) {
         if (!(keyModel instanceof PrimitiveTypeModel) || !(valueModel instanceof PrimitiveTypeModel)) {
-            CodeBlock keyMapper = buildToMapper(keyModel, "getKey");
-            CodeBlock valueMapper = buildToMapper(valueModel, "getValue");
+            CodeBlock keyMapper = buildToMapper(keyModel, "getKey", usedDefinitions);
+            CodeBlock valueMapper = buildToMapper(valueModel, "getValue", usedDefinitions);
             return mapMapper(expr, keyMapper, valueMapper);
         }
         return expr;
     }
 
     @Override
-    public CodeBlock fromGrpcTransformer(CodeBlock expr) {
+    public CodeBlock fromGrpcTransformer(CodeBlock expr, Set<String> usedDefinitions) {
         if (!(keyModel instanceof PrimitiveTypeModel) || !(valueModel instanceof PrimitiveTypeModel)) {
-            CodeBlock keyMapper = buildFromMapper(keyModel, "getKey");
-            CodeBlock valueMapper = buildFromMapper(valueModel, "getValue");
+            CodeBlock keyMapper = buildFromMapper(keyModel, "getKey", usedDefinitions);
+            CodeBlock valueMapper = buildFromMapper(valueModel, "getValue", usedDefinitions);
             return mapMapper(expr, keyMapper, valueMapper);
         }
         return expr;
     }
 
     @NotNull
-    private CodeBlock buildToMapper(TypeModel valueModel, String entryGetter) {
-        CodeBlock lambdaParameter = CodeBlock.builder().add("i").build();
+    private CodeBlock buildToMapper(TypeModel valueModel, String entryGetter, Set<String> usedDefinitions) {
         CodeBlock valueMapper = null;
         if (!(valueModel instanceof PrimitiveTypeModel)) {
+            String nextDefinition = nextDefinition(usedDefinitions);
+            CodeBlock lambdaParameter = CodeBlock.of(nextDefinition);
+            Set<String> newDefinitions = new HashSet<>(usedDefinitions) {{ add(nextDefinition); }};
+
             CodeBlock valueGetter = CodeBlock.builder().add("$L.$L()", lambdaParameter, entryGetter).build();
             valueMapper = CodeBlock.builder()
-                    .add("$L -> $L", lambdaParameter, valueModel.toGrpcTransformer(valueGetter))
+                    .add("$L -> $L", lambdaParameter, valueModel.toGrpcTransformer(valueGetter, newDefinitions))
                     .build();
         } else {
             valueMapper = CodeBlock.builder().add("$T::$L", Map.Entry.class, entryGetter).build();
@@ -69,13 +74,16 @@ public class MapType extends TypeModel {
     }
 
     @NotNull
-    private CodeBlock buildFromMapper(TypeModel valueModel, String entryGetter) {
-        CodeBlock lambdaParameter = CodeBlock.builder().add("i").build();
+    private CodeBlock buildFromMapper(TypeModel valueModel, String entryGetter, Set<String> usedDefinitions) {
         CodeBlock valueMapper = null;
         if (!(valueModel instanceof PrimitiveTypeModel)) {
+            String nextDefinition = nextDefinition(usedDefinitions);
+            CodeBlock lambdaParameter = CodeBlock.of(nextDefinition);
+            Set<String> newDefinitions = new HashSet<>(usedDefinitions) {{ add(nextDefinition); }};
+
             CodeBlock valueGetter = CodeBlock.builder().add("$L.$L()", lambdaParameter, entryGetter).build();
             valueMapper = CodeBlock.builder()
-                    .add("$L -> $L", lambdaParameter, valueModel.fromGrpcTransformer(valueGetter))
+                    .add("$L -> $L", lambdaParameter, valueModel.fromGrpcTransformer(valueGetter, newDefinitions))
                     .build();
         } else {
             valueMapper = CodeBlock.builder().add("$T::$L", Map.Entry.class, entryGetter).build();

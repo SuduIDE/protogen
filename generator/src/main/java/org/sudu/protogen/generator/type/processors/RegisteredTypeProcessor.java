@@ -10,7 +10,7 @@ import org.sudu.protogen.generator.type.TypeModel;
 
 import java.util.List;
 
-class RegisteredTypeProcessor extends TypeProcessor.Chain {
+public class RegisteredTypeProcessor extends TypeProcessor.Chain {
 
     public RegisteredTypeProcessor(GenerationContext context) {
         super(context);

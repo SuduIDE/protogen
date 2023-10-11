@@ -6,6 +6,9 @@ import org.jetbrains.annotations.NotNull;
 import org.sudu.protogen.descriptors.RepeatedContainer;
 import org.sudu.protogen.utils.Name;
 
+import java.util.HashSet;
+import java.util.Set;
+
 public class RepeatedType extends TypeModel {
 
     private final TypeModel elementModel;
@@ -30,11 +33,14 @@ public class RepeatedType extends TypeModel {
     }
 
     @Override
-    public CodeBlock toGrpcTransformer(CodeBlock expr) {
+    public CodeBlock toGrpcTransformer(CodeBlock expr, Set<String> usedDefinitions) {
         if (!(elementModel instanceof PrimitiveTypeModel)) {
-            CodeBlock lambdaParameter = CodeBlock.of("i");
+            String nextDefinition = nextDefinition(usedDefinitions);
+            CodeBlock lambdaParameter = CodeBlock.of(nextDefinition);
+            Set<String> newDefinitions = new HashSet<>(usedDefinitions) {{ add(nextDefinition); }};
+
             CodeBlock mappingLambda = CodeBlock.builder()
-                    .add("$L -> $L", lambdaParameter, elementModel.toGrpcTransformer(lambdaParameter))
+                    .add("$L -> $L", lambdaParameter, elementModel.toGrpcTransformer(lambdaParameter, newDefinitions))
                     .build();
             expr = listMapper(expr, mappingLambda);
         }
@@ -42,12 +48,15 @@ public class RepeatedType extends TypeModel {
     }
 
     @Override
-    public CodeBlock fromGrpcTransformer(CodeBlock expr) {
+    public CodeBlock fromGrpcTransformer(CodeBlock expr, Set<String> usedDefinitions) {
         expr = repeatedType.convertListToInstance(expr);
         if (!(elementModel instanceof PrimitiveTypeModel)) {
-            CodeBlock lambdaParameter = CodeBlock.builder().add("i").build();
+            String nextDefinition = nextDefinition(usedDefinitions);
+            CodeBlock lambdaParameter = CodeBlock.of(nextDefinition);
+            Set<String> newDefinitions = new HashSet<>(usedDefinitions) {{ add(nextDefinition); }};
+
             CodeBlock mappingLambda = CodeBlock.builder()
-                    .add("$L -> $L", lambdaParameter, elementModel.fromGrpcTransformer(lambdaParameter))
+                    .add("$L -> $L", lambdaParameter, elementModel.fromGrpcTransformer(lambdaParameter, newDefinitions))
                     .build();
             return listMapper(expr, mappingLambda);
         }

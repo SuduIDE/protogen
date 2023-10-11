@@ -6,7 +6,7 @@ import org.sudu.protogen.generator.GenerationContext;
 import org.sudu.protogen.generator.type.RepeatedType;
 import org.sudu.protogen.generator.type.TypeModel;
 
-class ListFieldTypeProcessor extends FieldTypeProcessor.Chain {
+public class ListFieldTypeProcessor extends FieldTypeProcessor.Chain {
 
     public ListFieldTypeProcessor(@NotNull GenerationContext context) {
         super(context);

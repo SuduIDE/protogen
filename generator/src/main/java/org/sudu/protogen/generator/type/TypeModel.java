@@ -4,7 +4,11 @@ import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.TypeName;
 import org.sudu.protogen.utils.Name;
 
+import java.util.Set;
+
 public class TypeModel {
+
+    private final Set<String> possibleDefinitions = Set.of("i", "$$i", "j", "$$j");
 
     private final TypeName typeName;
 
@@ -16,11 +20,19 @@ public class TypeModel {
         return typeName;
     }
 
-    public CodeBlock toGrpcTransformer(CodeBlock expr) {
+    public final CodeBlock toGrpcTransformer(CodeBlock expr) {
+        return toGrpcTransformer(expr, Set.of());
+    }
+
+    public CodeBlock toGrpcTransformer(CodeBlock expr, Set<String> usedDefinitions) {
         return expr;
     }
 
-    public CodeBlock fromGrpcTransformer(CodeBlock expr) {
+    public final CodeBlock fromGrpcTransformer(CodeBlock expr) {
+        return fromGrpcTransformer(expr, Set.of());
+    }
+
+    public CodeBlock fromGrpcTransformer(CodeBlock expr, Set<String> usedDefinitions) {
         return expr;
     }
 
@@ -34,5 +46,13 @@ public class TypeModel {
 
     public boolean isPrimitive() {
         return false;
+    }
+
+    protected final String nextDefinition(Set<String> usedDefinitions) {
+        for (String def : possibleDefinitions) {
+            if (usedDefinitions.contains(def)) continue;
+            return def;
+        }
+        throw new IllegalStateException("Failed to define a new variable!");
     }
 }

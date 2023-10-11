@@ -6,6 +6,7 @@ import org.sudu.protogen.config.RegisteredTransformer;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 
 public class RegisteredType extends TypeModel {
 
@@ -40,7 +41,7 @@ public class RegisteredType extends TypeModel {
     }
 
     @Override
-    public CodeBlock toGrpcTransformer(CodeBlock expr) {
+    public CodeBlock toGrpcTransformer(CodeBlock expr, Set<String> usedDefinitions) {
         CodeBlock setter = fromRule(registration.javaToProto(), expr, getTypeName());
         return CodeBlock.builder()
                 .add("$T.newBuilder()", protoType)
@@ -50,7 +51,7 @@ public class RegisteredType extends TypeModel {
     }
 
     @Override
-    public CodeBlock fromGrpcTransformer(CodeBlock expr) {
+    public CodeBlock fromGrpcTransformer(CodeBlock expr, Set<String> usedDefinitions) {
         return fromRule(registration.protoToJava(), expr, getTypeName());
     }
 }

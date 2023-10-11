@@ -8,7 +8,7 @@ import org.sudu.protogen.generator.type.RepeatedType;
 import org.sudu.protogen.generator.type.TypeModel;
 import org.sudu.protogen.generator.type.UnfoldedType;
 
-class UnfoldedFieldTypeProcessor extends FieldTypeProcessor.Chain {
+public class UnfoldedFieldTypeProcessor extends FieldTypeProcessor.Chain {
 
     public UnfoldedFieldTypeProcessor(@NotNull GenerationContext context) {
         super(context);

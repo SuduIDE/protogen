@@ -7,7 +7,7 @@ import org.sudu.protogen.generator.GenerationContext;
 import org.sudu.protogen.generator.type.DomainType;
 import org.sudu.protogen.generator.type.TypeModel;
 
-class DomainTypeProcessor extends TypeProcessor.Chain {
+public class DomainTypeProcessor extends TypeProcessor.Chain {
 
     public DomainTypeProcessor(GenerationContext context) {
         super(context);

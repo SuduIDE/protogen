@@ -8,10 +8,13 @@ import org.sudu.protogen.generator.client.ClientGenerator;
 import org.sudu.protogen.generator.enumeration.EnumGenerator;
 import org.sudu.protogen.generator.field.FieldGenerator;
 import org.sudu.protogen.generator.field.FieldProcessingResult;
-import org.sudu.protogen.generator.field.processors.FieldTypeProcessor;
+import org.sudu.protogen.generator.field.processors.*;
 import org.sudu.protogen.generator.message.MessageGenerator;
 import org.sudu.protogen.generator.server.ServiceGenerator;
 import org.sudu.protogen.generator.type.TypeModel;
+import org.sudu.protogen.generator.type.processors.DomainTypeProcessor;
+import org.sudu.protogen.generator.type.processors.EmptyMessageProcessor;
+import org.sudu.protogen.generator.type.processors.RegisteredTypeProcessor;
 import org.sudu.protogen.generator.type.processors.TypeProcessor;
 
 public final class GenerationContext {
@@ -40,9 +43,9 @@ public final class GenerationContext {
 
     public class TypeManager {
 
-        private final FieldTypeProcessor fieldTypeProcessor = FieldTypeProcessor.Chain.getProcessingChain(GenerationContext.this);
+        private final FieldTypeProcessor fieldTypeProcessor = getFieldProcessingChain();
 
-        private final TypeProcessor typeProcessor = TypeProcessor.Chain.getProcessingChain(GenerationContext.this);
+        private final TypeProcessor typeProcessor = getTypeProcessor();
 
         public TypeModel processType(EnumOrMessage enumOrMessage) {
             return typeProcessor.processType(enumOrMessage);
@@ -50,6 +53,24 @@ public final class GenerationContext {
 
         public TypeModel processType(Field field) {
             return fieldTypeProcessor.processType(field);
+        }
+
+        public FieldTypeProcessor getFieldProcessingChain() {
+            return FieldTypeProcessor.Chain.buildChain( // Ordering is important!
+                    new UnfoldedFieldTypeProcessor(GenerationContext.this),
+                    new MapFieldTypeProcessor(GenerationContext.this),
+                    new ListFieldTypeProcessor(GenerationContext.this),
+                    new PrimitiveFieldTypeProcessor(GenerationContext.this),
+                    new DomainFieldTypeProcessor(GenerationContext.this)
+            );
+        }
+
+        public TypeProcessor getTypeProcessor() {
+            return TypeProcessor.Chain.buildChain(
+                    new RegisteredTypeProcessor(GenerationContext.this),
+                    new DomainTypeProcessor(GenerationContext.this),
+                    new EmptyMessageProcessor(GenerationContext.this)
+            );
         }
     }
 

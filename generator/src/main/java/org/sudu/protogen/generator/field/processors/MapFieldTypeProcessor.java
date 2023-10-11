@@ -7,7 +7,7 @@ import org.sudu.protogen.generator.GenerationContext;
 import org.sudu.protogen.generator.type.MapType;
 import org.sudu.protogen.generator.type.TypeModel;
 
-class MapFieldTypeProcessor extends FieldTypeProcessor.Chain {
+public class MapFieldTypeProcessor extends FieldTypeProcessor.Chain {
 
     public MapFieldTypeProcessor(@NotNull GenerationContext context) {
         super(context);

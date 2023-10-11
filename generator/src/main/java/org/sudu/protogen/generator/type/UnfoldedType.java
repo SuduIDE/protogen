@@ -5,6 +5,8 @@ import com.squareup.javapoet.TypeName;
 import org.apache.commons.lang3.Validate;
 import org.sudu.protogen.descriptors.Message;
 
+import java.util.Set;
+
 public class UnfoldedType extends TypeModel {
 
     private final TypeModel type;
@@ -26,13 +28,13 @@ public class UnfoldedType extends TypeModel {
     }
 
     @Override
-    public CodeBlock fromGrpcTransformer(CodeBlock expr) {
-        return type.fromGrpcTransformer(CodeBlock.of("$L.$L()", expr, type.getterMethod(unfoldedFieldName)));
+    public CodeBlock fromGrpcTransformer(CodeBlock expr, Set<String> usedDefinitions) {
+        return type.fromGrpcTransformer(CodeBlock.of("$L.$L()", expr, type.getterMethod(unfoldedFieldName)), usedDefinitions);
     }
 
     @Override
-    public CodeBlock toGrpcTransformer(CodeBlock expr) {
-        return CodeBlock.of("$T.newBuilder().$L($L).build()", unfoldedTypeName, type.setterMethod(unfoldedFieldName), type.toGrpcTransformer(expr));
+    public CodeBlock toGrpcTransformer(CodeBlock expr, Set<String> usedDefinitions) {
+        return CodeBlock.of("$T.newBuilder().$L($L).build()", unfoldedTypeName, type.setterMethod(unfoldedFieldName), type.toGrpcTransformer(expr, usedDefinitions));
     }
 
     @Override
