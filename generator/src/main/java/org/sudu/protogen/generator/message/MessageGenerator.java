@@ -49,7 +49,7 @@ public class MessageGenerator implements DescriptorGenerator<Message, TypeSpec> 
             String oneOfName = Name.toCamelCase(oneOf.getName()) + "Case";
             ClassName domainTypeName = oneOf.getDomainTypeName(generationContext.configuration().namingManager());
 
-            TypeSpec.Builder oneOfSpecBuilder = TypeSpec.enumBuilder(oneOfName);
+            TypeSpec.Builder oneOfSpecBuilder = TypeSpec.enumBuilder(oneOfName).shortEnumNotation(true);
             oneOf.getFieldsCases().forEach(oneOfSpecBuilder::addEnumConstant);
             oneOfSpecBuilder.addEnumConstant("NOT_SET");
             oneOfSpecBuilder.addMethod(MethodSpec.methodBuilder("fromProto")

@@ -45,6 +45,7 @@ public final class TypeSpec {
   public final boolean multiLineRecord;
   public final boolean varargs;
   public final Map<String, TypeSpec> enumConstants;
+  public final boolean shortEnumNotation;
   public final List<FieldSpec> fieldSpecs;
   public final CodeBlock staticBlock;
   public final CodeBlock initializerBlock;
@@ -69,6 +70,7 @@ public final class TypeSpec {
     this.multiLineRecord = builder.multiLineRecord;
     this.varargs = builder.varargs;
     this.enumConstants = Util.immutableMap(builder.enumConstants);
+    this.shortEnumNotation = builder.shortEnumNotation;
     this.fieldSpecs = Util.immutableList(builder.fieldSpecs);
     this.staticBlock = builder.staticBlock.build();
     this.initializerBlock = builder.initializerBlock.build();
@@ -107,6 +109,7 @@ public final class TypeSpec {
     this.multiLineRecord = false;
     this.varargs = false;
     this.enumConstants = Collections.emptyMap();
+    this.shortEnumNotation = false;
     this.fieldSpecs = Collections.emptyList();
     this.staticBlock = type.staticBlock;
     this.initializerBlock = type.initializerBlock;
@@ -190,6 +193,7 @@ public final class TypeSpec {
     builder.varargs = varargs;
     builder.multiLineRecord = multiLineRecord;
     builder.enumConstants.putAll(enumConstants);
+    builder.shortEnumNotation = shortEnumNotation;
     builder.compactConstructor = compactConstructor;
     builder.fieldSpecs.addAll(fieldSpecs);
     builder.methodSpecs.addAll(methodSpecs);
@@ -309,7 +313,7 @@ public final class TypeSpec {
       for (Iterator<Map.Entry<String, TypeSpec>> i = enumConstants.entrySet().iterator();
           i.hasNext(); ) {
         Map.Entry<String, TypeSpec> enumConstant = i.next();
-        if (!firstMember) codeWriter.emit("\n");
+        if (!firstMember && !shortEnumNotation) codeWriter.emit("\n");
         enumConstant.getValue().emit(codeWriter, enumConstant.getKey(), Collections.emptySet());
         firstMember = false;
         if (i.hasNext()) {
@@ -474,6 +478,7 @@ public final class TypeSpec {
     private MethodSpec compactConstructor;
 
     public final Map<String, TypeSpec> enumConstants = new LinkedHashMap<>();
+    public boolean shortEnumNotation = false;
     public final List<ParameterSpec> recordComponents = new ArrayList<>();
     public boolean multiLineRecord;
     public boolean varargs;
@@ -647,6 +652,11 @@ public final class TypeSpec {
 
     public Builder addRecordComponent(ParameterSpec parameterSpec) {
       recordComponents.add(parameterSpec);
+      return this;
+    }
+
+    public Builder shortEnumNotation(boolean shortEnumNotation) {
+      this.shortEnumNotation = shortEnumNotation;
       return this;
     }
 

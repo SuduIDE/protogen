@@ -20,6 +20,7 @@ public class EnumGenerator implements DescriptorGenerator<Enum, TypeSpec> {
     public TypeSpec generate(Enum anEnum) {
         ClassName domainTypeName = anEnum.getDomainTypeName(context.configuration().namingManager());
         TypeSpec.Builder builder = TypeSpec.enumBuilder(domainTypeName.simpleName())
+                .shortEnumNotation(true)
                 .addModifiers(Modifier.PUBLIC);
 
         anEnum.getValues().stream()
