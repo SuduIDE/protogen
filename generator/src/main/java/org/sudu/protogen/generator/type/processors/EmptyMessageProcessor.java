@@ -21,7 +21,7 @@ public class EmptyMessageProcessor extends TypeProcessor.Chain {
     @Override
     public @Nullable TypeModel processType(@NotNull EnumOrMessage descriptor) {
         if (descriptor instanceof Message msg) {
-            if (msg.getFields().isEmpty()) return new VoidType();
+            if (msg.getFields().isEmpty()) return new VoidType(msg);
         }
         return next(descriptor);
     }

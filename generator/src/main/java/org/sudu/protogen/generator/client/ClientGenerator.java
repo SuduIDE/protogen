@@ -82,7 +82,7 @@ public class ClientGenerator implements DescriptorGenerator<Service, TypeSpec> {
         } else if (method.doUnfoldResponse(responseType)) {
             type = new UnfoldedType(context.typeManager().processType(method.unfoldedResponseField()), method.getOutputType());
         } else if (method.getOutputType().getFields().isEmpty()) {
-            type = new VoidType();
+            type = new VoidType(method.getOutputType());
         } else {
             throw new IllegalStateException(("Unable to create a method returning %s because request consist of more than " +
                     "1 field and doesn't have a domain object.").formatted(method.getOutputType().getFullName()));
