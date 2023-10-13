@@ -32,8 +32,8 @@ public abstract class EnumOrMessage implements Descriptor {
         if (getCustomClass() != null) return false;
         return getDoGenerateOption()
                 .orElse(getContainingFile().doEnableGenerator()
-                        && !getName().endsWith("Request")
-                        && !getName().endsWith("Response")
+                        && !getName().contains("Request")
+                        && !getName().contains("Response")
                 );
     }
 

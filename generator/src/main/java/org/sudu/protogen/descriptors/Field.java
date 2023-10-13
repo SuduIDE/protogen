@@ -43,7 +43,7 @@ public class Field implements Descriptor {
     }
 
     public final boolean isNullable() {
-        return isOptional() || (isUnfolded() && getUnfoldedField().isNullable());
+        return isOptional() || (isUnfolded() && getUnfoldedField().isNullable()) || descriptor.getContainingOneof() != null;
     }
 
     public final boolean isList() {
