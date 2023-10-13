@@ -63,3 +63,11 @@ message GrpcSomeEvent {
   repeated string ids = 1;
   option (.protogen.topic) = "SOME_TOPIC";
 }
+
+message GrpcWithOneofs {
+  string name = 1;
+  oneof named {
+    int32 a = 2;
+    int32 b= 3;
+  }
+}

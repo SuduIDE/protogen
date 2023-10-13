@@ -62,6 +62,10 @@ public class Poem {
     }
 
     public static Collector<CodeBlock, CodeBlock.Builder, CodeBlock> joinCodeBlocks() {
+        return joinCodeBlocks("");
+    }
+
+    public static Collector<CodeBlock, CodeBlock.Builder, CodeBlock> joinCodeBlocks(String sep) {
         return new Collector<>() {
             @Override
             public Supplier<CodeBlock.Builder> supplier() {
@@ -70,12 +74,15 @@ public class Poem {
 
             @Override
             public BiConsumer<CodeBlock.Builder, CodeBlock> accumulator() {
-                return CodeBlock.Builder::add;
+                return (builder, block) -> {
+                    if (!builder.isEmpty()) builder.add(sep);
+                    builder.add(block);
+                };
             }
 
             @Override
             public BinaryOperator<CodeBlock.Builder> combiner() {
-                return (builder1, builder2) -> builder1.add(builder2.build());
+                return (builder1, builder2) -> builder1.add(sep).add(builder2.build());
             }
 
             @Override

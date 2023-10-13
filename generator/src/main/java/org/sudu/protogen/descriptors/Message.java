@@ -85,6 +85,12 @@ public class Message extends EnumOrMessage implements Descriptor {
         return super.doGenerate();
     }
 
+    public List<OneOf> getOneofs() {
+        return messageDescriptor.getOneofs().stream()
+                .map(o -> new OneOf(o, this))
+                .toList();
+    }
+
     public Optional<String> getTopic() {
         return Options.wrapExtension(messageDescriptor.getOptions(), protogen.Options.topic);
     }

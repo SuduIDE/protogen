@@ -7,6 +7,7 @@ import org.sudu.protogen.descriptors.Message;
 import org.sudu.protogen.generator.DescriptorGenerator;
 import org.sudu.protogen.generator.GenerationContext;
 import org.sudu.protogen.generator.field.FieldProcessingResult;
+import org.sudu.protogen.utils.Name;
 import org.sudu.protogen.utils.Poem;
 
 import javax.lang.model.element.Modifier;
@@ -33,12 +34,50 @@ public class MessageGenerator implements DescriptorGenerator<Message, TypeSpec> 
         implementComparable(msgDescriptor, typeBuilder);
         addTopicField(msgDescriptor, typeBuilder);
         addTransformingMethods(msgDescriptor, processedFields, typeBuilder);
+        addOneofs(msgDescriptor, typeBuilder);
 
         return typeBuilder
                 .multiLineRecord(true)
                 .addModifiers(Modifier.PUBLIC)
                 .addTypes(generateNested(msgDescriptor))
                 .build();
+    }
+
+    private void addOneofs(Message msgDescriptor, TypeSpec.Builder typeBuilder) {
+        msgDescriptor.getOneofs().forEach(oneOf -> {
+            if (oneOf.getFieldsCases().size() < 2) return;
+            String oneOfName = Name.toCamelCase(oneOf.getName()) + "Case";
+            ClassName domainTypeName = oneOf.getDomainTypeName(generationContext.configuration().namingManager());
+
+            TypeSpec.Builder oneOfSpecBuilder = TypeSpec.enumBuilder(oneOfName);
+            oneOf.getFieldsCases().forEach(oneOfSpecBuilder::addEnumConstant);
+            oneOfSpecBuilder.addEnumConstant("NOT_SET");
+            oneOfSpecBuilder.addMethod(MethodSpec.methodBuilder("fromProto")
+                    .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                    .addParameter(ParameterSpec.builder(oneOf.getProtobufTypeName(), "proto").build())
+                    .addStatement("""
+                            return switch(proto) {$>
+                            $L
+                            case $L -> NOT_SET;
+                            $<}""",
+                            oneOf.getFieldsCases().stream()
+                                    .map(c -> CodeBlock.of("case $L -> $L;", c, c))
+                                    .collect(Poem.joinCodeBlocks("\n")),
+                            oneOf.getName().toUpperCase() + "_NOT_SET"
+                    )
+                    .returns(domainTypeName)
+                    .build()
+            );
+            TypeSpec oneOfSpec = oneOfSpecBuilder.build();
+            typeBuilder.addType(oneOfSpec);
+
+            typeBuilder.addMethod(MethodSpec.methodBuilder("get" + oneOfName)
+                    .addModifiers(Modifier.PUBLIC)
+                    .returns(domainTypeName)
+                    .addStatement("return $T.fromProto(toGrpc().get$L())", domainTypeName, oneOfName)
+                    .build()
+            );
+        });
     }
 
     private void addComponents(List<FieldProcessingResult> processedFields, TypeSpec.Builder typeBuilder) {
