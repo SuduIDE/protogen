@@ -12,6 +12,7 @@ import org.sudu.protogen.generator.type.UnfoldedType;
 
 import javax.lang.model.element.Modifier;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Supplier;
 
 import static protogen.Options.IfNotFound.*;
@@ -89,7 +90,7 @@ public class StubCallMethodGenerator {
                         stubField,
                         method.getName(),
                         RepeatedContainer.ITERATOR.getToStreamExpr(CodeBlock.of("iterator")),
-                        repType.getElementModel().fromGrpcTransformer(CodeBlock.of("i")),
+                        repType.getElementModel().fromGrpcTransformer(CodeBlock.of("i"), Set.of("i")),
                         repType.getRepeatedType().getCollectorExpr()
                 );
             }
