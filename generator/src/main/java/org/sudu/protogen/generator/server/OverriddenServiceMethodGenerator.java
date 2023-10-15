@@ -79,8 +79,13 @@ public class OverriddenServiceMethodGenerator {
             );
         } else {
             CodeBlock methodCall = CodeBlock.of("$N($L)", abstractMethodSpec, requestCallParams);
-            methodCall = responseTypeModel().toGrpcTransformer(methodCall);
-            return CodeBlock.of("responseObserver.onNext($L);", methodCall);
+            if (responseType != null && responseType.getTypeName() == TypeName.VOID) {
+                return CodeBlock.of("$L;\nresponseObserver.onNext($L);",
+                        methodCall, responseTypeModel().toGrpcTransformer(methodCall));
+            } else {
+                methodCall = responseTypeModel().toGrpcTransformer(methodCall);
+                return CodeBlock.of("responseObserver.onNext($L);", methodCall);
+            }
         }
     }
 
