@@ -12,7 +12,7 @@ import org.sudu.protogen.utils.Poem;
 import javax.lang.model.element.Modifier;
 import java.util.List;
 
-public class AbstractServiceMethodGenerator {
+public class ApiServiceMethodGenerator {
 
     private final GenerationContext context;
 
@@ -22,7 +22,7 @@ public class AbstractServiceMethodGenerator {
 
     private final @Nullable TypeModel responseType;
 
-    public AbstractServiceMethodGenerator(GenerationContext context, Method method) {
+    public ApiServiceMethodGenerator(GenerationContext context, Method method) {
         this.context = context;
         this.method = method;
         this.requestType = context.typeManager().processType(method.getInputType());
@@ -31,8 +31,13 @@ public class AbstractServiceMethodGenerator {
 
     public MethodSpec generate() {
         MethodSpec.Builder builder = MethodSpec.methodBuilder(method.generatedName())
-                .addModifiers(Modifier.PROTECTED, Modifier.ABSTRACT)
-                .addParameters(generateRequestParameters());
+                .addModifiers(Modifier.PROTECTED)
+                .addParameters(generateRequestParameters())
+                .addCode(CodeBlock.of(
+                        "throw $T.UNIMPLEMENTED.withDescription(\"Method $L is not implemented\").asRuntimeException();",
+                        ClassName.get("io.grpc", "Status"),
+                        method.getName()
+                ));
         specifyResponseWay(builder);
         return builder.build();
     }

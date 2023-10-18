@@ -33,9 +33,9 @@ public class ServiceGenerator implements DescriptorGenerator<Service, TypeSpec> 
         return service.getMethods().stream()
                 .filter(Method::doGenerate)
                 .flatMap(method -> {
-                    MethodSpec abstractMethod = new AbstractServiceMethodGenerator(context, method).generate();
-                    MethodSpec overriddenMethod = new OverriddenServiceMethodGenerator(context, method, abstractMethod).generate();
-                    return Stream.of(abstractMethod, overriddenMethod);
+                    MethodSpec apiMethod = new ApiServiceMethodGenerator(context, method).generate();
+                    MethodSpec overriddenMethod = new OverriddenServiceMethodGenerator(context, method, apiMethod).generate();
+                    return Stream.of(apiMethod, overriddenMethod);
                 })
                 .toList();
     }
