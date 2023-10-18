@@ -37,6 +37,10 @@ public class Method implements Descriptor {
         return methodDescriptor.isServerStreaming();
     }
 
+    public File getContainingFile() {
+        return new File(methodDescriptor.getFile());
+    }
+
     public final protogen.Options.IfNotFound ifNotFoundBehavior() {
         return Options.wrapExtension(methodDescriptor.getOptions(), protogen.Options.ifNotFound)
                 .orElse(protogen.Options.IfNotFound.IGNORE);
