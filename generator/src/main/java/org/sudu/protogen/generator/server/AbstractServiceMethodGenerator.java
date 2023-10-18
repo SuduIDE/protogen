@@ -46,6 +46,9 @@ public class AbstractServiceMethodGenerator {
             methodBuilder.returns(TypeName.VOID);
             methodBuilder.addParameter(generateObserverParameter(returnType));
         } else {
+            if (!returnType.isPrimitive() && method.getContainingFile().doUseNullabilityAnnotation(false)) {
+                methodBuilder.addAnnotation(context.configuration().nonnullAnnotationClass());
+            }
             methodBuilder.returns(returnType);
         }
     }
