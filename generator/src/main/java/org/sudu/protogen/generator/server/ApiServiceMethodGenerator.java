@@ -89,6 +89,6 @@ public class ApiServiceMethodGenerator {
                 ClassName.get("java.util.function", "Consumer"),
                 responseType.box()
         );
-        return ParameterSpec.builder(observerType, "responseObserver").addAnnotation(NotNull.class).build();
+        return ParameterSpec.builder(observerType, "responseConsumer").addAnnotation(NotNull.class).build();
     }
 }
