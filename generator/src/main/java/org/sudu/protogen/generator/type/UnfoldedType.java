@@ -36,9 +36,4 @@ public class UnfoldedType extends TypeModel {
     public CodeBlock toGrpcTransformer(CodeBlock expr, Set<String> usedDefinitions) {
         return CodeBlock.of("$T.newBuilder().$L($L).build()", unfoldedTypeName, type.setterMethod(unfoldedFieldName), type.toGrpcTransformer(expr, usedDefinitions));
     }
-
-    @Override
-    public boolean isPrimitive() {
-        return type.isPrimitive();
-    }
 }

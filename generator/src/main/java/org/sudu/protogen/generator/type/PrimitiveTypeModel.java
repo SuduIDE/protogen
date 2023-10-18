@@ -15,9 +15,4 @@ public class PrimitiveTypeModel extends TypeModel {
     public TypeName getTypeName() {
         return typeName;
     }
-
-    @Override
-    public boolean isPrimitive() {
-        return true;
-    }
 }

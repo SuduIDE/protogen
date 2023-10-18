@@ -44,10 +44,6 @@ public class TypeModel {
         return "set" + Name.toCamelCase(protoFieldName);
     }
 
-    public boolean isPrimitive() {
-        return false;
-    }
-
     protected final String nextDefinition(Set<String> usedDefinitions) {
         for (String def : possibleDefinitions) {
             if (usedDefinitions.contains(def)) continue;
