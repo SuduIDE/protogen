@@ -61,11 +61,11 @@ public class OverriddenServiceMethodGenerator {
     @NotNull
     private CodeBlock generateBody() {
         return CodeBlock.of("""
-                try {
-                $>$L$<
-                } catch (Throwable $$t) { responseObserver.onError($$t); }
-                finally { responseObserver.onCompleted(); }
-                """, generateAbstractMethodCall());
+                        $L
+                        responseObserver.onCompleted();
+                        """,
+                generateAbstractMethodCall()
+        );
     }
 
     private CodeBlock generateAbstractMethodCall() {
