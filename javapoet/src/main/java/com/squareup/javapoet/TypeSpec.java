@@ -283,9 +283,6 @@ public final class TypeSpec {
       codeWriter.popType();
 
       codeWriter.emit(" {\n");
-      if (multiLineRecord) {
-        codeWriter.emit("\n");
-      }
     }
 
     return true;
