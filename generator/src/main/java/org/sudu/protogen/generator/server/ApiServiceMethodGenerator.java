@@ -54,6 +54,7 @@ public class ApiServiceMethodGenerator {
         } else {
             if (!returnType.isPrimitive() && method.getContainingFile().doUseNullabilityAnnotation(false)) {
                 if (method.ifNotFoundBehavior() == Options.IfNotFound.NULLIFY) {
+                    methodBuilder.addJavadoc("Null result is converted to Status.NOT_FOUND");
                     methodBuilder.addAnnotation(context.configuration().nullableAnnotationClass());
                 } else {
                     methodBuilder.addAnnotation(context.configuration().nonnullAnnotationClass());
