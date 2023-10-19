@@ -47,26 +47,25 @@ public class EnumGenerator implements DescriptorGenerator<Enum, TypeSpec> {
 
     private MethodSpec generateToGrpcMethod(Enum anEnum, TypeName protoType) {
         CodeBlock switchCases = anEnum.getValues().stream()
-                .map(value -> CodeBlock.of("case $L -> $T.$L;\n", getNameForValue(value), protoType, value.getName()))
-                .collect(Poem.joinCodeBlocks());
+                .map(value -> CodeBlock.of("case $L -> $T.$L;", getNameForValue(value), protoType, value.getName()))
+                .collect(Poem.joinCodeBlocks("\n"));
         return MethodSpec.methodBuilder("toGrpc")
                 .addModifiers(Modifier.PUBLIC)
                 .returns(protoType)
                 .addStatement("""
                         return switch (this) {$>
                         $L
-                        $<}
-                        """, switchCases
+                        $<}""", switchCases
                 ).build();
     }
 
     private MethodSpec generateFromGrpcMethod(Enum anEnum, TypeName generatedType, TypeName protoType) {
         CodeBlock switchCases = anEnum.getValues().stream()
                 .map(value -> value.isUnused()
-                        ? CodeBlock.of("case $L -> throw new $T(\"Enum value $L is marked as unused!\");\n", value.getName(), IllegalArgumentException.class, getNameForValue(value))
-                        : CodeBlock.of("case $L -> $T.$L;\n", value.getName(), generatedType, getNameForValue(value))
-                ).collect(Poem.joinCodeBlocks());
-        switchCases = switchCases.toBuilder().add("case UNRECOGNIZED -> throw new $T($S);\n", IllegalArgumentException.class, "Enum value is not recognized").build();
+                        ? CodeBlock.of("case $L -> throw new $T(\"Enum value $L is marked as unused!\");", value.getName(), IllegalArgumentException.class, getNameForValue(value))
+                        : CodeBlock.of("case $L -> $T.$L;", value.getName(), generatedType, getNameForValue(value))
+                ).collect(Poem.joinCodeBlocks("\n"));
+        switchCases = switchCases.toBuilder().add("\ncase UNRECOGNIZED -> throw new $T($S);", IllegalArgumentException.class, "Enum value is not recognized").build();
         return MethodSpec.methodBuilder("fromGrpc")
                 .returns(generatedType)
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
@@ -74,8 +73,7 @@ public class EnumGenerator implements DescriptorGenerator<Enum, TypeSpec> {
                 .addStatement("""
                         return switch (grpc) {$>
                         $L
-                        $<}
-                        """, switchCases
+                        $<}""", switchCases
                 ).build();
     }
 }
