@@ -148,10 +148,10 @@ public final class MethodSpec {
     return builder.build();
   }
 
-  static void emitParameters(CodeWriter codeWriter, Iterable<ParameterSpec> parameters,
+  static void emitParameters(CodeWriter codeWriter, Collection<ParameterSpec> parameters,
       boolean varargs, boolean separateLines) throws IOException {
     codeWriter.emit(CodeBlock.of("("));
-
+    separateLines = separateLines && parameters.size() > 2;
     if (separateLines)
       codeWriter.indent();
     boolean firstParameter = true;
