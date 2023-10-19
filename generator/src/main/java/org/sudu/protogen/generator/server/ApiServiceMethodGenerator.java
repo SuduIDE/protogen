@@ -8,6 +8,7 @@ import org.sudu.protogen.generator.GenerationContext;
 import org.sudu.protogen.generator.field.FieldProcessingResult;
 import org.sudu.protogen.generator.type.TypeModel;
 import org.sudu.protogen.utils.Poem;
+import protogen.Options;
 
 import javax.lang.model.element.Modifier;
 import java.util.List;
@@ -52,7 +53,11 @@ public class ApiServiceMethodGenerator {
             methodBuilder.addParameter(generateObserverParameter(returnType));
         } else {
             if (!returnType.isPrimitive() && method.getContainingFile().doUseNullabilityAnnotation(false)) {
-                methodBuilder.addAnnotation(context.configuration().nonnullAnnotationClass());
+                if (method.ifNotFoundBehavior() == Options.IfNotFound.NULLIFY) {
+                    methodBuilder.addAnnotation(context.configuration().nullableAnnotationClass());
+                } else {
+                    methodBuilder.addAnnotation(context.configuration().nonnullAnnotationClass());
+                }
             }
             methodBuilder.returns(returnType);
         }

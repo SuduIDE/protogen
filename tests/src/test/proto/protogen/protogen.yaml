@@ -1,4 +1,4 @@
-indentationSize: 2
+indentationSize: 4
 registeredTransformers:
   - protoType: "org.sudu.protogen.test.extconfig.GrpcTransformable"
     javaClass: "int"

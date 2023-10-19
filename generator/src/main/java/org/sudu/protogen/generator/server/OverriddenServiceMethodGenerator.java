@@ -10,6 +10,7 @@ import org.sudu.protogen.generator.message.FieldTransformerGenerator;
 import org.sudu.protogen.generator.type.TypeModel;
 import org.sudu.protogen.generator.type.UnfoldedType;
 import org.sudu.protogen.utils.Poem;
+import protogen.Options;
 
 import javax.lang.model.element.Modifier;
 import java.util.List;
@@ -83,8 +84,14 @@ public class OverriddenServiceMethodGenerator {
                 return CodeBlock.of("$L;\nresponseObserver.onNext($L);",
                         methodCall, responseTypeModel().toGrpcTransformer(methodCall));
             } else {
-                methodCall = responseTypeModel().toGrpcTransformer(methodCall);
-                return CodeBlock.of("responseObserver.onNext($L);", methodCall);
+                CodeBlock resultStatement = CodeBlock.of("var result = $L;", responseTypeModel().toGrpcTransformer(methodCall));
+                if (method.ifNotFoundBehavior() == Options.IfNotFound.NULLIFY) {
+                    resultStatement = resultStatement.toBuilder()
+                            .add("\nif (result == null) {\n$>throw $T.NOT_FOUND.withDescription(\"Method returned null\").asRuntimeException();$<\n}",
+                                    ClassName.get("io.grpc", "Status"))
+                            .build();
+                }
+                return CodeBlock.of("$L\nresponseObserver.onNext(result);", resultStatement);
             }
         }
     }
