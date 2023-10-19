@@ -15,26 +15,13 @@
  */
 package com.squareup.javapoet;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.regex.Pattern;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Modifier;
+import java.io.IOException;
+import java.util.*;
+import java.util.regex.Pattern;
 
-import static com.squareup.javapoet.Util.checkArgument;
-import static com.squareup.javapoet.Util.checkNotNull;
-import static com.squareup.javapoet.Util.checkState;
-import static com.squareup.javapoet.Util.stringLiteralWithDoubleQuotes;
+import static com.squareup.javapoet.Util.*;
 import static java.lang.String.join;
 
 /**
@@ -294,11 +281,11 @@ final class CodeWriter {
           break;
 
         case "$W":
-          out.wrappingSpace(indentLevel + 2);
+          out.wrappingSpace(indentLevel);
           break;
 
         case "$Z":
-          out.zeroWidthSpace(indentLevel + 2);
+          out.zeroWidthSpace(indentLevel);
           break;
 
         default:
@@ -325,7 +312,7 @@ final class CodeWriter {
   }
 
   public CodeWriter emitWrappingSpace() throws IOException {
-    out.wrappingSpace(indentLevel + 2);
+    out.wrappingSpace(indentLevel);
     return this;
   }
 
@@ -480,12 +467,14 @@ final class CodeWriter {
         }
         out.append("\n");
         trailingNewline = true;
+        /*
+        Disabled by @Duzhinsky
         if (statementLine != -1) {
           if (statementLine == 0) {
             indent(2); // Begin multiple-line statement. Increase the indentation level.
           }
           statementLine++;
-        }
+        }*/
       }
 
       first = false;
