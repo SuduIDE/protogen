@@ -1,6 +1,7 @@
 package org.sudu.protogen.generator.server;
 
 import com.squareup.javapoet.*;
+import one.util.streamex.StreamEx;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sudu.protogen.descriptors.Method;
@@ -14,6 +15,7 @@ import protogen.Options;
 
 import javax.lang.model.element.Modifier;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * Overrides default stub method to pass request and response as domain objects or list of fields
@@ -60,56 +62,69 @@ public class OverriddenServiceMethodGenerator {
 
     @NotNull
     private CodeBlock generateBody() {
-        return CodeBlock.of("""
-                        $L
-                        responseObserver.onCompleted();
-                        """,
-                generateAbstractMethodCall()
-        );
+        return CodeBlock.builder()
+                .add(generateExternalMethodCall())
+                .addStatement("responseObserver.onCompleted()")
+                .build();
     }
 
-    private CodeBlock generateAbstractMethodCall() {
-        CodeBlock requestCallParams = requestCallParams();
+    private CodeBlock generateExternalMethodCall() {
         if (method.isOutputStreaming()) {
-            if (!requestCallParams.equals(CodeBlock.of("")))
-                requestCallParams = requestCallParams.toBuilder().add(",$W").build();
-            return CodeBlock.of("$N($L(value) -> responseObserver.onNext($L));",
-                    abstractMethodSpec,
-                    requestCallParams,
-                    responseTypeModel().toGrpcTransformer(CodeBlock.of("value"))
-            );
+            return generateStreamingMethodCall();
+        } else if (responseType != null && responseType.getTypeName() == TypeName.VOID) {
+            return generateVoidReturningMethodCall();
         } else {
-            CodeBlock methodCall = CodeBlock.of("$N($L)", abstractMethodSpec, requestCallParams);
-            if (responseType != null && responseType.getTypeName() == TypeName.VOID) {
-                return CodeBlock.of("$L;\nresponseObserver.onNext($L);",
-                        methodCall, responseTypeModel().toGrpcTransformer(methodCall));
-            } else {
-                CodeBlock resultStatement = CodeBlock.of("var result = $L;", responseTypeModel().toGrpcTransformer(methodCall));
-                if (method.ifNotFoundBehavior() == Options.IfNotFound.NULLIFY) {
-                    resultStatement = resultStatement.toBuilder()
-                            .add("\nif (result == null) {\n$>throw $T.NOT_FOUND.withDescription(\"Method returned null\").asRuntimeException();$<\n}",
-                                    ClassName.get("io.grpc", "Status"))
-                            .build();
-                }
-                return CodeBlock.of("$L\nresponseObserver.onNext(result);", resultStatement);
-            }
+            return generateCommonMethodCall();
         }
     }
 
-    private CodeBlock requestCallParams() {
+    @NotNull
+    private CodeBlock generateStreamingMethodCall() {
+        Stream<CodeBlock> requestCallParams = StreamEx.of(generateRequestCallParams()).append(
+                CodeBlock.of("(value) -> responseObserver.onNext($L)", responseTypeModel().toGrpcTransformer(CodeBlock.of("value")))
+        );
+        return CodeBlock.of("$N($L);\n", abstractMethodSpec, requestCallParams.collect(Poem.joinCodeBlocks(",$W")));
+    }
+
+    @NotNull
+    private CodeBlock generateVoidReturningMethodCall() {
+        CodeBlock methodCall = CodeBlock.of("$N($L)", abstractMethodSpec, generateRequestCallParams().collect(Poem.joinCodeBlocks(",$W")));
+        return CodeBlock.builder()
+                .addStatement(methodCall)
+                .addStatement("responseObserver.onNext($L)", responseTypeModel().toGrpcTransformer(methodCall))
+                .build();
+    }
+
+    @NotNull
+    private CodeBlock generateCommonMethodCall() {
+        CodeBlock methodCall = CodeBlock.of("$N($L)", abstractMethodSpec, generateRequestCallParams().collect(Poem.joinCodeBlocks(",$W")));
+        CodeBlock nullCheck = CodeBlock.of("""
+                        if (result == null) {
+                        $>throw $T.NOT_FOUND.withDescription("Method returned null").asRuntimeException();$<
+                        }
+                        """,
+                ClassName.get("io.grpc", "Status")
+        );
+        return CodeBlock.builder()
+                .addStatement("var result = $L", responseTypeModel().toGrpcTransformer(methodCall))
+                .addIf(method.ifNotFoundBehavior() == Options.IfNotFound.NULLIFY, nullCheck)
+                .addStatement("responseObserver.onNext(result)")
+                .build();
+    }
+
+    private Stream<CodeBlock> generateRequestCallParams() {
         if (requestType == null || method.doUnfoldRequest()) {
-            List<CodeBlock> unfoldedRequestFields = method.getInputType().getFields().stream()
+            return method.getInputType().getFields().stream()
                     .map(field -> context.generatorsHolder().generate(field))
                     .filter(FieldProcessingResult::isNonVoid)
                     .map(f -> new FieldTransformerGenerator(f.type(), f.original().getName(), f.isNullable())
                             .fromGrpc("request")
-                    ).toList();
-            return CodeBlock.of("$L", Poem.separatedSequence(unfoldedRequestFields, ",$W"));
+                    );
         }
         if (requestType.getTypeName() == TypeName.VOID) {
-            return CodeBlock.of("");
+            return Stream.of();
         }
-        return requestType.fromGrpcTransformer(CodeBlock.of("request"));
+        return Stream.of(requestType.fromGrpcTransformer(CodeBlock.of("request")));
     }
 
     private List<ParameterSpec> generateMethodParameters() {
