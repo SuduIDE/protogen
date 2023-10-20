@@ -15,6 +15,8 @@
  */
 package com.squareup.javapoet;
 
+import javax.lang.model.element.Element;
+import javax.lang.model.type.TypeMirror;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -24,8 +26,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collector;
 import java.util.stream.StreamSupport;
-import javax.lang.model.element.Element;
-import javax.lang.model.type.TypeMirror;
 
 import static com.squareup.javapoet.Util.checkArgument;
 
@@ -224,6 +224,13 @@ public final class CodeBlock {
       return this;
     }
 
+    public Builder addIf(boolean condition, String format, Object... args) {
+      if (condition) {
+        return add(format, args);
+      }
+      return this;
+    }
+
     /**
      * Add code with positional or relative arguments.
      *
@@ -397,6 +404,13 @@ public final class CodeBlock {
       return this;
     }
 
+    public Builder addStatementIf(boolean condition, String format, Object... args) {
+      if (condition) {
+        return addStatement(format, args);
+      }
+      return this;
+    }
+
     public Builder addStatement(String format, Object... args) {
       add("$[");
       add(format, args);
@@ -404,8 +418,22 @@ public final class CodeBlock {
       return this;
     }
 
+    public Builder addStatementIf(boolean condition, CodeBlock codeBlock) {
+      if (condition) {
+        return addStatement(codeBlock);
+      }
+      return this;
+    }
+
     public Builder addStatement(CodeBlock codeBlock) {
       return addStatement("$L", codeBlock);
+    }
+
+    public Builder addIf(boolean condition, CodeBlock codeBlock) {
+      if (condition) {
+        return add(codeBlock);
+      }
+      return this;
     }
 
     public Builder add(CodeBlock codeBlock) {
