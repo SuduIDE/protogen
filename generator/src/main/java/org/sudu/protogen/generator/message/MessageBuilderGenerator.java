@@ -65,6 +65,7 @@ public class MessageBuilderGenerator implements DescriptorGenerator<Message, Typ
         return MethodSpec.methodBuilder("set" + Name.toCamelCase(fieldSpec.name))
                 .addModifiers(Modifier.PUBLIC)
                 .returns(ClassName.get("",builderName))
+                .addParameter(Poem.fieldToParameter(fieldSpec))
                 .addStatement("this.$N = $N", fieldSpec, fieldSpec)
                 .addStatement("return this")
                 .build();
