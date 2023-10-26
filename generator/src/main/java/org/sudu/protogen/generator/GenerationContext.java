@@ -9,6 +9,7 @@ import org.sudu.protogen.generator.enumeration.EnumGenerator;
 import org.sudu.protogen.generator.field.FieldGenerator;
 import org.sudu.protogen.generator.field.FieldProcessingResult;
 import org.sudu.protogen.generator.field.processors.*;
+import org.sudu.protogen.generator.message.MessageBuilderGenerator;
 import org.sudu.protogen.generator.message.MessageGenerator;
 import org.sudu.protogen.generator.server.ServiceGenerator;
 import org.sudu.protogen.generator.type.TypeModel;
@@ -78,6 +79,7 @@ public final class GenerationContext {
 
         private final DescriptorGenerator<Field, FieldProcessingResult> fieldGenerator = new FieldGenerator(GenerationContext.this).withCache();
         private final DescriptorGenerator<Message, TypeSpec> messageGenerator = new MessageGenerator(GenerationContext.this).withCache();
+        private final DescriptorGenerator<Message, TypeSpec> messageBuilderGenerator = new MessageBuilderGenerator(GenerationContext.this).withCache();
         private final DescriptorGenerator<Enum, TypeSpec> enumGenerator = new EnumGenerator(GenerationContext.this).withCache();
         private final DescriptorGenerator<Service, TypeSpec> clientGenerator = new ClientGenerator(GenerationContext.this).withCache();
         private final DescriptorGenerator<Service, TypeSpec> serviceGenerator = new ServiceGenerator(GenerationContext.this).withCache();
@@ -92,6 +94,10 @@ public final class GenerationContext {
 
         public TypeSpec generate(Message message) {
             return messageGenerator.generate(message);
+        }
+
+        public TypeSpec generateBuilder(Message message) {
+            return messageBuilderGenerator.generate(message);
         }
 
         public TypeSpec generate(EnumOrMessage enumOrMessage) {

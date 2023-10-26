@@ -70,4 +70,5 @@ message GrpcWithOneofs {
     int32 a = 2;
     int32 b= 3;
   }
+  option (.protogen.builder_for_nullable) = false;
 }

@@ -77,6 +77,7 @@ extend google.protobuf.MessageOptions {
    */
   string message_comparator = 5105;
   string topic = 5016;
+  bool builder_for_nullable = 5017;
 }
 
 extend google.protobuf.EnumOptions {

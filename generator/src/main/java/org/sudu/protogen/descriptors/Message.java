@@ -85,6 +85,11 @@ public class Message extends EnumOrMessage implements Descriptor {
         return super.doGenerate();
     }
 
+    public boolean generateBuilderOption() {
+        return Options.wrapExtension(messageDescriptor.getOptions(), protogen.Options.builderForNullable)
+                .orElse(true);
+    }
+
     public List<OneOf> getOneofs() {
         return messageDescriptor.getOneofs().stream()
                 .map(o -> new OneOf(o, this))

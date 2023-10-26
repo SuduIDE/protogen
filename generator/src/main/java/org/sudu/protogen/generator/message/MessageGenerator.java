@@ -6,12 +6,15 @@ import org.sudu.protogen.descriptors.EnumOrMessage;
 import org.sudu.protogen.descriptors.Message;
 import org.sudu.protogen.generator.DescriptorGenerator;
 import org.sudu.protogen.generator.GenerationContext;
+import org.sudu.protogen.generator.field.FieldGenerationHelper;
 import org.sudu.protogen.generator.field.FieldProcessingResult;
 import org.sudu.protogen.utils.Name;
 import org.sudu.protogen.utils.Poem;
 
 import javax.lang.model.element.Modifier;
 import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class MessageGenerator implements DescriptorGenerator<Message, TypeSpec> {
 
@@ -35,12 +38,45 @@ public class MessageGenerator implements DescriptorGenerator<Message, TypeSpec> 
         addTopicField(msgDescriptor, typeBuilder);
         addTransformingMethods(msgDescriptor, processedFields, typeBuilder);
         addOneofs(msgDescriptor, typeBuilder);
+        addBuilderIfNecessary(msgDescriptor, typeBuilder);
 
         return typeBuilder
                 .multiLineRecord(true)
                 .addModifiers(Modifier.PUBLIC)
                 .addTypes(generateNested(msgDescriptor))
                 .build();
+    }
+
+    private void addBuilderIfNecessary(Message msgDescriptor, TypeSpec.Builder typeBuilder) {
+        if (!msgDescriptor.generateBuilderOption()) return;
+        List<FieldProcessingResult> processedFields = FieldGenerationHelper.processAllFields(msgDescriptor, generationContext).toList();
+        if (processedFields.stream().anyMatch(FieldProcessingResult::isNullable)) {
+            typeBuilder.addType(generationContext.generatorsHolder().generateBuilder(msgDescriptor));
+            List<FieldSpec> notNullFields = processedFields.stream().filter(Predicate.not(FieldProcessingResult::isNullable)).map(FieldProcessingResult::field).toList();
+            ClassName domainTypeName = msgDescriptor.getDomainTypeName(generationContext.configuration().namingManager());
+            ClassName builderType = ClassName.get(domainTypeName.canonicalName(), domainTypeName.simpleName() + "Builder");
+            typeBuilder.addMethod(MethodSpec.methodBuilder("builder")
+                    .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                    .addAnnotation(NotNull.class)
+                    .returns(builderType)
+                    .addParameters(notNullFields.stream().map(Poem::fieldToParameter).toList())
+                    .addStatement("return new $T($L)",
+                            builderType,
+                            Poem.separatedSequence(notNullFields.stream().map(f -> CodeBlock.of("$N", f)).toList(), ",")
+                    )
+                    .build()
+            );
+            String constructorParams = processedFields.stream()
+                    .map(f -> f.isNullable() ? "null" : f.field().name)
+                    .collect(Collectors.joining(", "));
+            typeBuilder.addMethod(
+                    MethodSpec.constructorBuilder()
+                            .addModifiers(Modifier.PUBLIC)
+                            .addParameters(notNullFields.stream().map(Poem::fieldToParameter).toList())
+                            .addStatement("this($L)", constructorParams)
+                            .build()
+            );
+        }
     }
 
     private void addOneofs(Message msgDescriptor, TypeSpec.Builder typeBuilder) {
@@ -56,10 +92,10 @@ public class MessageGenerator implements DescriptorGenerator<Message, TypeSpec> 
                     .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                     .addParameter(ParameterSpec.builder(oneOf.getProtobufTypeName(), "proto").build())
                     .addStatement("""
-                            return switch(proto) {$>
-                            $L
-                            case $L -> NOT_SET;
-                            $<}""",
+                                    return switch(proto) {$>
+                                    $L
+                                    case $L -> NOT_SET;
+                                    $<}""",
                             oneOf.getFieldsCases().stream()
                                     .map(c -> CodeBlock.of("case $L -> $L;", c, c))
                                     .collect(Poem.joinCodeBlocks("\n")),
