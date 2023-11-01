@@ -60,7 +60,7 @@ message GrpcRepeatedTypes {
 }
 
 message GrpcSomeEvent {
-  repeated string ids = 1;
+  repeated string ids = 1 [(.protogen.repeated_container) = SET];
   option (.protogen.topic) = "SOME_TOPIC";
 }
 

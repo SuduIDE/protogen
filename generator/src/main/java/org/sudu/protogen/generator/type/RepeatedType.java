@@ -34,7 +34,7 @@ public class RepeatedType extends TypeModel {
 
     @Override
     public CodeBlock toGrpcTransformer(CodeBlock expr, Set<String> usedDefinitions) {
-        if (!(elementModel instanceof PrimitiveTypeModel)) {
+        if (!(elementModel instanceof PrimitiveTypeModel && repeatedType == RepeatedContainer.LIST)) {
             String nextDefinition = nextDefinition(usedDefinitions);
             CodeBlock lambdaParameter = CodeBlock.of(nextDefinition);
             Set<String> newDefinitions = new HashSet<>(usedDefinitions) {{ add(nextDefinition); }};
@@ -50,7 +50,7 @@ public class RepeatedType extends TypeModel {
     @Override
     public CodeBlock fromGrpcTransformer(CodeBlock expr, Set<String> usedDefinitions) {
         expr = repeatedType.convertListToInstance(expr);
-        if (!(elementModel instanceof PrimitiveTypeModel)) {
+        if (!(elementModel instanceof PrimitiveTypeModel && repeatedType == RepeatedContainer.LIST)) {
             String nextDefinition = nextDefinition(usedDefinitions);
             CodeBlock lambdaParameter = CodeBlock.of(nextDefinition);
             Set<String> newDefinitions = new HashSet<>(usedDefinitions) {{ add(nextDefinition); }};
