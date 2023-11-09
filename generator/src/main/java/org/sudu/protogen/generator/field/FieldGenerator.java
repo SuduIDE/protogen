@@ -28,7 +28,7 @@ public class FieldGenerator implements DescriptorGenerator<Field, FieldProcessin
 
         boolean isNullable = field.isNullable();
 
-        if (!type.getTypeName().isPrimitive()) {
+        if (!type.isPrimitiveOrVoid()) {
             if (field.getContainingMessage().getContainingFile().doUseNullabilityAnnotation(isNullable)) {
                 Poem.attachNullabilityAnnotations(fieldSpecBuilder, context, isNullable);
             }

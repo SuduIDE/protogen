@@ -51,4 +51,13 @@ public class TypeModel {
         }
         throw new IllegalStateException("Failed to define a new variable!");
     }
+
+    public boolean isPrimitiveOrVoid() {
+        return isPrimitiveOrVoid(this);
+    }
+
+    public static boolean isPrimitiveOrVoid(TypeModel typeModel) {
+        return typeModel.typeName.isPrimitive() || typeModel.typeName.equals(TypeName.VOID);
+    }
+
 }

@@ -39,12 +39,14 @@ public class ApiMethodGeneratorBase {
                 .addModifiers(method.getAccessModifier())
                 .returns(returnType.getTypeName())
                 .addParameters(params)
-                .addCode(body(params))
-                .addAnnotation(
-                        method.ifNotFoundBehavior() == Options.IfNotFound.NULLIFY
-                                ? context.configuration().nullableAnnotationClass()
-                                : context.configuration().nonnullAnnotationClass()
-                );
+                .addCode(body(params));
+        if (!returnType.isPrimitiveOrVoid()) {
+            builder.addAnnotation(
+                    method.ifNotFoundBehavior() == Options.IfNotFound.NULLIFY
+                            ? context.configuration().nullableAnnotationClass()
+                            : context.configuration().nonnullAnnotationClass()
+            );
+        }
         switch (method.ifNotFoundBehavior()) {
             case NULLIFY -> builder.addAnnotation(NullifyIfNotFound.class);
             case EMPTY -> builder.addAnnotation(EmptyIfNotFound.class);

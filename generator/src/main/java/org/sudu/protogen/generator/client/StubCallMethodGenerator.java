@@ -9,6 +9,7 @@ import org.sudu.protogen.generator.GenerationContext;
 import org.sudu.protogen.generator.type.RepeatedType;
 import org.sudu.protogen.generator.type.TypeModel;
 import org.sudu.protogen.generator.type.UnfoldedType;
+import protogen.Options;
 
 import javax.lang.model.element.Modifier;
 import java.util.List;
@@ -35,17 +36,20 @@ public class StubCallMethodGenerator {
     }
 
     public MethodSpec generate() {
-        return MethodSpec.methodBuilder(method.generatedName() + "StubCall")
+        MethodSpec.Builder builder = MethodSpec.methodBuilder(method.generatedName() + "StubCall")
                 .addModifiers(Modifier.PRIVATE)
                 .addParameters(parameters())
                 .addCode(new BodyGenerator().get())
-                .returns(returnType.getTypeName())
-                .addAnnotation(
-                        method.ifNotFoundBehavior() == NULLIFY
-                                ? context.configuration().nullableAnnotationClass()
-                                : context.configuration().nonnullAnnotationClass()
-                )
-                .build();
+                .returns(returnType.getTypeName());
+
+        if (!returnType.isPrimitiveOrVoid()) {
+            builder.addAnnotation(
+                    method.ifNotFoundBehavior() == Options.IfNotFound.NULLIFY
+                            ? context.configuration().nullableAnnotationClass()
+                            : context.configuration().nonnullAnnotationClass()
+            );
+        }
+        return builder.build();
     }
 
     private class BodyGenerator implements Supplier<CodeBlock> {
