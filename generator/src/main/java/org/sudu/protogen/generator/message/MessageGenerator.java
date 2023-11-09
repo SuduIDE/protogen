@@ -41,7 +41,6 @@ public class MessageGenerator implements DescriptorGenerator<Message, TypeSpec> 
         addBuilderIfNecessary(msgDescriptor, typeBuilder);
 
         return typeBuilder
-                .multiLineRecord(true)
                 .addModifiers(Modifier.PUBLIC)
                 .addTypes(generateNested(msgDescriptor))
                 .build();

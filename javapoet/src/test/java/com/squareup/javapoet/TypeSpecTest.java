@@ -17,30 +17,22 @@ package com.squareup.javapoet;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.testing.compile.CompilationRule;
-import java.io.File;
-import java.io.IOException;
-import java.io.Serializable;
-import java.math.BigDecimal;
-import java.util.AbstractSet;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.EventListener;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Random;
-import java.util.concurrent.Callable;
-import javax.lang.model.element.Element;
-import javax.lang.model.element.Modifier;
-import javax.lang.model.element.TypeElement;
-import javax.lang.model.type.TypeMirror;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 import org.mockito.Mockito;
+
+import javax.lang.model.element.Element;
+import javax.lang.model.element.Modifier;
+import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.TypeMirror;
+import java.io.File;
+import java.io.IOException;
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.*;
+import java.util.concurrent.Callable;
 
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertEquals;
@@ -1334,37 +1326,6 @@ public final class TypeSpecTest {
         + "  void refold(Locale locale) {\n"
         + "  }\n"
         + "}\n");
-  }
-
-  @Test
-  public void multiLineRecordTest()  {
-    TypeSpec inlineTaco = TypeSpec.recordBuilder("Taco")
-              .addRecordComponent(ParameterSpec.builder(ClassName.get(String.class), "shell").build())
-              .addRecordComponent(ParameterSpec.builder(TypeName.INT, "weight").build())
-              .build();
-    assertThat(toString(inlineTaco)).isEqualTo("" +
-            "package com.squareup.tacos;\n" +
-            "\n" +
-            "import java.lang.String;\n" +
-            "\n" +
-            "record Taco(String shell, int weight) {\n" +
-            "}\n"
-    );
-    TypeSpec multilineTaco = TypeSpec.recordBuilder("Taco", true)
-              .addRecordComponent(ParameterSpec.builder(ClassName.get(String.class), "shell").build())
-              .addRecordComponent(ParameterSpec.builder(TypeName.INT, "weight").build())
-              .build();
-    assertThat(toString(multilineTaco)).isEqualTo("" +
-            "package com.squareup.tacos;\n" +
-            "\n" +
-            "import java.lang.String;\n" +
-            "\n" +
-            "record Taco(\n" +
-            "  String shell,\n" +
-            "  int weight\n" +
-            ") {\n" +
-            "}\n"
-    );
   }
 
   @Test
