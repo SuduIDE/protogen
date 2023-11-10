@@ -19,12 +19,6 @@ public record RegisteredTransformer(
 
     @NotNull
     public static List<RegisteredTransformer> defaultTransformers() {
-        RegisteredTransformer emptyTransformer = new RegisteredTransformer(
-                "google.protobuf.Empty",
-                TypeName.VOID,
-                new TransformRule("$L"),
-                new TransformRule("")
-        );
         RegisteredTransformer timestampTransformer = new RegisteredTransformer(
                 "google.protobuf.Timestamp",
                 ClassName.get(Instant.class),
@@ -47,7 +41,6 @@ public record RegisteredTransformer(
                 Stream.of(
                         timestampTransformer,
                         durationTransformer,
-                        emptyTransformer,
                         byteStringTransformer
                 ),
                 Stream.of(
