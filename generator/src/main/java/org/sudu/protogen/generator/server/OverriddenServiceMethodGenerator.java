@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sudu.protogen.descriptors.Method;
 import org.sudu.protogen.generator.GenerationContext;
-import org.sudu.protogen.generator.field.FieldProcessingResult;
+import org.sudu.protogen.generator.field.FieldGenerationHelper;
 import org.sudu.protogen.generator.message.FieldTransformerGenerator;
 import org.sudu.protogen.generator.type.TypeModel;
 import org.sudu.protogen.generator.type.UnfoldedType;
@@ -45,7 +45,7 @@ public class OverriddenServiceMethodGenerator {
                 .returns(TypeName.VOID)
                 .addAnnotation(Override.class)
                 .addModifiers(Modifier.PUBLIC)
-                .addParameters(generateMethodParameters())
+                .addParameters(buildMethodParameters())
                 .addCode(generateBody())
                 .build();
     }
@@ -114,12 +114,9 @@ public class OverriddenServiceMethodGenerator {
 
     private Stream<CodeBlock> generateRequestCallParams() {
         if (requestType == null || method.doUnfoldRequest()) {
-            return method.getInputType().getFields().stream()
-                    .map(field -> context.generatorsHolder().generate(field))
-                    .filter(FieldProcessingResult::isNonVoid)
+            return FieldGenerationHelper.processAllFields(method.getInputType(), context)
                     .map(f -> new FieldTransformerGenerator(f.type(), f.original().getName(), f.isNullable())
-                            .fromGrpc("request")
-                    );
+                            .fromGrpc("request"));
         }
         if (requestType.getTypeName() == TypeName.VOID) {
             return Stream.of();
@@ -127,7 +124,7 @@ public class OverriddenServiceMethodGenerator {
         return Stream.of(requestType.fromGrpcTransformer(CodeBlock.of("request")));
     }
 
-    private List<ParameterSpec> generateMethodParameters() {
+    private List<ParameterSpec> buildMethodParameters() {
         TypeName requestType = method.getInputType().getProtobufTypeName();
         TypeName responseType = method.getOutputType().getProtobufTypeName();
         ParameterizedTypeName responseObserverType = ParameterizedTypeName.get(

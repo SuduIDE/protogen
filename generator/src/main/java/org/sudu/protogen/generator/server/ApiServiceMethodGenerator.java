@@ -5,9 +5,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.sudu.protogen.descriptors.Method;
 import org.sudu.protogen.generator.GenerationContext;
-import org.sudu.protogen.generator.field.FieldProcessingResult;
+import org.sudu.protogen.generator.field.FieldGenerationHelper;
 import org.sudu.protogen.generator.type.TypeModel;
-import org.sudu.protogen.utils.Poem;
 import protogen.Options;
 
 import javax.lang.model.element.Modifier;
@@ -19,38 +18,42 @@ public class ApiServiceMethodGenerator {
 
     private final Method method;
 
-    private final @Nullable TypeModel requestType;
+    private final @Nullable TypeModel processedRequestType;
 
-    private final @Nullable TypeModel responseType;
+    private final @Nullable TypeModel processedResponseType;
 
     public ApiServiceMethodGenerator(GenerationContext context, Method method) {
         this.context = context;
         this.method = method;
-        this.requestType = context.typeManager().processType(method.getInputType());
-        this.responseType = context.typeManager().processType(method.getOutputType());
+        this.processedRequestType = context.typeManager().processType(method.getInputType());
+        this.processedResponseType = context.typeManager().processType(method.getOutputType());
     }
 
     public MethodSpec generate() {
         MethodSpec.Builder builder = MethodSpec.methodBuilder(method.generatedName())
                 .addModifiers(Modifier.PROTECTED)
-                .addParameters(generateRequestParameters())
-                .addCode(CodeBlock.of(
-                        "throw $T.UNIMPLEMENTED.withDescription(\"Method $L is not implemented\").asRuntimeException();",
-                        ClassName.get("io.grpc", "Status"),
-                        method.getName()
-                ));
+                .addParameters(generateRequestParameters());
+        throwUnimplemented(builder);
         specifyResponseWay(builder);
         return builder.build();
     }
 
+    private void throwUnimplemented(MethodSpec.Builder builder) {
+        builder.addCode(CodeBlock.of(
+                "throw $T.UNIMPLEMENTED.withDescription(\"Method $L is not implemented\").asRuntimeException();",
+                ClassName.get("io.grpc", "Status"),
+                method.getName()
+        ));
+    }
+
     /**
-     * Either adds a return type or a {@code StreamObserver<Response> } parameter
+     * Adds either a return type or a {@code StreamObserver<Response> } parameter
      */
     private void specifyResponseWay(MethodSpec.Builder methodBuilder) {
         TypeModel returnType = responseType();
         if (method.isOutputStreaming()) {
             methodBuilder.returns(TypeName.VOID);
-            methodBuilder.addParameter(generateObserverParameter(returnType));
+            methodBuilder.addParameter(buildConsumerParameter(returnType));
         } else {
             if (!returnType.isPrimitiveOrVoid() && method.getContainingFile().doUseNullabilityAnnotation(false)) {
                 if (method.ifNotFoundBehavior() == Options.IfNotFound.NULLIFY) {
@@ -65,10 +68,10 @@ public class ApiServiceMethodGenerator {
     }
 
     private TypeModel responseType() {
-        if (responseType != null) {
-            return responseType;
+        if (processedResponseType != null) {
+            return processedResponseType;
         }
-        if (method.doUnfoldResponse(responseType)) {
+        if (method.doUnfoldResponse(processedResponseType)) {
             var field = method.unfoldedResponseField();
             return context.typeManager().processType(field);
         }
@@ -76,21 +79,16 @@ public class ApiServiceMethodGenerator {
     }
 
     private Iterable<ParameterSpec> generateRequestParameters() {
-        if (requestType == null || method.doUnfoldRequest()) {
-            return method.getInputType().getFields().stream()
-                    .map(field -> context.generatorsHolder().generate(field))
-                    .filter(FieldProcessingResult::isNonVoid)
-                    .map(FieldProcessingResult::field)
-                    .map(Poem::fieldToParameter)
-                    .toList();
+        if (processedRequestType == null || method.doUnfoldRequest()) {
+            return FieldGenerationHelper.processFieldsToParameters(method.getInputType(), context);
         }
-        if (requestType.getTypeName() == TypeName.VOID) {
+        if (processedRequestType.getTypeName() == TypeName.VOID) {
             return List.of();
         }
-        return List.of(ParameterSpec.builder(requestType.getTypeName(), "request").addAnnotation(NotNull.class).build());
+        return List.of(ParameterSpec.builder(processedRequestType.getTypeName(), "request").addAnnotation(NotNull.class).build());
     }
 
-    private ParameterSpec generateObserverParameter(TypeModel responseType) {
+    private ParameterSpec buildConsumerParameter(TypeModel responseType) {
         TypeName observerType = ParameterizedTypeName.get(
                 ClassName.get("java.util.function", "Consumer"),
                 responseType.getTypeName().box()
