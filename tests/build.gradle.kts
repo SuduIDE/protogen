@@ -23,6 +23,7 @@ protobuf {
     generateProtoTasks {
         all().forEach {
             it.dependsOn(project(":generator").tasks.findByName("shadowJar"))
+            it.dependsOn(project(":generator").tasks.findByName("debuggerShadowJar"))
             it.plugins {
                 id("grpc")
                 id("protogen") {
