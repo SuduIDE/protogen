@@ -16,6 +16,9 @@ protobuf {
         id("protogen") {
             path = "${project(":generator").buildDir.absolutePath}/libs/generator-${version}-jvm.jar"
         }
+        id("protogen-debug") {
+            path = "${project(":generator").buildDir.absolutePath}/libs/generator-${version}-debugGenerator.jar"
+        }
     }
     generateProtoTasks {
         all().forEach {
@@ -27,6 +30,7 @@ protobuf {
                     // so windows-paths broke options list. To overcome it I suggest to replace it with "*"
                     option("config=$projectDir/src/test/proto/protogen/".replace(":", "*"))
                 }
+                id("protogen-debug")
             }
         }
     }

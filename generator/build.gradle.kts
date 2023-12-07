@@ -1,3 +1,5 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
 plugins {
     id("com.google.protobuf") version "0.9.1"
     `maven-publish`
@@ -67,6 +69,13 @@ publishing {
 tasks.shadowJar {
     archiveClassifier = "jvm"
     manifest.attributes["Main-Class"] = "org.sudu.protogen.Main"
+}
+
+val shadowDebugger = tasks.register<ShadowJar>("debuggerShadowJar") {
+    archiveClassifier = "debugGenerator"
+    manifest.attributes["Main-Class"] = "org.sudu.protogen.plugin.dump.DumpGenerator"
+    from(sourceSets.main.get().output)
+    configurations.add(project.configurations.runtimeClasspath.get())
 }
 
 dependencies {

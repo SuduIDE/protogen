@@ -1,0 +1,16 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Run dump" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="org.sudu.protogen.Main" />
+    <module name="protogen.generator.main" />
+    <option name="PROGRAM_PARAMETERS" value=".\tests\build\generated\source\proto\test\protogen-debug\descriptor_dump" />
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="org.sudu.protogen.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
