@@ -5,6 +5,7 @@ import com.squareup.javapoet.TypeName;
 import org.jetbrains.annotations.NotNull;
 import org.sudu.protogen.descriptors.Field;
 import org.sudu.protogen.generator.GenerationContext;
+import org.sudu.protogen.generator.type.BytesType;
 import org.sudu.protogen.generator.type.PrimitiveTypeModel;
 import org.sudu.protogen.generator.type.TypeModel;
 
@@ -23,14 +24,12 @@ public class PrimitiveFieldTypeProcessor extends FieldTypeProcessor.Chain {
             case DOUBLE -> boxIfNullable(field, TypeName.DOUBLE);
             case BOOLEAN -> boxIfNullable(field, TypeName.BOOLEAN);
             case STRING -> boxIfNullable(field, ClassName.get(String.class));
-            case BYTE_STRING -> new TypeModel(ClassName.get("com.google.protobuf", "ByteString"));
+            case BYTE_STRING -> new BytesType();
             default -> next(field);
         };
     }
 
     private TypeModel boxIfNullable(@NotNull Field field, TypeName primitive) {
-        return field.isNullable()
-                ? new TypeModel(primitive.box())
-                : new PrimitiveTypeModel(primitive);
+        return field.isNullable() ? new TypeModel(primitive.box()) : new PrimitiveTypeModel(primitive);
     }
 }

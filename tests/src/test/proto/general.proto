@@ -72,3 +72,7 @@ message GrpcWithOneofs {
   }
   option (.protogen.builder_for_nullable) = false;
 }
+
+message GrpcByteObject {
+  bytes content = 1;
+}
