@@ -121,6 +121,8 @@ Message name should follow the Sudu naming convention. i.e:
 * Message names are prefixed with Grpc
 * Request and response messages are suffixed with Request\Response
 
+Keep in mind that if a field type in the generated message is not marked for generation, a custom class must be specified for it. See the section "Using manually-written domain objects" further
+
 As `*Response*` and `*Request*` messages are not generated automatically, you need to handle them on your own.
 If there is a method returning a not-generated message with more than one field, the build fails.
 Use `(protogen.gen_message)` to configure generation. 
